@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { toWorld, toLocal } from '../world/collide.js';
 import { CFG } from '../config.js';
+import { preview } from './debug_tex.js';
 
 export function installDebug(api, game) {
   const p = game.player, world = game.world;
@@ -142,8 +143,11 @@ export function installDebug(api, game) {
       cam.far = far; cam.updateProjectionMatrix();
       return out;
     },
+    preview,
+    // Bring the next train forward (it arrives `s` seconds from now).
+    train(s = 2) { game.trains.soon(s); return game.trains.schedule(); },
     // Restart with a forced list of segment types (for tests / screenshots).
-    plan(list, seed = 7, wrong = 0) { game.reset(seed, list, wrong); return api.debug.info(); },
+    plan(list, seed = 7, wrong = 0, progress = 0) { game.reset(seed, list, wrong, progress); return api.debug.info(); },
     // Jump to the next junction and commit to its right (or wrong) branch.
     take(correct = true) {
       if (world.current.def.type !== 'junction' && !api.debug.seek('junction', 80)) return null;

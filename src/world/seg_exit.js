@@ -7,7 +7,7 @@ import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawWayOut, drawPlate } from '../tex/signs.js';
 import { clamp } from '../util/rng.js';
 
-const LAND0 = 3, LAND1 = 4.5, STEPS = 24;
+const LAND0 = 3, LAND1 = 5.2, STEPS = 24;
 
 export const exit = {
   type: 'exit',
@@ -50,8 +50,24 @@ export const exit = {
     // the open gate, folded back against both walls
     const g = atlasRect('gate');
     for (const s of [-1, 1]) {
-      const x = s * (hw - 0.06), z = p.len - LAND1 + 0.5;
+      const x = s * (hw - 0.06), z = top + 0.3;
       b.quad('cut', [x, p.rise, z], [x, p.rise, z + 0.7], [x, p.rise + 2.3, z + 0.7], [x, p.rise + 2.3, z], [-s, 0, 0], g, { emit: 0.25 });
+    }
+    // the gate line: two steel ticket gates with yellow card readers, their
+    // paddles standing open
+    const gz0 = top + 1.5, gz1 = gz0 + 1.0, gateWalls = [];
+    const steel = atlasFlat('metal'), y0 = p.rise;
+    for (const cx of [-0.5, 0.5]) {
+      b.box('atlas', cx - 0.11, y0, gz0, cx + 0.11, y0 + 0.98, gz1, steel, null, 'xXYzZ');
+      b.quad('atlas', [cx - 0.08, y0 + 0.985, gz0 + 0.08], [cx + 0.08, y0 + 0.985, gz0 + 0.08], [cx + 0.08, y0 + 0.985, gz0 + 0.26], [cx - 0.08, y0 + 0.985, gz0 + 0.26],
+        [0, 1, 0], atlasFlat('yellow'), { emit: 1.1 });                                   // the reader
+      b.quad('atlas', [cx + 0.06, y0 + 0.7, gz0 - 0.005], [cx - 0.06, y0 + 0.7, gz0 - 0.005], [cx - 0.06, y0 + 0.82, gz0 - 0.005], [cx + 0.06, y0 + 0.82, gz0 - 0.005],
+        [0, 0, -1], atlasFlat('white'), { emit: 1.7, tint: [0.15, 1, 0.3] });             // green arrow lamp
+      for (const sx of [-1, 1]) {                                                         // red paddles, folded open
+        const px = cx + sx * 0.125;
+        b.quad('atlas', [px, y0 + 0.25, gz0 + 0.5], [px, y0 + 0.25, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.5], [sx, 0, 0], atlasFlat('white'), { tint: [0.85, 0.12, 0.1] });
+      }
+      gateWalls.push([cx - 0.11, gz0, cx - 0.11, gz1], [cx + 0.11, gz0, cx + 0.11, gz1], [cx - 0.11, gz0, cx + 0.11, gz0], [cx - 0.11, gz1, cx + 0.11, gz1]);
     }
     b.addPortal(0, 0, 0, 0);
     portalLamp(b, frames[0], PASSAGE.crown);
@@ -61,8 +77,12 @@ export const exit = {
     const back = sheet.add(250, 56, (c, w, h) => drawPlate(c, w, h, 'No entry'));
     const pos = hangingSign(b, 'sheet', { x: 0, y: 0, z: LAND0 - 0.6, yaw: 0 }, 2.1, 1.7, 0.38, wo, back, { emit: 1.3 });
     const items = [{ ...pos, r: 8, cone: 0.94, label: 'read sign', title: 'SIGN', text: 'Way out ↑ (black on yellow)' }];
-    const walls = sw.walls.concat([[-hw, p.len - 0.4, hw, p.len - 0.4]]);
-    const zones = [{ x0: -hw, x1: hw, z0: p.len - LAND1 + 1.2, z1: p.len, y0: p.rise - 0.6, y1: p.rise + 0.6, fire: (game) => game.director.win() }];
+    const walls = sw.walls.concat([[-hw, p.len - 0.4, hw, p.len - 0.4]], gateWalls);
+    const lvl = { y0: p.rise - 0.6, y1: p.rise + 0.6 };
+    const zones = [
+      { x0: -hw, x1: hw, z0: gz0 + 0.2, z1: gz1, ...lvl, fire: (game) => { game.audio.sfx('touchOut'); game.director.setHint('Golders Green. The air is cold and smells of rain.', 6); } },
+      { x0: -hw, x1: hw, z0: gz1 + 0.9, z1: p.len, ...lvl, fire: (game) => game.director.win() },
+    ];
     return { cells: sw.cells, walls, items, frames, extra: { zones } };
   },
 };

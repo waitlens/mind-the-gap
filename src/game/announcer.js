@@ -3,6 +3,7 @@
 // A rising chime marks a genuine announcement; a falling one is… not staff.
 import { RNG } from '../util/rng.js';
 import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE } from './scripts.js';
+import { nextStation } from './route.js';
 
 export class Announcer {
   constructor(game) {
@@ -39,7 +40,7 @@ export class Announcer {
     if (a.chime !== 'none') g.audio.sfx(a.chime === 'fall' ? 'chimeFall' : 'chimeRise');
     this.cur = {
       text: a.text, t: 0, chimeDur, dur: chimeDur + Math.max(3.2, words * 0.43) + 0.8, spoken: false, a,
-      tag: a.chime === 'none' ? '' : a.chime === 'fall' ? '♪ chime, falling' : '♪ chime, rising',
+      tag: a.tag !== undefined ? a.tag : a.chime === 'none' ? '' : a.chime === 'fall' ? '♪ chime, falling' : '♪ chime, rising',
     };
   }
 
@@ -64,7 +65,8 @@ export class Announcer {
       const roll = this.rng.next();
       let pool = AMBIENT, odd = false;
       if (roll < Math.min(0.8, wrong * 0.22)) { pool = wrong >= 3 && this.rng.chance(0.5) ? AMBIENT_STRANGE : AMBIENT_ODD; odd = true; }
-      const text = this.rng.pick(pool).replace('{station}', g.state.station || 'this station');
+      const station = g.state.station || 'this station';
+      const text = this.rng.pick(pool).replaceAll('{station}', station).replaceAll('{next}', nextStation(station, 'north') || 'the next station');
       this.say({ text, chime: odd && this.rng.chance(0.6) ? 'fall' : 'rise', odd });
     }
   }

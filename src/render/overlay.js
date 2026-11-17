@@ -90,14 +90,23 @@ export class Overlay {
     if (this.mobile) bottom = H * (portrait ? 0.74 : 0.86);
     if (o.reading) {
       // what the camera is pointed at, as a caption card
-      c.font = `400 ${cs}px ${OSD_FONT}`;
-      const lines = wrapLines(c, o.reading.text, W * 0.8);
-      const bh = (lines.length + (o.reading.title ? 1.3 : 0.3)) * cs * 1.02 + cs * 0.5;
-      const by = Math.min(bottom - bh, H * 0.62);
-      c.fillStyle = 'rgba(0,0,0,0.62)'; c.fillRect(W * 0.07, by, W * 0.86, bh);
-      let y = by + cs * 1.0;
-      if (o.reading.title) { this.text(o.reading.title, W / 2, y, cs * 0.82, 'center', '#ffd329'); y += cs * 1.1; }
-      for (const ln of lines) { this.text(ln, W / 2, y, cs, 'center'); y += cs * 1.02; }
+      // Long texts (line diagrams) are set smaller and sit at the bottom, so
+      // the thing being read stays visible above the card.
+      const long = o.reading.text.length > 170;
+      let rs = long ? cs * 0.74 : cs, lines;
+      for (let k = 0; k < 6; k++) {
+        c.font = `400 ${rs}px ${OSD_FONT}`;
+        lines = wrapLines(c, o.reading.text, W * (long ? 0.9 : 0.8));
+        if ((lines.length + 1.6) * rs * 1.02 < H * (portrait ? 0.42 : 0.46)) break;
+        rs *= 0.9;
+      }
+      const bh = (lines.length + (o.reading.title ? 1.3 : 0.3)) * rs * 1.02 + rs * 0.5;
+      const by = long ? bottom - bh + (this.mobile ? 0 : fs * 1.1) : Math.min(bottom - bh, H * 0.62);
+      const bx = long ? W * 0.03 : W * 0.07;
+      c.fillStyle = `rgba(0,0,0,${long ? 0.72 : 0.62})`; c.fillRect(bx, by, W - bx * 2, bh);
+      let y = by + rs * 1.0;
+      if (o.reading.title) { this.text(o.reading.title, W / 2, y, rs * 0.82, 'center', '#ffd329'); y += rs * 1.1; }
+      for (const ln of lines) { this.text(ln, long ? bx + rs * 0.6 : W / 2, y, rs, long ? 'left' : 'center'); y += rs * 1.02; }
       bottom = by - cs * 0.4;
     } else if (o.prompt) {
       this.text(o.prompt, W / 2, H * 0.5 + 34 * u, cs * 0.9, 'center', '#ffd329');

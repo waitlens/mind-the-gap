@@ -4,10 +4,10 @@ import { tileTexture } from '../tex/tiles.js';
 import { atlasTexture } from '../tex/atlas.js';
 import { Sheet } from '../tex/sheet.js';
 import { dynamicTexture, drawDynamic } from '../tex/dynamic.js';
-import { THEMES } from '../config.js';
+import { themeOf } from './line.js';
 
 export function worldTextures(layer, node) {
-  const theme = node.env.theme || THEMES[0];
+  const theme = node.env.theme || themeOf('Mornington Crescent');
   if (layer === 'tile') return tileTexture(theme, 'passage');
   if (layer === 'ptile') return tileTexture(theme, 'platform');
   if (layer === 'dyn') return dynamicTexture();

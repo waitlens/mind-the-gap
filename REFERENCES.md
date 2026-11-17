@@ -185,3 +185,92 @@ article.
 - Where's my Tube? (dot-matrix indicators) — https://www.railengineer.co.uk/wheres-my-tube/
 - Next generation next train indicator — https://diamondgeezer.blogspot.com/2013/08/next-generation-next-train-indicator.html
 - A lesson in poster sizes — https://vintageposterblog.com/2010/02/19/a-lesson-in-poster-sizes-from-tom-eckersley/
+
+## Reference photos, round 2 (the real network)
+
+From this round the game uses the **real** Underground — Northern line, real
+station names, real roundel — at the player's explicit request (see
+`LONDON.md`). The sections above that describe an altered symbol and invented
+names are history. Still true: no photograph, logo file or proprietary font is
+shipped; everything is drawn at runtime. The photos below were downloaded to
+`refs/` (git-ignored) only to be looked at and measured.
+
+| Photo (Wikimedia Commons) | Author, licence | Used for |
+|---|---|---|
+| [Mornington Crescent Station Southbound Platform](https://commons.wikimedia.org/wiki/File:Mornington_Crescent_Station_Southbound_Platform.jpg) | London Less Travelled, CC BY 2.0 | whole-platform composition |
+| [Chalk Farm tube station platform](https://commons.wikimedia.org/wiki/File:Chalk_Farm_tube_station_platform.jpg) | Quintin Soloviev, CC BY 4.0 | ox-blood tiling, roundel panels, indicator, 1995 Stock |
+| [Camden northernline sbound](https://commons.wikimedia.org/wiki/File:Camden_northernline_sbound.jpg) | My name is not dave, CC BY-SA 4.0 | track-side line diagram and small roundels |
+| [Platform 2 map at Kennington](https://commons.wikimedia.org/wiki/File:Platform_2_map_at_Kennington_tube_station_2024-09-06.jpg) | bob walker, CC BY-SA 2.0 | line diagram header, panel and roundel sizes |
+| [Elephant & Castle northbound Northern Line map](https://commons.wikimedia.org/wiki/File:Elephant_%26_Castle_tube_station_-_northbound_Northern_Line_map_2005-11-27.jpg) | Chris McKenna (Thryduulf), CC BY-SA 4.0 | older enamel diagram: branches, "THIS STATION" |
+| [Camden Town tube station MMB 01](https://commons.wikimedia.org/wiki/File:Camden_Town_tube_station_MMB_01.jpg) | mattbuck, CC BY-SA 3.0 | roundel proportions, frieze, Camden's blue bands |
+| [CAMDEN TOWN 261008 CPS](https://commons.wikimedia.org/wiki/File:CAMDEN_TOWN_261008_CPS_(3998879054).jpg) | Chris Sampson, CC BY 2.0 | train front, indicator wording |
+| [Kentish Town station MMB 01 1995-stock](https://commons.wikimedia.org/wiki/File:Kentish_Town_station_MMB_01_1995-stock.jpg) | mattbuck, CC BY-SA 3.0 | train side livery |
+| [Belsize Park platform tiling](https://commons.wikimedia.org/wiki/File:Belsize_Park_tube_station_platform_tiling.jpg) | Rcsprinter123, CC BY 3.0 | tiled station name, frieze |
+| [Hampstead station tiling](https://commons.wikimedia.org/wiki/File:Hampstead_station_tiling.JPG), [roundel](https://commons.wikimedia.org/wiki/File:Hampstead_station_roundel.JPG) | Sunil060902, CC BY-SA 3.0 | "HEATH STREET" tiles, roundel panel |
+| [Euston Northern Charing X branch northbound](https://commons.wikimedia.org/wiki/File:Euston_tube_stn_Northern_Charing_X_branch_northbound.JPG) | Sunil060902, CC BY-SA 3.0 | platform edge, adverts, tunnel mouth |
+| [WoodGreen roundel and Way Out](https://commons.wikimedia.org/wiki/File:WoodGreen_-_Roundel_and_Way_Out_on_eastbound_platform_after_(4570665885).jpg) | Tom Page, CC BY-SA 2.0 | heritage bullseye and "WAY OUT" enamel |
+
+### What was measured / observed
+
+**Roundel** (Hampstead, Camden Town). Taking the ring's outer radius as R:
+inner radius ≈ 0.63 R; bar ≈ 2.52 R long and ≈ 0.56 R high, so it overhangs
+the ring by ≈ 0.26 R each side; white capitals ≈ 0.55 of the bar height, well
+letter-spaced. Red ≈ `#dc241f`, blue ≈ `#0019a8`. Platform-wall boards are
+either a white enamel panel in a grey frame (≈ 1.2 m wide × 1.5 m, roundel
+almost filling the width) or a silhouette roundel fixed straight to the tiles
+(ring ≈ 1.25 m across, centre ≈ 1.5 m above the platform). Track-side
+roundels are small white square panels ≈ 0.7 m in a grey frame, centre
+≈ 1.9 m above platform level, one each side of the line diagram and between
+the advert panels.
+
+**Line diagram** (Camden Town, Kennington). A white panel in a grey frame,
+≈ 1.5 m wide × 2.4 m tall, following the curve of the track-side wall, its
+foot on the black dado. Header top-left: "Northern line" (regular, small)
+over "Southbound platform 2" (bold, about 1.5× larger), then a thin rule.
+Below, a *vertical* diagram: a black line ≈ 6 mm at this scale; a short tick
+towards the label for an ordinary station; a white circle with a black
+outline for an interchange; this station's name in white on a dark-blue box
+at the top; names in mixed case, dark blue-black; small line-colour bars and
+the red National Rail double arrow beside interchange names. Southbound from
+Camden Town the line forks into the Charing Cross branch (left column,
+labels on the left) and the Bank branch (right column, labels on the right),
+rejoins at Kennington and runs on to Morden. The older enamel version
+(Elephant & Castle) is all capitals with a black "NORTHERN LINE" box and a
+black "THIS STATION" arrow.
+
+**Platform wall** (Mornington Crescent, Chalk Farm, Belsize Park,
+Hampstead). Cream glazed tiles ≈ 9 × 3 in, stretcher bond. A dark dado of the
+station colour to ≈ 0.9–1.0 m; two one-tile bands at ≈ 1.2 and ≈ 1.45 m; the
+station name fired into the tiles in dark serif capitals ≈ 0.4–0.45 m high
+with centred dots between the words (`· MORNINGTON · CRESCENT ·`,
+`BELSIZE : PARK`), its baseline ≈ 1.75 m. Hampstead's tiles read
+`· HEATH · STREET ·`, the name the station was built under. Above the tiles,
+at ≈ 2.45–2.75 m, a continuous white frieze: the name in blue capitals every
+≈ 3 m and a small "Way out →" plate — **yellow lettering on black** — between
+them. Tile rings of the station colour cross the vault in pairs every
+≈ 3–4 m; the vault between them is plain cream render. Colours: Mornington
+Crescent navy; Camden Town pale blue; Chalk Farm ox-blood; Belsize Park
+maroon; Hampstead maroon with dusty-pink rings.
+
+**Track-side wall.** Not tiled: cream render above, black below ≈ 1.1 m
+(above platform level), cable runs along the black. Advert panels ≈ 3 m tall
+in grey frames, curved with the wall, nearly edge to edge.
+
+**Fittings.** Fluorescent battens end to end on a tray over the platform
+(≈ 1.2 m tubes, ≈ 0.3 m gaps). Dot-matrix indicator: black box hung at
+≈ 2.6 m, amber text, `1 Kennington via Charing Cross  5 mins` /
+`2 Morden via Bank  11 mins` / the time centred below. Dark timber slat
+benches on black frames, or grey perforated steel seats with yellow ends.
+
+**Platform edge** (Chalk Farm, Kentish Town, Camden Town). From the edge
+inwards: white line ≈ 0.1 m; dark strip with `MIND THE GAP` in white capitals
+at intervals; buff or yellow blister paving ≈ 0.4 m; yellow line ≈ 0.1 m.
+
+**Train** (1995 Stock). Cab front red with a black window band and an amber
+destination blind; sides white above, blue skirt below, red doors, grey roof;
+the roundel on the side between the windows.
+
+**Way out signs.** Both colourways are genuine on the network: yellow
+lettering on black (frieze plates) and black on yellow (illuminated signs);
+always "Way out", sentence case, with one arrow. Heritage enamel: white
+"WAY OUT" on blue with a feathered arrow (Wood Green).

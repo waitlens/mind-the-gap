@@ -13,10 +13,16 @@ export const platform = {
     const start = !!(env.stretch && env.stretch.first && env.idx === 0);
     const L = start ? 30 : rng.pick([30, 36, 36, 42]);
     const side = rng.sign();
+    // Which platform this is. A second platform in the same stretch (reached
+    // by a cross-passage) is the one for the other direction.
+    const st = env.stretch;
+    const earlier = st ? st.plan.slice(0, env.idx).filter((t) => t === 'platform').length : 0;
+    const base = (st && st.dir) || 'north';
+    const dir = earlier % 2 ? (base === 'north' ? 'south' : 'north') : base;
     const xa = PF.back - 0.4, xb = PF.cx + PF.R + 0.4;
     return {
       p: {
-        L, side, start,
+        L, side, start, dir,
         dark: !start && rng.chance(0.04 + 0.04 * (env.wrong || 0)),
         faulty: rng.chance(0.3 + 0.1 * (env.wrong || 0)) ? rng.int(0, 6) : -1,
         figure: !start && (env.wrong || 0) >= 1 && rng.chance(0.25 + 0.1 * (env.wrong || 0)),

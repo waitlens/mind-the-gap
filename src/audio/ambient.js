@@ -67,7 +67,7 @@ export class Ambient {
     this.hum.gain.setTargetAtTime(0.05 * power * dark * (1 - wrong * 0.03), now, tc);
     this.buzz.gain.setTargetAtTime(0.004 + (flick < 0.5 ? 0.0 : 0.006) * power + (1 - power) * 0.01, now, 0.02);
     // rumble: always a little, much more while a train passes
-    const train = ev.trainT > 0 ? Math.sin(clamp((9 - ev.trainT) / 9, 0, 1) * Math.PI) : 0;
+    const train = game.trains ? game.trains.level : 0;
     this.rumble.gain.setTargetAtTime(0.16 + 0.1 * noise1(t * 0.13, 1) + train * 0.75, now, 0.3);
     this.rumbleLP.frequency.setTargetAtTime(62 + train * 120, now, 0.4);
     // wind: slow swells, gusting with the train; stronger on platforms

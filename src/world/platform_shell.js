@@ -26,29 +26,37 @@ export function wallX(y, dir) {
   return PF.cx + dir * Math.sqrt(Math.max(0, PF.R * PF.R - dy * dy));
 }
 
-const N_ARC = 18;
+// The lining is built in two runs that meet at the crown: the platform-side
+// wall (texture v 0.5 → 1) and the track-side wall (v 0 at the crown → 0.5 at
+// the bed). See tex/tiles.js for the texture layout.
+const N_BACK = 9, N_TRACK = 10;
+const sTrack = PF.R * (Math.PI / 2 - PF.th1);
 
-function arcPoint(j) {
-  const th = PF.th0 + ((PF.th1 - PF.th0) * j) / N_ARC;
-  const s = PF.R * (PF.th0 - th);
-  const v = s <= PF.sCrown ? s / PF.sCrown : 1 - (s - PF.sCrown) / PF.sCrown;
-  return { x: PF.cx + PF.R * Math.cos(th), y: PF.cy + PF.R * Math.sin(th), nx: -Math.cos(th), ny: -Math.sin(th), v: 0.004 + 0.992 * v };
+function arcRun(th0, th1, n, vOf) {
+  const out = [];
+  for (let j = 0; j <= n; j++) {
+    const th = th0 + ((th1 - th0) * j) / n;
+    out.push({ x: PF.cx + PF.R * Math.cos(th), y: PF.cy + PF.R * Math.sin(th), nx: -Math.cos(th), ny: -Math.sin(th), v: vOf(th) });
+  }
+  return out;
 }
 
 export function buildShell(b, L, side) {
   const X = (x) => side * x;
-  const arc = [];
-  for (let j = 0; j <= N_ARC; j++) arc.push(arcPoint(j));
+  const back = arcRun(PF.th0, Math.PI / 2, N_BACK, (th) => 0.502 + 0.496 * ((PF.R * (PF.th0 - th)) / PF.sCrown));
+  const track = arcRun(Math.PI / 2, PF.th1, N_TRACK, (th) => 0.002 + 0.496 * ((PF.R * (Math.PI / 2 - th)) / sTrack));
   const nz = Math.round(L / 1.5);
   // --- tube lining
-  for (let i = 0; i < nz; i++) {
-    const z0 = (L * i) / nz, z1 = (L * (i + 1)) / nz;
-    for (let j = 0; j < N_ARC; j++) {
-      const p = arc[j], q = arc[j + 1];
-      const np = [X(p.nx), p.ny, 0], nq = [X(q.nx), q.ny, 0];
-      const nf = [(np[0] + nq[0]) / 2, (np[1] + nq[1]) / 2, 0];
-      b.quadN('ptile', [X(p.x), p.y, z0], [X(p.x), p.y, z1], [X(q.x), q.y, z1], [X(q.x), q.y, z0],
-        nf, np, np, nq, nq, [z0 / 6, p.v, z1 / 6, q.v]);
+  for (const arc of [back, track]) {
+    for (let i = 0; i < nz; i++) {
+      const z0 = (L * i) / nz, z1 = (L * (i + 1)) / nz;
+      for (let j = 0; j < arc.length - 1; j++) {
+        const p = arc[j], q = arc[j + 1];
+        const np = [X(p.nx), p.ny, 0], nq = [X(q.nx), q.ny, 0];
+        const nf = [(np[0] + nq[0]) / 2, (np[1] + nq[1]) / 2, 0];
+        b.quadN('ptile', [X(p.x), p.y, z0], [X(p.x), p.y, z1], [X(q.x), q.y, z1], [X(q.x), q.y, z0],
+          nf, np, np, nq, nq, [z0 / 6, p.v, z1 / 6, q.v]);
+      }
     }
   }
   // --- platform floor in bands from the back wall to the edge. Every band
@@ -99,5 +107,5 @@ export function buildShell(b, L, side) {
       b.quad('atlas', [X(rx - w), PF.bed, z0], [X(rx - w), PF.bed, z1], [X(rx - w), y, z1], [X(rx - w), y, z0], [-side, 0, 0], dark);
     }
   }
-  return { arc };
+  return { back, track };
 }

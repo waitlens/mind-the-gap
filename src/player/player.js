@@ -73,10 +73,12 @@ export class Player {
     const t = this.t;
     const swayP = noise1(t * 0.55, 11) * 0.011 + noise1(t * 2.3, 12) * 0.003;
     const swayY = noise1(t * 0.47, 21) * 0.012 + noise1(t * 2.7, 22) * 0.003;
-    const swayR = noise1(t * 0.4, 31) * 0.01 + Math.sin(ph) * 0.006 * amt;
+    // (shake: the rush of air and the rumble when a train goes by)
+    const sh = this.shake || 0;
+    const swayR = noise1(t * 0.4, 31) * 0.01 + Math.sin(ph) * 0.006 * amt + noise1(t * 23, 43) * 0.012 * sh;
     const cam = this.camera;
     cam.position.set(this.pos.x + c * bobX, this.eyeY + bobY, this.pos.z - s * bobX);
-    cam.rotation.set(this.pitch + swayP * (1 - 0.6 * this.zoom), this.yaw + swayY * (1 - 0.6 * this.zoom), swayR);
+    cam.rotation.set(this.pitch + swayP * (1 - 0.6 * this.zoom) + noise1(t * 29, 41) * 0.009 * sh, this.yaw + swayY * (1 - 0.6 * this.zoom) + noise1(t * 31, 42) * 0.007 * sh, swayR);
     const fov = CFG.fov - 36 * this.zoom;
     if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix(); }
     return { step, running };

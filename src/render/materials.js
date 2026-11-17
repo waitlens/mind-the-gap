@@ -12,8 +12,16 @@ uniform float uCam;           // camcorder lamp strength
 varying vec2 vUv;
 varying vec3 vLight;
 varying float vFog;
+#ifdef CLIP
+uniform vec4 uClip;           // (nx, nz, lo, hi): keep world points with lo < dot(xz, n) < hi
+varying float vClip;
+#endif
 void main() {
   vUv = uv;
+#ifdef CLIP
+  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vClip = dot(wp.xz, uClip.xy);
+#endif
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   float d = length(mv.xyz);
   vec3 l = aLight.rgb * 2.0 * uPower + vec3(1.0, 0.97, 0.9) * (aLight.a * 2.0 * uFlick * uPower);
@@ -40,7 +48,14 @@ uniform float uFogDensity;
 varying vec2 vUv;
 varying vec3 vLight;
 varying float vFog;
+#ifdef CLIP
+uniform vec4 uClip;
+varying float vClip;
+#endif
 void main() {
+#ifdef CLIP
+  if (vClip < uClip.z || vClip > uClip.w) discard;
+#endif
   vec4 t = texture2D(map, vUv);
 #ifdef CUTOUT
   if (t.a < 0.5) discard;
@@ -63,9 +78,15 @@ export const worldUniforms = {
 // cutout = true only for layers whose texture really has holes (lattice
 // gates, sign sheets…). Opaque layers never discard, so they cannot open up
 // when a distant surface samples a blurred mip level of an atlas.
-export function makeWorldMaterial(texture, flick, cutout = false) {
+// clip: a { value: Vector4 } uniform — the mesh is only drawn between two
+// parallel vertical planes (the train, which exists only between the two
+// tunnel mouths of a platform).
+export function makeWorldMaterial(texture, flick, cutout = false, clip = null) {
+  const defines = {};
+  if (cutout) defines.CUTOUT = 1;
+  if (clip) defines.CLIP = 1;
   return new THREE.ShaderMaterial({
-    defines: cutout ? { CUTOUT: 1 } : {},
+    defines,
     vertexShader: VERT,
     fragmentShader: FRAG,
     uniforms: {
@@ -75,6 +96,7 @@ export function makeWorldMaterial(texture, flick, cutout = false) {
       uCam: worldUniforms.uCam,
       uFogColor: worldUniforms.uFogColor,
       uFogDensity: worldUniforms.uFogDensity,
+      ...(clip ? { uClip: clip } : {}),
     },
     side: THREE.FrontSide,
   });

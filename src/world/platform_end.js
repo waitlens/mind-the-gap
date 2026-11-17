@@ -43,12 +43,11 @@ export function buildHeadwall(b, z, facing, side, portal = true) {
   // the wall's lip overlaps the passage lining by a few millimetres
   if (portal) notches.push(PASSAGE.map((p) => ({ x: p.x + p.nx * 0.004, y: p.y + p.ny * 0.004 })));
   const outline = notchedOutline(PF.back - 0.45, PF.cx + PF.R + 0.35, y0, y1, notches).map((p) => ({ x: X(p.x), y: p.y }));
+  // tiled like the passages (dado, two bands, plain above); below the
+  // platform v < 0 clamps to the dado colour
   flatWall(b, { x: 0, y: 0, z, yaw: 0 }, facing, outline, {
-    layer: 'ptile', grid: 0.6,
-    // affine on purpose (no clamping): a clamp would bend the tile courses
-    // inside the larger triangles. Below the platform v < 0 samples the dark
-    // skirting row. The coloured ring of the tile texture lands over the portal.
-    uv: (x, y) => [(x * side + 3) / 6, 0.004 + (0.992 * y) / PF.sCrown],
+    layer: 'tile', grid: 0.6,
+    uv: (x, y) => [(x * side + 3) / 6, 0.004 + (0.992 * y) / 3.63],
   });
 
   // ---- the mouth

@@ -5,16 +5,20 @@ import { SIGN } from '../config.js';
 import { HEAD_FONT, BODY_FONT, fitText, drawArrow, shade } from './canvas.js';
 
 // defect → what changes. `level` is how subtle it is (0 obvious … 2 subtle).
+// Genuine signs are yellow and black (either way round), say "Way out" in
+// sentence case in plain block lettering, and have one arrow.
 export const WAYOUT_DEFECTS = {
+  exit: { level: 0, text: 'Exit' },
   in: { level: 0, text: 'Way in' },
   question: { level: 0, text: 'Way out?' },
-  blue: { level: 0, text: 'Way out', bg: SIGN.blue, fg: SIGN.white },
   no: { level: 0, text: 'No way out' },
-  invert: { level: 1, text: 'Way out', bg: SIGN.black, fg: SIGN.yellow },
+  red: { level: 0, text: 'Way out', bg: '#b3261e', fg: SIGN.white },
+  blue: { level: 1, text: 'Way out', bg: SIGN.blue, fg: SIGN.white },
   caps: { level: 1, text: 'WAY OUT' },
   mirror: { level: 1, text: 'Way out', mirror: true },
   arrow2: { level: 1, text: 'Way out', arrow2: true },
   pale: { level: 1, text: 'Way out', bg: '#cfe08a' },
+  serif: { level: 2, text: 'Way out', font: "Georgia, 'Times New Roman', serif" },
   title: { level: 2, text: 'Way Out' },
   cut: { level: 2, text: 'Way cut' },
   wav: { level: 2, text: 'Wav out' },
@@ -24,25 +28,26 @@ export const WAYOUT_DEFECTS = {
 };
 
 // What the caption card says when the player reads the sign.
-export function wayOutCaption(defect, dir) {
+export function wayOutCaption(defect, dir, inverted = false) {
   const d = defect ? WAYOUT_DEFECTS[defect] : null;
   const arrow = { left: '←', right: '→', up: '↑', down: '↓' }[dir] || '';
   const text = d ? d.text : 'Way out';
-  let note = '';
+  let note = inverted ? ' (yellow on black)' : ' (black on yellow)';
   if (d && d.bg === SIGN.blue) note = ' (white on blue)';
-  else if (d && d.bg === SIGN.black) note = ' (yellow on black)';
-  else if (d && d.bg) note = ' (pale green)';
+  else if (d && d.bg === '#b3261e') note = ' (white on red)';
+  else if (d && d.bg) note = ' (black on pale green)';
   else if (d && d.mirror) note = ' (the lettering is back to front)';
   else if (d && d.arrow2) return `↔ ${text}`;
   else if (d && d.flipArrow) note = ' (the arrow points the other way)';
-  else note = d ? '' : ' (black on yellow)';
+  else if (d && d.font) note = ' (the lettering has serifs)';
   return dir === 'left' ? `${arrow} ${text}${note}` : `${text} ${arrow}${note}`;
 }
 
 // dir: 'left' | 'right' | 'up'. Returns nothing; draws into (0,0,w,h).
-export function drawWayOut(ctx, w, h, { dir = 'up', defect = null } = {}) {
+// inverted: yellow lettering on black (the small plates in the frieze).
+export function drawWayOut(ctx, w, h, { dir = 'up', defect = null, inverted = false } = {}) {
   const d = defect ? WAYOUT_DEFECTS[defect] : {};
-  const bg = d.bg || SIGN.yellow, fg = d.fg || SIGN.black;
+  const bg = d.bg || (inverted ? SIGN.black : SIGN.yellow), fg = d.fg || (inverted ? SIGN.yellow : SIGN.black);
   ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
   // back-lit panel: slightly brighter in the middle
   const g = ctx.createLinearGradient(0, 0, 0, h);
@@ -59,7 +64,7 @@ export function drawWayOut(ctx, w, h, { dir = 'up', defect = null } = {}) {
   drawArrow(ctx, ax, h / 2, as, adir, fg);
   if (d.arrow2) drawArrow(ctx, ax, h / 2, as, { left: 'right', right: 'left', up: 'down' }[dir], fg);
   ctx.fillStyle = fg; ctx.textBaseline = 'middle';
-  fitText(ctx, text, tx1 - tx0, h * 0.62, HEAD_FONT);
+  fitText(ctx, text, tx1 - tx0, h * 0.62, d.font || HEAD_FONT);
   ctx.save();
   if (d.mirror) {
     ctx.translate((tx0 + tx1) / 2, 0); ctx.scale(-1, 1); ctx.textAlign = 'center';
@@ -71,33 +76,49 @@ export function drawWayOut(ctx, w, h, { dir = 'up', defect = null } = {}) {
   ctx.restore();
 }
 
-// White-on-blue direction sign with a line-colour strip:  "Tallow line →"
-export function drawDirection(ctx, w, h, { text, sub = '', dir = 'up', color = '#888' } = {}) {
-  ctx.fillStyle = SIGN.blue; ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = color; ctx.fillRect(0, h * 0.82, w, h * 0.18);
-  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(0, h * 0.8, w, Math.max(1, h * 0.02));
-  const arrowLeft = dir !== 'right';
-  const as = h * 0.46, ax = arrowLeft ? h * 0.5 : w - h * 0.5;
-  drawArrow(ctx, ax, h * 0.4, as, dir, SIGN.white);
-  const tx0 = arrowLeft ? h * 0.95 : h * 0.3, tx1 = arrowLeft ? w - h * 0.3 : w - h * 0.95;
-  ctx.fillStyle = SIGN.white; ctx.textBaseline = 'middle'; ctx.textAlign = arrowLeft ? 'left' : 'right';
-  const size = fitText(ctx, text, tx1 - tx0, h * (sub ? 0.36 : 0.46), HEAD_FONT);
-  ctx.fillText(text, arrowLeft ? tx0 : tx1, h * (sub ? 0.28 : 0.41));
-  if (sub) {
-    ctx.font = `400 ${Math.min(size * 0.62, h * 0.22)}px ${BODY_FONT}`;
-    ctx.fillText(sub, arrowLeft ? tx0 : tx1, h * 0.6, tx1 - tx0);
+// Platform frieze: a white enamel strip above the tiles with the station
+// name in blue capitals and a small yellow-on-black "Way out" plate.
+// opts: { arrow: 'left' | 'right' | null, note: small text at the far left }
+export function drawFrieze(ctx, w, h, name, opts = {}) {
+  ctx.fillStyle = '#f7f6ee'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#2b2d2f'; ctx.fillRect(0, 0, w, Math.max(1, h * 0.07)); ctx.fillRect(0, h - Math.max(1, h * 0.07), w, Math.max(1, h * 0.07));
+  ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(w - 1, 0, 1, h);                 // joint between panels
+  const pw = opts.arrow ? h * 2.7 : 0;
+  ctx.fillStyle = '#0019a8'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  try { ctx.letterSpacing = `${(h * 0.035).toFixed(1)}px`; } catch { /* older browsers */ }
+  fitText(ctx, name.toUpperCase(), (w - pw) * 0.62, h * 0.56, HEAD_FONT);
+  ctx.fillText(name.toUpperCase(), (w - pw) * 0.5, h * 0.53);
+  try { ctx.letterSpacing = '0px'; } catch { /* ignore */ }
+  if (opts.note) { ctx.font = `400 ${h * 0.24}px ${BODY_FONT}`; ctx.textAlign = 'left'; ctx.fillText(opts.note, h * 0.3, h * 0.52); }
+  if (opts.arrow) {
+    ctx.save(); ctx.translate(w - pw - h * 0.25, h * 0.2);
+    drawWayOut(ctx, pw, h * 0.6, { dir: opts.arrow, inverted: true });
+    ctx.restore();
   }
 }
 
-// Platform frieze: a continuous line-coloured strip carrying the station name.
-export function drawFrieze(ctx, w, h, name, color, repeats = 2) {
-  ctx.fillStyle = SIGN.white; ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = color; ctx.fillRect(0, h * 0.14, w, h * 0.72);
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.font = `400 ${h * 0.5}px ${HEAD_FONT}`;
-  const light = ['#f2c500', '#f3a9bb', '#8f979c'].includes(color);
-  ctx.fillStyle = light ? '#14213d' : '#fff';
-  for (let i = 0; i < repeats; i++) ctx.fillText(name.toUpperCase(), (w * (i + 0.5)) / repeats, h * 0.52, (w / repeats) * 0.9);
+// The station name fired into the wall tiles: dark serif capitals with
+// centred dots between the words, on the cream tiling (seven courses high).
+export function drawTiledName(ctx, w, h, name, theme) {
+  const rows = 7, th = h / rows, tw = th * 3;
+  ctx.fillStyle = theme.grout; ctx.fillRect(0, 0, w, h);
+  for (let r = 0; r < rows; r++) {
+    for (let x = (r % 2 ? -tw / 2 : 0); x < w; x += tw) {
+      ctx.fillStyle = shade(theme.ground, ((r * 7 + Math.round(x / tw) * 13) % 9) / 100 - 0.05);
+      ctx.fillRect(x + 0.5, r * th + 0.5, tw - 1, th - 1);
+    }
+  }
+  const text = `\u00b7 ${name.toUpperCase().split(' ').join(' \u00b7 ')} \u00b7`;
+  ctx.fillStyle = theme.letter || theme.skirt; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const size = th * 5 * 1.36;                       // capitals five courses high
+  ctx.font = `700 ${size}px Georgia, 'Times New Roman', serif`;
+  const wt = ctx.measureText(text).width;
+  ctx.save();
+  ctx.translate(w / 2, h * 0.52);
+  ctx.scale(Math.min(0.86, (w * 0.96) / wt), 1);    // the real letters are condensed
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+  for (let r = 1; r < rows; r++) { ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(0, r * th, w, 1); }   // joints show through the glaze
 }
 
 // Small enamel plate: "Platform 2", "No exit", "Staff only"…

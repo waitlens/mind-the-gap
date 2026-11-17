@@ -2,7 +2,7 @@
 // that end in a junction), tracks the player's progress towards the way out
 // and how wrong the station has become.
 import { RNG, hash32 } from '../util/rng.js';
-import { CFG, THEMES } from '../config.js';
+import { CFG } from '../config.js';
 import { SEGMENTS } from '../world/registry.js';
 import { makeStretch, nextInStretch } from './stretch.js';
 import { boardState } from './boards.js';
@@ -40,7 +40,7 @@ export class Story {
 
   envFor(stretch, idx, extra) {
     return {
-      theme: stretch.theme, stretch, idx, wrong: this.wrong, station: stretch.station, line: stretch.line,
+      theme: stretch.theme, stretch, idx, wrong: this.wrong, station: stretch.station, pdir: stretch.dir,
       ambient: stretch.dark ? [0.05, 0.055, 0.05] : [0.1, 0.105, 0.1], seenNotices: this.seenNotices, ...extra,
     };
   }
@@ -97,8 +97,6 @@ export class Story {
   }
 
   noticeRead(key) { this.seenNotices.add(key); }
-
-  theme(rng) { return rng.pick(THEMES); }
 
   boardState(t) { return boardState(this, t); }
 }

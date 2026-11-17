@@ -5,6 +5,8 @@ import { drawPoster, drawNotice, drawWhiteboard } from '../tex/posters.js';
 import { drawTileLegend } from '../tex/signs.js';
 import { NOTICES, WHITEBOARD } from '../game/scripts.js';
 import { PASSAGE, framePoint } from './sweep.js';
+import { drawLineDiagram } from '../tex/linemap.js';
+import { route, routeText, corrupt } from '../game/route.js';
 
 const HW = PASSAGE.W / 2;
 
@@ -80,6 +82,18 @@ function addLegend(ctx, f, side, items) {
   items.push({ ...pos, r: 4, label: 'read tiles', title: 'TILED LEGEND', text });
 }
 
+// The line diagram for one of this station's platforms, as posted in the
+// passages that lead to it ("Northbound platform 1" and what it serves).
+export function addDiagram(ctx, f, side, items, s = HW) {
+  const { b, sheet, rng, env } = ctx;
+  const dir = rng.chance(0.5) ? 'north' : 'south';
+  const sections = route(env.station, dir);
+  if (rng.chance(Math.min(0.8, (env.wrong || 0) * 0.2))) corrupt(sections, rng.pick(['ghost', 'ghost', 'swap', 'repeat']), rng);
+  const uv = sheet.add(200, 300, (c, w, h) => drawLineDiagram(c, w, h, sections, { station: env.station, dir }));
+  const pos = wallPanel(b, 'sheet', f, side, s, 0.6, 0.94, 1.41, uv, null, 0.045);
+  items.push({ ...pos, r: 5, label: 'read line diagram', title: 'LINE DIAGRAM', text: routeText(env.station, dir, sections) });
+}
+
 export function dressPassageFull(ctx, frames, dist) {
   const { rng } = ctx;
   const items = [];
@@ -89,7 +103,7 @@ export function dressPassageFull(ctx, frames, dist) {
   // slots along each wall
   const slots = [];
   for (let z = 2.2; z <= total - 2.2; z += 1.55) slots.push(z);
-  let noticeDone = false, legendDone = false;
+  let noticeDone = false, legendDone = false, diagramDone = false;
   const free = [];
   const wantNotice = rng.chance(ctx.env.noticeChance ?? 0.34);
   for (const side of [-1, 1]) {
@@ -99,6 +113,7 @@ export function dressPassageFull(ctx, frames, dist) {
       const f = { x: 0, y: 0, z, yaw: 0 };
       const roll = rng.next();
       if (wantNotice && !noticeDone && roll < 0.3) { addNotice(ctx, f, side, items); noticeDone = true; continue; }
+      if (roll < 0.1 && !diagramDone) { addDiagram(ctx, f, side, items); diagramDone = true; continue; }
       if (roll < 0.5) addPoster(ctx, f, side, items);
       else if (roll < 0.56 && z > 3 && z < total - 3) { addDoor(ctx, f, side); }
       else if (roll < 0.62) { addWhiteboard(ctx, f, side, items); }

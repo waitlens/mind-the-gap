@@ -10,6 +10,7 @@ import { setupKeyboard } from '../input/keyboard.js';
 import { setupTouch } from '../input/touch.js';
 import { Story } from './story.js';
 import { Director } from './director.js';
+import { Trains } from './trains.js';
 import { AudioEngine } from '../audio/engine.js';
 import { worldTextures, makeSheetFor, updateDynamic } from './textures.js';
 import { clamp, noise1 } from '../util/rng.js';
@@ -42,6 +43,7 @@ export class Game {
       onDisposed: (node) => this.story.onDisposed(node),
     });
     this.director = new Director(this);
+    this.trains = new Trains(this);
     this.keyboard = setupKeyboard(this.input, canvas, {
       use: (down) => this.director.use(down),
       pause: () => this.togglePause(),
@@ -73,9 +75,10 @@ export class Game {
   }
 
   // (Re)build the world from a seed and put the player at the start.
-  reset(seed, plan, wrong = 0) {
+  reset(seed, plan, wrong = 0, progress = 0) {
     this.state.seed = seed ?? (Math.floor(Math.random() * 1e9) | 0);
     this.story.reset(this.state.seed);
+    this.story.progress = progress;   // tests can start further up the line
     this.story.wrong = wrong;   // tests can start with the station already strange
     this.story.base = wrong;
     const root = this.story.begin(this.world, plan);
@@ -84,8 +87,9 @@ export class Game {
       const c = Math.cos(root.yaw), s = Math.sin(root.yaw);
       this.player.spawn(root.pos.x + sp.x * c + sp.z * s, root.pos.y, root.pos.z - sp.x * s + sp.z * c, root.yaw + (sp.yaw || 0));
     } else this.player.spawn(root.pos.x, root.pos.y, root.pos.z + 1.5, root.yaw);
-    Object.assign(this.state, { won: false, time: 0, progress: 0, wrong, junctions: 0, wrongTurns: 0, cluesRead: 0 });
+    Object.assign(this.state, { won: false, time: 0, progress, wrong, junctions: 0, wrongTurns: 0, cluesRead: 0, station: root.env.station });
     this.director.reset();
+    if (this.trains) this.trains.reset();
   }
 
   start() {
@@ -142,6 +146,7 @@ export class Game {
     inp.lookX += inp.kturn * 1.9 * dt;
     const walk = p.update(dt, inp, this.world);
     this.world.pump();
+    this.trains.update(dt);
     this.director.update(dt, walk);
     this.animate(dt);
     st.x = +p.pos.x.toFixed(2); st.y = +p.pos.y.toFixed(2); st.z = +p.pos.z.toFixed(2); st.yaw = +p.yaw.toFixed(3);

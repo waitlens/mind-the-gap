@@ -5,6 +5,7 @@ import { portalLamp, lamp, sill } from './decor.js';
 import { slopeRail } from './seg_stairs.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawPoster } from '../tex/posters.js';
+import { drawPlate } from '../tex/signs.js';
 import { clamp } from '../util/rng.js';
 
 const W = 5.4, HW = W / 2, SPRING = 1.2, CROWN = 3.7;
@@ -95,6 +96,13 @@ export const escalator = {
       // (same corner points as the lane panels; the sills cover the floor seam)
       b.quad('atlas', [xa, 0, za], [xb, 0, za], [xb, BAL, za], [xa, BAL, za], [0, 0, -1], steel);
       b.quad('atlas', [xa, p.rise, zb], [xb, p.rise, zb], [xb, p.rise + BAL, zb], [xa, p.rise + BAL, zb], [0, 0, 1], steel);
+    }
+    // "Stand on the right" plates on the central deck, facing both ways
+    const sor = sheet.add(150, 46, (c, w, h) => drawPlate(c, w, h, 'Stand on the right', { bg: '#0019a8' }));
+    for (let i = 0; i < 3; i++) {
+      const z = z0 + p.run * (0.2 + 0.3 * i), y = yAt(z) + BAL;
+      b.quad('sheet', [0.24, y + 0.02, z], [-0.24, y + 0.02, z], [-0.24, y + 0.17, z], [0.24, y + 0.17, z], [0, 0, -1], sor);
+      b.quad('sheet', [-0.24, y + 0.02, z + 0.01], [0.24, y + 0.02, z + 0.01], [0.24, y + 0.17, z + 0.01], [-0.24, y + 0.17, z + 0.01], [0, 0, 1], sor);
     }
     // uplighters on the central deck
     const nUp = Math.max(2, Math.round(p.run / 3.2));

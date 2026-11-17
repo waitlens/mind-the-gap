@@ -7,3 +7,9 @@ watchdog.*
 DONE
 fix1.*
 st.sh
+fix2.*
+st2.sh
+LONDON.md.bak
+refs/
+fix2_*.jsonl
+*.jsonl

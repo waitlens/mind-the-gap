@@ -9,26 +9,26 @@ import { CFG } from '../config.js';
 export function junctionAnnouncement(node, rng) {
   const p = node.p;
   const sideOf = (exit) => (exit === 0 ? 'left' : 'right');
-  const lineOf = (exit) => (exit === 0 ? p.lineA : p.lineB).name;
+  const platOf = (exit) => `${p.dirs[exit] === 'north' ? 'northbound' : 'southbound'} platform`;
   if (p.kind === 'announce') {
     const said = p.lie ? 1 - p.correct : p.correct;
     const text = p.lie
       ? rng.pick([
-        `For the way out, please follow the ${lineOf(said)} line. To the ${sideOf(said)}. Please.`,
-        `The way out is by the ${lineOf(said)} line, on the ${sideOf(said)}. We would not lie to you.`,
-        `Customers for the way out should keep to the ${sideOf(said)}, for the ${lineOf(said)} line. Do hurry.`,
+        `For the way out, please follow signs for the ${platOf(said)}. To the ${sideOf(said)}. Please.`,
+        `The way out is by the ${platOf(said)}, on the ${sideOf(said)}. We would not lie to you.`,
+        `Customers for the way out should keep to the ${sideOf(said)}, for the ${platOf(said)}. Do hurry.`,
       ])
       : rng.pick([
-        `For the way out, please follow signs for the ${lineOf(said)} line, to the ${sideOf(said)}.`,
-        `Customers for the way out should keep to the ${sideOf(said)} for the ${lineOf(said)} line.`,
-        `The way out is by way of the ${lineOf(said)} line, on your ${sideOf(said)}.`,
+        `For the way out, please follow signs for the ${platOf(said)}, to the ${sideOf(said)}.`,
+        `Customers for the way out should keep to the ${sideOf(said)} for the ${platOf(said)}.`,
+        `The way out is by way of the ${platOf(said)}, on your ${sideOf(said)}.`,
       ]);
     return { text, chime: p.lie ? 'fall' : 'rise', odd: p.lie, urgent: true };
   }
   if (p.kind === 'clock') {
     return { text: 'Customers are reminded that all station clocks run forwards.', chime: 'rise', urgent: true };
   }
-  return { text: 'Please follow the yellow signs for the way out.', chime: 'rise', urgent: true };
+  return { text: 'Please follow the yellow and black signs for the way out.', chime: 'rise', urgent: true };
 }
 
 const HELP = [

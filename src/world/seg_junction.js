@@ -6,10 +6,11 @@ import { buildRoom } from './room.js';
 import { lamp, portalLamp } from './decor.js';
 import { atlasRect } from '../tex/atlas.js';
 import { dynRect } from '../tex/dynamic.js';
-import { drawWayOut, drawDirection, wayOutCaption, WAYOUT_DEFECTS } from '../tex/signs.js';
+import { drawWayOut, wayOutCaption, WAYOUT_DEFECTS } from '../tex/signs.js';
+import { drawPlatformSign } from '../tex/linestrip.js';
 import { drawNameBoard } from '../tex/symbol.js';
-import { LINES } from '../config.js';
-import { wrongName } from '../game/names.js';
+import { wrongName, isGhost } from '../game/names.js';
+import { dirWord, platformNo } from '../game/line.js';
 
 const HX = 3.5, D = 5, H = 2.95;
 
@@ -28,12 +29,12 @@ export const junction = {
     const kind = env.jkind || 'signs';
     const level = env.jlevel ?? 0;
     const pool = Object.keys(WAYOUT_DEFECTS).filter((k) => WAYOUT_DEFECTS[k].level <= level && WAYOUT_DEFECTS[k].level >= level - 1);
-    const lines = rng.shuffle(LINES).slice(0, 2);
+    const north0 = rng.chance(0.5);      // which branch is signed for the northbound platform
     return {
       p: {
         kind, level, correct: rng.int(0, 1), defect: rng.pick(pool),
         lie: kind === 'announce' ? rng.chance(0.3 + 0.12 * level) : false,
-        lineA: lines[0], lineB: lines[1],   // A = left branch (exit 0), B = right branch (exit 1)
+        dirs: north0 ? ['north', 'south'] : ['south', 'north'],   // [left branch (exit 0), right branch (exit 1)]
       },
       exits: [{ x: HX, y: 0, z: D / 2, yaw: Math.PI / 2 }, { x: -HX, y: 0, z: D / 2, yaw: -Math.PI / 2 }],
       box: [-HX - 0.4, -0.4, 0, HX + 0.4, 3.4, D + 0.4],
@@ -53,7 +54,7 @@ export const junction = {
     const items = [];
     const lit = { emit: 1.25 };
     // exit 0 is at +X = the walker's LEFT
-    const sides = [{ cx: 1.72, dir: 'left', exit: 0, line: p.lineA }, { cx: -1.72, dir: 'right', exit: 1, line: p.lineB }];
+    const sides = [{ cx: 1.72, dir: 'left', exit: 0, to: p.dirs[0] }, { cx: -1.72, dir: 'right', exit: 1, to: p.dirs[1] }];
     for (const s of sides) {
       const right = p.correct === s.exit;
       if (p.kind === 'signs') {
@@ -62,10 +63,10 @@ export const junction = {
         const pos = northPanel(b, 'sheet', s.cx, 1.52, 1.9, 0.425, uv, lit);
         items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: wayOutCaption(defect, s.dir), junctionSign: true });
       } else {
-        const uv = sheet.add(250, 56, (c, w, h) => drawDirection(c, w, h, { text: `${s.line.name} line`, dir: s.dir, color: s.line.color }));
+        const uv = sheet.add(250, 56, (c, w, h) => drawPlatformSign(c, w, h, { dir: s.to, arrow: s.dir }));
         const pos = northPanel(b, 'sheet', s.cx, 1.52, 1.9, 0.425, uv, lit);
-        const arrow = s.dir === 'left' ? `← ${s.line.name} line` : `${s.line.name} line →`;
-        items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: arrow });
+        const label = `Northern line · ${dirWord(s.to)} platform ${platformNo(s.to)}`;
+        items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: s.dir === 'left' ? `← ${label}` : `${label} →` });
       }
       if (p.kind === 'clock') {
         const back = !right;
@@ -82,7 +83,7 @@ export const junction = {
     const shown = wrongName(env.station, env.wrong, rng);
     const nb = sheet.add(200, 92, (c, w, h) => drawNameBoard(c, w, h, shown));
     const npos = northPanel(b, 'sheet', 0, 1.42, 1.24, 0.57, nb, null);
-    items.push({ ...npos, r: 6, cone: 0.95, label: 'read name', title: 'STATION', text: shown });
+    items.push({ ...npos, r: 6, cone: 0.95, label: 'read name', title: 'STATION', text: isGhost(shown) ? `${shown}. There is no such station on this line.` : shown });
     const hp = northPanel(b, 'cut', 0, 0.62, 0.34, 0.68, atlasRect('helpPoint'), null);
     items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', help: true, onRead: (game, it, node) => game.director.helpPoint(node) });
 

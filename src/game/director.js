@@ -29,7 +29,7 @@ export class Director {
   begin() {
     this.events.begin();
     this.setHint(this.game.mobile ? 'Left thumb: walk · Right thumb: look' : 'WASD to walk · mouse to look · E to read signs', 7);
-    this.queueHint('Find the way out. Staff notices on the walls explain how.', 7);
+    this.queueHint('Mornington Crescent. Walk up the line to the way out. Staff notices explain how.', 8);
   }
 
   setHint(text, seconds = 5) { this.hint = text; this.hintT = seconds; }
@@ -60,7 +60,7 @@ export class Director {
     const stats = [
       ['Tape length', `${mm}:${String(ss).padStart(2, '0')}`],
       ['Junctions taken', String(st.junctions)],
-      ['Wrong turns', String(st.wrongTurns)],
+      ['Sent back down the line', `${st.wrongTurns} time${st.wrongTurns === 1 ? '' : 's'}`],
       ['Notices read', String(st.cluesRead)],
       ['Distance walked', `${Math.round(g.player.walked)} m`],
     ];
@@ -71,7 +71,7 @@ export class Director {
   liveText(item) {
     const s = this.game.story.boardState(performance.now() / 1000);
     const rows = item.dynamic === 'board2' ? s.rows2 : s.rows;
-    return rows.slice(0, 2).map((r) => (r.r ? `${r.l} … ${r.r}` : r.l)).join('  /  ');
+    return rows.slice(0, 3).map((r) => (r.r ? `${r.l} … ${r.r}` : r.l)).join('  /  ');
   }
 
   // E / READ button. Pressing toggles the caption card for what you aim at.

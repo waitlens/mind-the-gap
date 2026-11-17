@@ -1,102 +1,100 @@
-// Platform fittings: lighting, name boards and frieze, posters, benches,
-// the dot-matrix indicator and clock, a way out sign — and sometimes a
-// figure at the far end that is not there when you get closer.
-import { PF, wallX } from './platform_shell.js';
+// Platform fittings on the platform side, laid out after the photographs in
+// REFERENCES.md: battens over the platform, the white frieze with the name
+// and Way out plates, the name fired into the tiles with a bench under it,
+// roundel panels, framed posters, the strip map of the whole line, the
+// hanging indicator, clock and Way out sign — and sometimes a figure at the
+// far end that is not there when you get closer.
+import { PF } from './platform_shell.js';
 import { lamp, hangingSign } from './decor.js';
+import { arcPanel, bench } from './platform_parts.js';
+import { fitTrackside } from './platform_track.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { dynRect } from '../tex/dynamic.js';
 import { drawNameBoard, SYMBOL_DEFECTS } from '../tex/symbol.js';
-import { drawFrieze, drawWayOut, drawPlate } from '../tex/signs.js';
+import { drawFrieze, drawWayOut, drawPlate, drawTiledName } from '../tex/signs.js';
 import { drawPoster, drawNotice } from '../tex/posters.js';
-import { wrongName } from '../game/names.js';
+import { drawStrip } from '../tex/linestrip.js';
+import { wrongName, isGhost } from '../game/names.js';
 import { NOTICES } from '../game/scripts.js';
+import { GHOSTS, tiledName, dirWord, platformNo } from '../game/line.js';
+import { stripText } from '../game/route.js';
 import { pickNotice } from './dress_passage.js';
-
-// Panel hugging the tube wall. dir = -1 back wall, +1 trackside wall.
-function arcPanel(b, layer, side, dir, zc, w, y0, y1, uv, o, lift = 0.04) {
-  const xb = side * (wallX(y0, dir) - dir * lift), xt = side * (wallX(y1, dir) - dir * lift);
-  const s = (-dir * side * w) / 2;
-  b.quad(layer, [xb, y0, zc + s], [xb, y0, zc - s], [xt, y1, zc - s], [xt, y1, zc + s], [-dir * side, 0, 0], uv, o);
-  return { x: (xb + xt) / 2, y: (y0 + y1) / 2, z: zc };
-}
-
-function bench(b, side, zc, walls) {
-  const X = (x) => side * x;
-  const x0 = PF.back + 0.14, x1 = PF.back + 0.6, z0 = zc - 0.9, z1 = zc + 0.9;
-  const wood = atlasRect('bench'), leg = atlasFlat('steelDark');
-  const lo = Math.min(X(x0), X(x1)), hi = Math.max(X(x0), X(x1));
-  b.box('cut', lo, 0.4, z0, hi, 0.46, z1, wood, null, 'xXyYzZ');                       // seat
-  const bx = X(x0 + 0.02), bx2 = X(x0 + 0.07);
-  b.box('cut', Math.min(bx, bx2), 0.56, z0, Math.max(bx, bx2), 0.95, z1, wood, null, 'xXYzZ'); // back rest
-  for (const z of [z0 + 0.12, zc, z1 - 0.12]) b.box('atlas', lo + 0.05, 0, z - 0.03, hi - 0.05, 0.4, z + 0.03, leg, null, 'xXzZ');
-  walls.push([X(x1 + 0.05), z0, X(x1 + 0.05), z1], [X(x0), z0, X(x1 + 0.05), z0], [X(x0), z1, X(x1 + 0.05), z1]);
-}
 
 export function fitPlatform(ctx, L, side) {
   const { b, p, sheet, rng, env } = ctx;
   const items = [], walls = [], zones = [];
-  const wrong = env.wrong || 0;
+  const wrong = env.wrong || 0, station = env.station, dir = p.dir;
   const X = (x) => side * x;
-  // --- lighting: a row of battens hung over the platform
+  // --- lighting: battens over the platform, evenly spaced end to end
+  // (a tube every 1.5 m, as in the photographs; every third one carries
+  // the baked light, so the lighting cost is unchanged)
+  const nLamps = Math.round((L - 6) / 4.5) * 3 + 1;
+  for (let k = 0; k < nLamps; k++) {
+    const z = 3 + ((L - 6) * k) / (nLamps - 1), lit = k % 3 === 0, grp = Math.floor(k / 3);
+    lamp(b, { x: X(0.5), y: 0, z, yaw: 0 }, 3.45, { dead: p.dark && grp % 3 !== 1, flick: p.faulty === grp, noLight: !lit, power: 0.62, radius: 9.5, len: 1.25 });
+  }
+  // --- track-side wall first (it has the biggest textures to pack)
+  fitTrackside(ctx, L, side, items);
+  // --- frieze: white strip above the tiles, name in blue, Way out plates
+  const toExit = side > 0 ? 'left' : 'right';         // the way out is at the far end
+  const fr = [sheet.add(384, 36, (c, w, h) => drawFrieze(c, w, h, station, { arrow: toExit })),
+    sheet.add(384, 36, (c, w, h) => drawFrieze(c, w, h, station, { note: station === 'Camden Town' ? 'Edgware branch' : '' }))];
   let k = 0;
-  // (spaced evenly from 3 m inside one headwall to 3 m inside the other, so
-  // both ends of the platform — and both tunnel mouths — are lit alike)
-  const nLamps = Math.round((L - 6) / 4.2) + 1;
-  for (; k < nLamps; k++) {
-    const z = 3 + ((L - 6) * k) / (nLamps - 1);
-    lamp(b, { x: X(0.5), y: 0, z, yaw: 0 }, 3.45, { dead: p.dark && k % 3 !== 1, flick: p.faulty === k, power: 0.62, radius: 9.5, len: 1.5 });
-  }
-  // --- frieze: a continuous strip with the station name
-  const line = env.line || { color: '#b3261e' };
-  const fr = sheet.add(400, 26, (c, w, h) => drawFrieze(c, w, h, env.station, line.color, 2));
-  for (let z = 1.5; z < L - 1; z += 3) arcPanel(b, 'sheet', side, -1, z, 3, 2.5, 2.68, fr, null, 0.03);
-  // --- name boards (a few variants; some of them come out wrong)
-  const boards = [];
-  for (let i = 0; i < 3; i++) {
-    const name = wrongName(env.station, wrong, rng);
+  for (let z = 1.5; z < L - 1; z += 3, k++) arcPanel(b, 'sheet', side, -1, z, 3, 2.47, 2.75, fr[k % 2], null, 0.03);
+  // --- roundel panels: mostly right, sometimes not
+  const boards = [0, 1].map(() => {
+    const name = wrongName(station, wrong, rng);
     const defect = rng.chance(Math.min(0.6, wrong * 0.16)) ? rng.pick(SYMBOL_DEFECTS) : null;
-    boards.push({ name, defect, uv: sheet.add(232, 108, (c, w, h) => drawNameBoard(c, w, h, name, { defect })) });
-  }
-  const boardText = (bd) => (bd.defect ? `${bd.name} — the symbol is not quite right.` : bd.name);
-  let n = 0;
-  for (let z = 5; z < L - 3; z += 8.5, n++) {
-    const bd = boards[n % 3];
-    const pos = arcPanel(b, 'sheet', side, -1, z, 1.5, 1.5, 2.2, bd.uv);
-    items.push({ ...pos, r: 6, label: 'read name board', title: 'STATION', text: boardText(bd) });
-    // posters between the boards
-    const zp = z + 4.25;
-    if (zp < L - 3) {
+    const text = isGhost(name) ? `${name}. There is no such station on this line.` : defect ? `${name} — the roundel is not quite right.` : name;
+    return { text, uv: sheet.add(150, 183, (c, w, h) => drawNameBoard(c, w, h, name, { defect })) };
+  });
+  // --- the name in the tiles, the strip map, posters: one pass along the wall
+  const fired = tiledName(station);
+  const nameW = Math.min(5.0, 1.0 + 0.2 * (fired.length + 2 * fired.split(' ').length));
+  const nameUV = sheet.add(512, Math.round(512 * 0.53 / nameW), (c, w, h) => drawTiledName(c, w, h, fired, env.theme));
+  const ghosts = wrong >= 1.5 && rng.chance(Math.min(0.8, wrong * 0.2)) ? rng.shuffle(GHOSTS).slice(0, rng.int(1, 2)) : [];
+  const stripUV = sheet.add(800, 168, (c, w, h) => drawStrip(c, w, h, { current: station, ghosts }));
+  const order = ['roundel', p.start ? 'notice' : 'poster', 'name', 'poster', 'roundel', 'strip', 'poster', 'roundel', 'name', 'poster', 'help'];
+  const widths = { roundel: 1.15, poster: 1.0, name: nameW, strip: 4.4, notice: 0.5, help: 0.34 };
+  let z = 3.0, n = 0, nb = 0;
+  while (n < 40) {
+    const kind = order[n % order.length], w = widths[kind];
+    if (z + w > L - 2.6) break;
+    const zc = z + w / 2;
+    if (kind === 'roundel') {
+      const bd = boards[nb++ % 2];
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.85, 2.25, bd.uv);
+      items.push({ ...pos, r: 6, label: 'read name board', title: 'STATION', text: bd.text });
+    } else if (kind === 'poster') {
       const odd = rng.chance(Math.min(0.7, wrong * 0.17));
       let info;
-      const uv = sheet.add(112, 168, (c, w, h) => { info = drawPoster(c, w, h, rng, odd); });
-      const pp = arcPanel(b, 'sheet', side, -1, zp, 1.0, 0.62, 2.12, uv);
-      items.push({ ...pp, r: 5, label: 'read poster', title: 'POSTER', text: `${info.headline}. ${info.strap}.` });
-    }
-  }
-  // trackside wall: big posters and name boards across the gap
-  n = 1;
-  for (let z = 4.5; z < L - 3; z += 6.2, n++) {
-    if (n % 2) {
-      const bd = boards[n % 3];
-      const pos = arcPanel(b, 'sheet', side, 1, z, 2.15, 1.2, 2.2, bd.uv);
-      items.push({ ...pos, r: 9, cone: 0.95, label: 'read name board', title: 'STATION', text: boardText(bd) });
+      const uv = sheet.add(112, 168, (c, cw, ch) => { info = drawPoster(c, cw, ch, rng, odd, true); });
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.62, 2.12, uv);
+      items.push({ ...pos, r: 5, label: 'read poster', title: 'POSTER', text: `${info.headline}. ${info.strap}.` });
+    } else if (kind === 'name') {
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.72, 2.25, nameUV, null, 0.025);
+      items.push({ ...pos, r: 7, label: 'read tiles', title: 'TILED NAME', text: `· ${fired.toUpperCase().split(' ').join(' · ')} ·${fired !== station ? ` (the frieze says ${station})` : ''}` });
+      bench(b, side, zc, walls);
+    } else if (kind === 'strip') {
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.0, 1.92, stripUV);
+      items.push({ ...pos, r: 6, cone: 0.92, label: 'read line map', title: 'NORTHERN LINE', text: stripText(station, ghosts) });
+    } else if (kind === 'notice') {
+      const notice = NOTICES[0];
+      const uv = sheet.add(168, 216, (c, cw, ch) => drawNotice(c, cw, ch, notice, rng));
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
+      items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });
     } else {
-      const odd = rng.chance(Math.min(0.7, wrong * 0.17));
-      let info;
-      const uv = sheet.add(200, 150, (c, w, h) => { info = drawPoster(c, w, h, rng, odd); });
-      const pp = arcPanel(b, 'sheet', side, 1, z, 2.0, 0.85, 2.35, uv);
-      items.push({ ...pp, r: 9, cone: 0.95, label: 'read poster', title: 'POSTER', text: `${info.headline}. ${info.strap}.` });
+      const hp = arcPanel(b, 'cut', side, -1, zc, w, 0.7, 1.38, atlasRect('helpPoint'));
+      items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', onRead: (g, it, node) => g.director.helpPoint(node) });
     }
+    z += w + 0.7; n++;
   }
-  // --- a staff notice on the back wall (always on the first platform)
-  if (p.start || rng.chance(0.45)) {
-    const notice = p.start ? NOTICES[0] : pickNotice(ctx);
-    const uv = sheet.add(168, 216, (c, w, h) => drawNotice(c, w, h, notice, rng));
-    const pos = arcPanel(b, 'sheet', side, -1, p.start ? 10.6 : L * 0.62 + 2.1, 0.5, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
+  if (!p.start && rng.chance(0.45)) {                  // a staff notice by the way in
+    const notice = pickNotice(ctx);
+    const uv = sheet.add(168, 216, (c, cw, ch) => drawNotice(c, cw, ch, notice, rng));
+    const pos = arcPanel(b, 'sheet', side, -1, 1.9, 0.5, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
     items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });
   }
-  // --- benches
-  for (const z of [L * 0.3, L * 0.72]) bench(b, side, z, walls);
   // --- hanging indicator, clock and way out sign
   const board = dynRect('board');
   const ind = hangingSign(b, 'dyn', { x: 0, y: 0, z: L * 0.5, yaw: 0 }, 2.5, 1.36, 0.45, board, board, { emit: 1.2 }, X(0.15));
@@ -106,12 +104,10 @@ export function fitPlatform(ctx, L, side) {
   const cpos = hangingSign(b, 'dyn', { x: 0, y: 0, z: L * 0.5, yaw: 0 }, 2.48, 0.5, 0.5, cl, cl, { emit: 1.05 }, X(1.2));
   items.push({ ...cpos, r: 9, cone: 0.95, label: 'look at clock', title: 'CLOCK', text: back ? 'The second hand is ticking backwards.' : 'The clock is keeping time.' });
   const wo = sheet.add(250, 56, (c, w, h) => drawWayOut(c, w, h, { dir: 'up' }));
-  const plate = sheet.add(250, 56, (c, w, h) => drawPlate(c, w, h, `Platform ${rng.int(1, 6)}`, { sub: `${line.name || 'Meridian'} line` }));
+  const plate = sheet.add(250, 56, (c, w, h) => drawPlate(c, w, h, `${dirWord(dir)} platform ${platformNo(dir)}`, { sub: 'Northern line', bg: '#f6f6f1', fg: '#16213f' }));
   const wpos = hangingSign(b, 'sheet', { x: 0, y: 0, z: L - 7, yaw: 0 }, 2.42, 1.7, 0.38, wo, plate, { emit: 1.25 }, X(0));
   items.push({ ...wpos, r: 9, cone: 0.94, label: 'read sign', title: 'SIGN', text: 'Way out ↑ (black on yellow)' });
-  // help point and a signal lamp in the tunnel mouth
-  const hp = arcPanel(b, 'cut', side, -1, L * 0.5 + 1.2, 0.34, 0.7, 1.38, atlasRect('helpPoint'));
-  items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', onRead: (g, it, node) => g.director.helpPoint(node) });
+  // a signal lamp in the tunnel mouth
   b.quad('atlas', [X(PF.track + 0.98), 0.9, L + 0.4], [X(PF.track + 1.13), 0.9, L + 0.4], [X(PF.track + 1.13), 1.05, L + 0.4], [X(PF.track + 0.98), 1.05, L + 0.4],
     [0, 0, -1], atlasFlat('white'), { emit: 1.6, tint: [1, 0.12, 0.08] });
   // --- the figure at the far end

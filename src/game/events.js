@@ -16,8 +16,6 @@ export class Events {
     this.dip = 0;             // brown-out depth 0..1
     this.dipT = 0;
     this.nextDip = 40;
-    this.nextTrain = 55;
-    this.trainT = 0;          // > 0 while a train is passing somewhere
     this.pow = 1;
     this.blackout = 0;        // seconds of full darkness left
     this.walkT = 0;           // how long the player has been walking
@@ -65,14 +63,6 @@ export class Events {
     }
     if (this.dipT > 0) this.dipT -= dt;
     if (this.blackout > 0) this.blackout -= dt;
-    // --- a train goes by, somewhere
-    this.nextTrain -= dt;
-    if (this.nextTrain <= 0) {
-      this.trainT = 9;
-      this.nextTrain = this.rng.range(70, 140);
-      g.audio.sfx('train');
-    }
-    if (this.trainT > 0) this.trainT -= dt;
     // --- when the station is strange enough, your footsteps do not always
     //     stop when you do
     const moving = g.player.speed > 0.8;
@@ -91,11 +81,8 @@ export class Events {
   power(t, dt) {
     let target = 1;
     if (this.dipT > 0) target = 0.35 + 0.3 * noise1(t * 18, 9);
-    if (this.trainT > 0) {
-      // lights shiver as the train passes
-      const k = Math.sin(clamp((9 - this.trainT) / 9, 0, 1) * Math.PI);
-      target *= 1 - 0.22 * k * (0.5 + 0.5 * noise1(t * 14, 4));
-    }
+    const train = this.game.trains ? this.game.trains.level : 0;
+    if (train > 0.02) target *= 1 - 0.22 * train * (0.5 + 0.5 * noise1(t * 14, 4));   // lights shiver as a train passes
     if (this.blackout > 0) target = 0.02;
     this.pow = damp(this.pow, target, 20, dt || 0.016);
     return this.pow;

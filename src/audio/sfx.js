@@ -1,7 +1,7 @@
 // One-shot synthesised sounds: footsteps, announcement chimes, the gate,
 // a passing train, drips. Each takes the engine and builds a few nodes.
 
-function tone(e, { freq, to, type = 'sine', dur = 0.3, gain = 0.2, attack = 0.005, at = 0, rev = 0.5, dry = 1 }) {
+export function tone(e, { freq, to, type = 'sine', dur = 0.3, gain = 0.2, attack = 0.005, at = 0, rev = 0.5, dry = 1 }) {
   const ctx = e.ctx, t0 = ctx.currentTime + at;
   const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(freq, t0);
   if (to) o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
@@ -15,9 +15,10 @@ function tone(e, { freq, to, type = 'sine', dur = 0.3, gain = 0.2, attack = 0.00
   o.start(t0); o.stop(t0 + dur + 0.05);
 }
 
-function burst(e, { dur = 0.1, gain = 0.2, type = 'bandpass', freq = 1000, q = 1, at = 0, rev = 0.4, dry = 1, attack = 0.002, sweep = 0 }) {
+export function burst(e, { dur = 0.1, gain = 0.2, type = 'bandpass', freq = 1000, q = 1, at = 0, rev = 0.4, dry = 1, attack = 0.002, sweep = 0 }) {
   const ctx = e.ctx, t0 = ctx.currentTime + at;
   const src = ctx.createBufferSource(); src.buffer = e.white;
+  src.loop = dur > 1.2;                    // the noise buffer is only two seconds long
   const f = ctx.createBiquadFilter(); f.type = type; f.frequency.setValueAtTime(freq, t0); f.Q.value = q;
   if (sweep) f.frequency.exponentialRampToValueAtTime(sweep, t0 + dur);
   const g = ctx.createGain();
@@ -93,6 +94,8 @@ export const SFX = {
     tone(e, { freq: 88, to: 46, dur: 0.1, gain: 0.07, rev: 1, dry: 0.25 });
     burst(e, { dur: 0.05, gain: 0.05, type: 'highpass', freq: 1700, q: 0.7, rev: 1, dry: 0.2 });
   },
+  // the card reader at the gate line
+  touchOut(e) { tone(e, { freq: 2350, dur: 0.14, gain: 0.07, type: 'triangle', attack: 0.004, rev: 0.4, dry: 0.9 }); },
   // the way out: a soft rising swell
   dawn(e) {
     for (const [f, at] of [[196, 0], [293.7, 0.4], [392, 0.8], [587.3, 1.3]]) {

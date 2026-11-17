@@ -50,7 +50,17 @@ function art(ctx, w, h, r, pal, odd) {
 }
 
 // Returns { headline, strap } so the poster can be "read".
-export function drawPoster(ctx, w, h, r, odd = false) {
+// framed: draw the grey metal frame the Underground puts round its posters.
+export function drawPoster(ctx, w, h, r, odd = false, framed = false) {
+  if (framed) {
+    const f = Math.max(2, Math.min(w, h) * 0.035);
+    ctx.fillStyle = '#62676a'; ctx.fillRect(0, 0, w, h);
+    ctx.save(); ctx.translate(f, f);
+    ctx.beginPath(); ctx.rect(0, 0, w - 2 * f, h - 2 * f); ctx.clip();
+    const info = drawPoster(ctx, w - 2 * f, h - 2 * f, r, odd, false);
+    ctx.restore();
+    return info;
+  }
   const pal = r.pick(PALETTES);
   const [headline, strap] = r.pick(odd ? POSTERS_ODD : POSTERS);
   art(ctx, w, h, r, pal, odd);

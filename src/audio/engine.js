@@ -2,6 +2,7 @@
 // context, the master chain and a generated tunnel reverb.
 import { Ambient } from './ambient.js';
 import { SFX, playFootstep } from './sfx.js';
+import { TRAIN_SFX } from './sfx_train.js';
 import { Voice } from './voice.js';
 
 function noiseBuffer(ctx, seconds, brown) {
@@ -88,7 +89,7 @@ export class AudioEngine {
 
   sfx(name, opts) {
     if (!this.ready) return;
-    const fn = SFX[name];
+    const fn = SFX[name] || TRAIN_SFX[name];
     if (fn) { try { fn(this, opts || {}); } catch { /* never break the game for a sound */ } }
   }
 

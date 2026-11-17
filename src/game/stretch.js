@@ -1,15 +1,14 @@
 // A "stretch" is the run of segments between two junctions: one station
 // identity (name, tile colours, line) and a planned list of segment types.
 import { hash32, RNG, angleDiff } from '../util/rng.js';
-import { CFG, LINES } from '../config.js';
+import { CFG } from '../config.js';
 import { SEGMENTS } from '../world/registry.js';
-import { stationName } from './names.js';
+import { stationAt, themeOf, WALK } from './line.js';
 
-let stretchId = 1;
 const has = (t) => !!SEGMENTS[t];
 
 export function makeStretch(story, opts = {}) {
-  const id = stretchId++;
+  const id = story.stretchCount + 1;      // per game, so a seed always gives the same station
   const rng = new RNG(hash32(story.seed, 1000 + id * 13));
   const plan = [];
   if (opts.first) plan.push(has('platform') ? 'platform' : 'corridor');
@@ -17,7 +16,7 @@ export function makeStretch(story, opts = {}) {
   if (opts.exit) {
     plan.push('corridor', has('exit') ? 'exit' : 'corridor');
   } else {
-    const n = rng.int(3, 5);
+    const n = rng.int(2, 4);
     let platforms = opts.first ? 1 : 0, last = plan[plan.length - 1] || '';
     for (let k = 0; k < n; k++) {
       const t = rng.weighted([
@@ -32,17 +31,24 @@ export function makeStretch(story, opts = {}) {
       }
       last = t;
     }
+    // every station shows itself: at least one platform per stretch
+    if (has('platform') && !plan.includes('platform')) plan.splice(rng.int(Math.min(1, plan.length), plan.length), 0, 'platform');
     if (plan[plan.length - 1] !== 'corridor') plan.push('corridor');
     plan.push(has('junction') ? 'junction' : 'corridor');
   }
   // (tests can force what lies beyond a junction, e.g. a short closed stub)
   if (opts.fromJunction && story.testBranch) plan.splice(0, plan.length, 'corridor', ...story.testBranch);
   story.stretchCount++;
+  // Which station of the walk this stretch is: one further up the line after
+  // a right choice, two back after a wrong one (never before the first).
+  let index = story.progress;
+  if (opts.fromJunction) index = opts.correct ? story.progress + 1 : Math.max(0, story.progress - 2);
+  const station = stationAt(index);
   return {
-    id, plan, rng,
-    station: stationName(rng, story.usedNames),
-    theme: opts.theme || story.theme(rng),
-    line: rng.pick(LINES), line2: rng.pick(LINES),
+    id, plan, rng, index: Math.min(index, WALK.length), station,
+    theme: themeOf(station),
+    // which platform of the station this stretch passes through
+    dir: rng.chance(0.5) ? 'north' : 'south',
     dark: !opts.first && !opts.exit && rng.chance(0.06 + 0.05 * story.wrong),
     first: !!opts.first, exit: !!opts.exit,
     correct: opts.correct, fromJunction: opts.fromJunction || null,
@@ -79,7 +85,13 @@ export function nextInStretch(story, node, i, attempt, rng) {
       return { def: SEGMENTS.bend, env: env({ turn }) };
     }
     if (type === 'junction') return { def: SEGMENTS.junction, env: env(story.junctionEnv(rng)) };
-    if (idx === 0 && stretch.fromJunction) return { def: SEGMENTS.corridor, env: env({ gate: true, len: 8, noticeChance: 0 }), force: true };
+    // The gate passage still belongs to the station you are leaving (its
+    // tiles and name): the new station's colours only show once the gate
+    // has shut behind you, as confirmation rather than as a clue.
+    if (idx === 0 && stretch.fromJunction) {
+      const from = node.env;
+      return { def: SEGMENTS.corridor, env: env({ gate: true, len: 8, noticeChance: 0, theme: from.theme, station: from.station }), force: true };
+    }
     return { def: SEGMENTS[type] || SEGMENTS.corridor, env: env({}) };
   }
   // --- something did not fit: try other ways of getting past the obstacle
