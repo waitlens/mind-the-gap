@@ -67,7 +67,8 @@ function addDoor(ctx, f, side) {
 }
 
 function addSmall(ctx, f, side, cell, y, w, h) {
-  wallPanel(ctx.b, 'atlas', f, side, HW, y, w, h, atlasRect(cell), null, 0.04);
+  // (the fire point is a cut-out shape: it goes on the alpha-tested layer)
+  wallPanel(ctx.b, cell === 'extinguisher' ? 'cut' : 'atlas', f, side, HW, y, w, h, atlasRect(cell), null, 0.04);
 }
 
 // Tiled "WAY OUT"-style legend panel (decorative; says where the trains are).

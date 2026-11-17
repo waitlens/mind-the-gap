@@ -1,8 +1,8 @@
 // Cross-passage: the short, low, narrow tunnel that links two platform
 // tunnels, with a few steps in the middle and tiled legends on the walls.
-import { PASSAGE, horseshoe, sweep, headwall } from './sweep.js';
-import { lamp, portalLamp, wallPanel } from './decor.js';
-import { buildSteps, RISE, GOING } from './seg_stairs.js';
+import { PASSAGE, horseshoe, sweep, headwall, skirted } from './sweep.js';
+import { lamp, portalLamp, wallPanel, sill } from './decor.js';
+import { buildSteps, stepZ, stepY } from './seg_stairs.js';
 import { atlasRect } from '../tex/atlas.js';
 import { drawTileLegend } from '../tex/signs.js';
 import { clamp } from '../util/rng.js';
@@ -10,14 +10,15 @@ import { clamp } from '../util/rng.js';
 const W = 2.3, CROWN = 2.4;
 const NARROW = horseshoe(W, 1.2, CROWN);
 const STUB = 1.2;   // full-size stub at each end before the passage narrows
+const FLAT = 2.5;   // level floor before and after the steps
 
 export const cross = {
   type: 'cross',
   plan(rng, env) {
     const steps = rng.pick([0, 3, 4, 5]);
     const dir = env.dir || rng.sign();
-    const len = STUB * 2 + 5 + steps * GOING;
-    const rise = steps * RISE * dir;
+    const len = stepZ(STUB + FLAT, steps) + FLAT + STUB;
+    const rise = stepY(0, steps, dir);
     return {
       p: { steps, dir, len, rise, flick: rng.chance(0.35) },
       exits: [{ x: 0, y: rise, z: len, yaw: 0 }],
@@ -27,7 +28,7 @@ export const cross = {
 
   build(ctx) {
     const { b, p, sheet, theme } = ctx;
-    const s0 = STUB + 2.5, run = p.steps * GOING, s1 = s0 + run;
+    const s0 = STUB + FLAT, s1 = stepZ(s0, p.steps), run = s1 - s0;
     const yAt = (z) => (run > 0 ? clamp((z - s0) / run, 0, 1) : (z >= s0 ? 1 : 0)) * p.rise;
     const mk = (z) => ({ x: 0, y: yAt(z), z, yaw: 0 });
     // full-size stubs at both ends, the narrow passage between two headwalls
@@ -35,15 +36,23 @@ export const cross = {
     const zs = [STUB, STUB + 1.25, s0];
     if (run > 0) zs.push(s1);
     zs.push(s1 + 1.25, p.len - STUB);
-    const mid = sweep(b, zs.map(mk), NARROW, { floor: null, u0: STUB });
+    const mid = sweep(b, zs.map(mk), skirted(NARROW), { floor: null, u0: STUB });   // walls reach below the steps
     const c = sweep(b, [mk(p.len - STUB), mk(p.len)], PASSAGE, { floor: atlasRect('floor'), u0: p.len - STUB });
+    // (ring walls keep the lining's own corner points: their edges must
+    // match both linings vertex for vertex)
     headwall(b, mk(STUB), PASSAGE, NARROW, -1, 'tile');
     headwall(b, mk(p.len - STUB), PASSAGE, NARROW, 1, 'tile');
     // floor of the narrow part: flat before and after the steps
     const hw = W / 2, floor = atlasRect('floorDark');
-    b.grid('atlas', [-hw, 0, STUB], [W, 0, 0], [0, 0, s0 - STUB], 2, 3, [0, 1, 0], floor, null, true);
-    b.grid('atlas', [-hw, p.rise, s1], [W, 0, 0], [0, 0, p.len - STUB - s1], 2, 3, [0, 1, 0], floor, null, true);
-    if (p.steps > 0) buildSteps(b, s0, p.steps, p.dir, hw, 0);
+    // (a little wider than the passage: the floor runs under the wall base)
+    // Floors and steps share the same x breakpoints and meet at exactly the
+    // same coordinates (no T-junctions between them).
+    const fx = -hw - 0.03, fw = W + 0.06;
+    b.grid('atlas', [fx, 0, STUB], [fw, 0, 0], [0, 0, FLAT], 2, 3, [0, 1, 0], floor, null, true);
+    b.grid('atlas', [fx, p.rise, s1], [fw, 0, 0], [0, 0, p.len - STUB - s1], 2, 3, [0, 1, 0], floor, null, true);
+    if (p.steps > 0) buildSteps(b, s0, p.steps, p.dir, [0, 1, 2].map((i) => fx + fw * (i / 2)), 0);
+    // the stubs' paving is cut differently from the narrow floor: sills
+    sill(b, mk(STUB), PASSAGE.W / 2, 'floorDark'); sill(b, mk(p.len - STUB), PASSAGE.W / 2, 'floorDark');
     for (const cell of mid.cells) cell.surface = 'stone';
     b.addPortal(0, 0, 0, 0); b.addPortal(0, p.rise, p.len, 0);
     portalLamp(b, mk(0), PASSAGE.crown);

@@ -1,6 +1,7 @@
 // A deep-level platform: you walk in through one headwall and out through
 // the other, with the track (and the dark running tunnels) alongside.
-import { PF, buildShell, buildHeadwall } from './platform_shell.js';
+import { PF, buildShell } from './platform_shell.js';
+import { buildHeadwall, MOUTH } from './platform_end.js';
 import { fitPlatform } from './platform_fit.js';
 import { portalLamp } from './decor.js';
 import { PASSAGE } from './sweep.js';
@@ -21,7 +22,9 @@ export const platform = {
         figure: !start && (env.wrong || 0) >= 1 && rng.chance(0.25 + 0.1 * (env.wrong || 0)),
       },
       exits: [{ x: 0, y: 0, z: L, yaw: 0 }],
-      box: side > 0 ? [xa, -2.4, 0, xb, 4.9, L] : [-xb, -2.4, 0, -xa, 4.9, L],
+      // (the box includes the tunnel-mouth recesses beyond both headwalls)
+      box: side > 0 ? [xa, -2.4, -MOUTH.depth - 0.2, xb, PF.cy + PF.R + 0.3, L + MOUTH.depth + 0.2]
+        : [-xb, -2.4, -MOUTH.depth - 0.2, -xa, PF.cy + PF.R + 0.3, L + MOUTH.depth + 0.2],
     };
   },
 

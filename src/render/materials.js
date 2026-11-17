@@ -25,8 +25,15 @@ void main() {
   gl_Position = projectionMatrix * mv;
 }`;
 
+// highp matters: on phone GPUs mediump is a 16-bit float, far too coarse for
+// texture coordinates that run to 5 or more along a tunnel (the tile joints
+// would jump about by several texels and flicker).
 const FRAG = /* glsl */ `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 uniform sampler2D map;
 uniform vec3 uFogColor;
 uniform float uFogDensity;
@@ -35,7 +42,9 @@ varying vec3 vLight;
 varying float vFog;
 void main() {
   vec4 t = texture2D(map, vUv);
+#ifdef CUTOUT
   if (t.a < 0.5) discard;
+#endif
   vec3 c = t.rgb * vLight;
   float f = 1.0 - exp(-uFogDensity * uFogDensity * vFog * vFog);
   gl_FragColor = vec4(mix(c, uFogColor, clamp(f, 0.0, 1.0)), 1.0);
@@ -51,8 +60,12 @@ export const worldUniforms = {
 
 // Each segment gets its own material instances so it can flicker on its own;
 // three.js shares the compiled program between them.
-export function makeWorldMaterial(texture, flick) {
+// cutout = true only for layers whose texture really has holes (lattice
+// gates, sign sheets…). Opaque layers never discard, so they cannot open up
+// when a distant surface samples a blurred mip level of an atlas.
+export function makeWorldMaterial(texture, flick, cutout = false) {
   return new THREE.ShaderMaterial({
+    defines: cutout ? { CUTOUT: 1 } : {},
     vertexShader: VERT,
     fragmentShader: FRAG,
     uniforms: {

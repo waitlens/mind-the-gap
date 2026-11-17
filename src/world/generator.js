@@ -2,12 +2,14 @@
 // player are planned and built; nodes further than a few joints away are torn
 // down again, and whole branches are forgotten once a gate closes behind you.
 import * as THREE from 'three';
-import { GeoBuilder } from './builder.js';
+import { GeoBuilder, placeVertices } from './builder.js';
 import { RNG, hash32 } from '../util/rng.js';
 import { CFG } from '../config.js';
 import { makeWorldMaterial } from '../render/materials.js';
 
 let nextId = 1;
+// layers drawn with an alpha test (their textures have real holes)
+const CUTOUT_LAYERS = new Set(['sheet', 'cut', 'gate', 'figure']);
 
 function worldBox(box, pos, yaw) {
   const c = Math.cos(yaw), s = Math.sin(yaw);
@@ -169,16 +171,15 @@ export class World {
     const sheet = this.hooks.makeSheet ? this.hooks.makeSheet(node) : null;
     const ctx = { b, p: node.p, rng: new RNG(hash32(node.seed, 99)), env: node.env, node, sheet, theme: node.env.theme, world: this };
     const res = node.def.build(ctx) || {};
-    const geos = b.bake(node.env.ambient || [0.1, 0.105, 0.1]);
+    // geometry is baked straight into world space (see GeoBuilder.bake):
+    // the group keeps the identity transform
+    const geos = b.bake(node.env.ambient || [0.1, 0.105, 0.1], { x: node.pos.x, y: node.pos.y, z: node.pos.z, yaw: node.yaw });
     const group = new THREE.Group();
-    group.position.set(node.pos.x, node.pos.y, node.pos.z);
-    group.rotation.y = node.yaw;
-    group.updateMatrix();
     group.matrixAutoUpdate = false;
     const sheetTex = sheet ? sheet.finish() : null;
     for (const layer of Object.keys(geos)) {
       const tex = layer === 'sheet' ? sheetTex : this.hooks.textures(layer, node);
-      const mesh = new THREE.Mesh(geos[layer], makeWorldMaterial(tex, node.flick));
+      const mesh = new THREE.Mesh(geos[layer], makeWorldMaterial(tex, node.flick, CUTOUT_LAYERS.has(layer)));
       mesh.matrixAutoUpdate = false;
       mesh.name = layer;
       if (layer === 'gate') mesh.visible = !!node.gateShut;   // shown when the gate closes
@@ -206,6 +207,25 @@ export class World {
     if (sheetTex) sheetTex.dispose();
     if (this.hooks.onDisposed) this.hooks.onDisposed(node);
     node.built = null;
+  }
+
+  // Move the whole world by (dx, dy, dz) so that coordinates stay small
+  // however far the player walks: 32-bit vertex positions lose precision far
+  // from the origin. Built geometry is re-placed from its local coordinates
+  // with the same formula a fresh build uses, so joints stay bit-identical.
+  rebase(dx, dy, dz) {
+    if (!dx && !dy && !dz) return;
+    for (const n of this.nodes.values()) {
+      n.pos.x -= dx; n.pos.y -= dy; n.pos.z -= dz;
+      n.box[0] -= dx; n.box[3] -= dx; n.box[1] -= dy; n.box[4] -= dy; n.box[2] -= dz; n.box[5] -= dz;
+      if (!n.built) continue;
+      for (const m of n.built.group.children) {
+        const a = m.geometry.attributes.position;
+        placeVertices(a.array, m.geometry.userData.local, { x: n.pos.x, y: n.pos.y, z: n.pos.z, yaw: n.yaw });
+        a.needsUpdate = true;
+        m.geometry.computeBoundingSphere();
+      }
+    }
   }
 
   // Forget a node and everything reachable from it without passing `stop`.

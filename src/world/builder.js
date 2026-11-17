@@ -8,6 +8,17 @@ const _v = new THREE.Vector3();
 const _n = new THREE.Vector3();
 const _m3 = new THREE.Matrix3();
 
+// World positions (32-bit) from local ones (doubles) for a segment placed at
+// xf = { x, y, z, yaw }. One formula for building and for re-basing, so the
+// same vertex always comes out bit-identical.
+export function placeVertices(out, local, xf) {
+  const c = Math.cos(xf.yaw), sn = Math.sin(xf.yaw);
+  for (let i = 0; i < local.length; i += 3) {
+    const lx = local[i], ly = local[i + 1], lz = local[i + 2];
+    out[i] = xf.x + lx * c + lz * sn; out[i + 1] = xf.y + ly; out[i + 2] = xf.z - lx * sn + lz * c;
+  }
+}
+
 export class GeoBuilder {
   constructor() {
     this.layers = {};
@@ -88,6 +99,16 @@ export class GeoBuilder {
     else L.idx.push(i0, i2, i1, i0, i3, i2);
   }
 
+  // Single triangle with per-corner uvs and a flat normal n.
+  tri(layer, a, b, c, n, ta, tb, tc, o) {
+    const L = this._layer(layer);
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+    const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+    const front = ((uy * vz - uz * vy) * n[0] + (uz * vx - ux * vz) * n[1] + (ux * vy - uy * vx) * n[2] >= 0) !== !!this.flip;
+    const i0 = this._vert(L, a, n, ta[0], ta[1], o), i1 = this._vert(L, b, n, tb[0], tb[1], o), i2 = this._vert(L, c, n, tc[0], tc[1], o);
+    if (front) L.idx.push(i0, i1, i2); else L.idx.push(i0, i2, i1);
+  }
+
   // Flat rectangle from origin o along du (nu cells) and dv (nv cells), so the
   // vertex lighting has something to interpolate. uv spans the whole rect
   // unless tile=true, in which case every cell gets the full uv rect.
@@ -137,7 +158,13 @@ export class GeoBuilder {
   }
 
   // Bake all layers. ambient = [r,g,b].
-  bake(ambient = [0.1, 0.1, 0.1]) {
+  // xf = { x, y, z, yaw } places the result in world space: positions are
+  // transformed here, in double precision, and every segment is then drawn
+  // with the SAME (identity) model matrix. Vertices that two neighbouring
+  // segments share therefore reach the GPU bit-identical, and the joint
+  // between them is watertight. (With one matrix per segment the shared
+  // edges differed by float rounding and leaked single pixels.)
+  bake(ambient = [0.1, 0.1, 0.1], xf = null) {
     const portalLights = this.portals.map((p) => ({ x: p.x, y: p.y + 2.3, z: p.z, i: 0.85, r2: 36 }));
     const out = {};
     for (const name of Object.keys(this.layers)) {
@@ -158,7 +185,12 @@ export class GeoBuilder {
           for (const p of this.portals) {
             const along = Math.abs((px - p.x) * p.dx + (pz - p.z) * p.dz);
             const lat = Math.abs((px - p.x) * p.dz - (pz - p.z) * p.dx);
-            if (lat < 4 && Math.abs(py - p.y) < 5) fade = Math.min(fade, smoothstep(0.1, 2.4, along));
+            // Only what lies round the opening itself is handed over to the
+            // portal lamp. Further out (the rest of an end wall, a big tunnel's
+            // lining) the segment's own lamps stay on, or end walls would be
+            // lit by the portal lamp alone and come out blotchy.
+            const rad = Math.hypot(lat, Math.max(0, py - p.y - 2.2));
+            if (lat < 4 && Math.abs(py - p.y) < 5) fade = Math.min(fade, Math.max(smoothstep(0.1, 2.4, along), smoothstep(1.7, 2.9, rad)));
           }
           r = ambient[0]; g = ambient[1]; b = ambient[2];
           for (const li of this.lights) {
@@ -176,7 +208,10 @@ export class GeoBuilder {
         light[i * 4 + 2] = Math.min(255, b * 127.5); light[i * 4 + 3] = Math.min(255, f * 127.5);
       }
       const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(L.pos), 3));
+      const pos = new Float32Array(L.pos);
+      if (xf) placeVertices(pos, L.pos, xf);
+      geo.userData.local = L.pos;   // kept so the world can be re-based exactly
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
       geo.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(L.uv), 2));
       geo.setAttribute('aLight', new THREE.BufferAttribute(light, 4, true));
       geo.setIndex(new THREE.BufferAttribute(L.n > 65535 ? new Uint32Array(L.idx) : new Uint16Array(L.idx), 1));

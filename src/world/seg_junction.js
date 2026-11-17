@@ -83,7 +83,7 @@ export const junction = {
     const nb = sheet.add(200, 92, (c, w, h) => drawNameBoard(c, w, h, shown));
     const npos = northPanel(b, 'sheet', 0, 1.42, 1.24, 0.57, nb, null);
     items.push({ ...npos, r: 6, cone: 0.95, label: 'read name', title: 'STATION', text: shown });
-    const hp = northPanel(b, 'atlas', 0, 0.62, 0.34, 0.68, atlasRect('helpPoint'), null);
+    const hp = northPanel(b, 'cut', 0, 0.62, 0.34, 0.68, atlasRect('helpPoint'), null);
     items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', help: true, onRead: (game, it, node) => game.director.helpPoint(node) });
 
     const zones = [{ x0: -HX, x1: HX, z0: 0.8, z1: D, fire: (game, node) => game.director.enterJunction(node) }];

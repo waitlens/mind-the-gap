@@ -72,6 +72,11 @@ export function commit(game, node) {
   // everything behind the gate ceases to exist
   node.parent = null;
   world.prune(junction, node);
+  // the gate is the new origin of the world (keeps coordinates small)
+  const dx = Math.round(node.pos.x), dy = Math.round(node.pos.y), dz = Math.round(node.pos.z);
+  world.rebase(dx, dy, dz);
+  const pl = game.player;
+  pl.pos.x -= dx; pl.pos.y -= dy; pl.pos.z -= dz; pl.eyeY -= dy;
   world.refresh();
   game.audio.sfx('gate');
   ev.lightsOut(0.28);

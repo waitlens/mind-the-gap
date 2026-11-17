@@ -1,7 +1,7 @@
 // Escalator shaft: an inclined barrel vault with two (stopped) escalators,
 // a central deck with uplighters and a rank of small adverts up each wall.
 import { PASSAGE, horseshoe, sweep, headwall } from './sweep.js';
-import { portalLamp, lamp } from './decor.js';
+import { portalLamp, lamp, sill } from './decor.js';
 import { slopeRail } from './seg_stairs.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawPoster } from '../tex/posters.js';
@@ -36,16 +36,20 @@ export const escalator = {
     zs.push(z1 + RUNIN, p.len);
     const frames = zs.map((z) => ({ x: 0, y: yAt(z), z, yaw: 0 }));
     sweep(b, frames, SHAFT, { floor: null });
+    // (ring walls keep the lining's own corner points: their outer edge must
+    // match the shaft lining vertex for vertex)
     headwall(b, frames[0], SHAFT, PASSAGE, 1, 'tile');
     headwall(b, frames[frames.length - 1], SHAFT, PASSAGE, -1, 'tile');
 
     const up = [0, 1, 0], floor = atlasRect('floor'), deck = atlasRect('deck'), steel = atlasFlat('metal');
     // landings
     for (const [za, zb, y] of [[0, LAND - RUNIN, 0], [z1 + RUNIN, p.len, p.rise]]) {
-      b.grid('atlas', [-HW, y, za], [W, 0, 0], [0, 0, zb - za], 5, 2, up, floor, null, true);
+      // (a little wider than the shaft: the floor runs under the wall base)
+      b.grid('atlas', [-HW - 0.04, y, za], [W + 0.08, 0, 0], [0, 0, zb - za], 5, 2, up, floor, null, true);
     }
     // lanes: flat run-in plates, comb, then the steps
     const going = 0.4, n = Math.round(p.run / going), rise = p.rise / n;
+    const sz = (i) => (i === n ? z1 : z0 + i * going), sy = (k) => (k === n ? p.rise : k * rise);
     const tread = atlasRect('tread'), riser = atlasFlat('steelDark'), comb = atlasRect('comb');
     for (const lx of LANES) {
       const xa = lx - LANE_HW, xb = lx + LANE_HW;
@@ -54,14 +58,21 @@ export const escalator = {
       }
       b.quad('atlas', [xa, 0.003, z0 - 0.25], [xb, 0.003, z0 - 0.25], [xb, 0.003, z0], [xa, 0.003, z0], up, comb);
       b.quad('atlas', [xb, p.rise + 0.003, z1 + 0.25], [xa, p.rise + 0.003, z1 + 0.25], [xa, p.rise + 0.003, z1], [xb, p.rise + 0.003, z1], up, comb);
+      // steps: every shared edge uses the very same numbers (sz / sy), so
+      // treads, risers and the plates at both ends meet without a crack
       for (let i = 0; i < n; i++) {
-        const za = z0 + i * going, zb = za + going;
-        const y = rise > 0 ? (i + 1) * rise : i * rise;
+        const za = sz(i), zb = sz(i + 1);
+        const y = sy(rise > 0 ? i + 1 : i), yn = sy(rise > 0 ? i : i + 1);
         b.quad('atlas', [xa, y, za], [xb, y, za], [xb, y, zb], [xa, y, zb], up, tread);
         const zr = rise > 0 ? za : zb;
-        b.quad('atlas', [xa, y - Math.abs(rise), zr], [xb, y - Math.abs(rise), zr], [xb, y, zr], [xa, y, zr], [0, 0, rise > 0 ? -1 : 1], riser);
+        b.quad('atlas', [xa, yn, zr], [xb, yn, zr], [xb, y, zr], [xa, y, zr], [0, 0, rise > 0 ? -1 : 1], riser);
       }
     }
+    // sills under the foot of both headwalls, and where the landings'
+    // paving meets the lane plates (they are cut differently)
+    sill(b, frames[0], HW + 0.04); sill(b, frames[frames.length - 1], HW + 0.04);
+    sill(b, { x: 0, y: 0, z: LAND - RUNIN, yaw: 0 }, HW);
+    sill(b, { x: 0, y: p.rise, z: z1 + RUNIN, yaw: 0 }, HW);
     // balustrades, decks and handrails between and beside the lanes
     const edges = [-HW, LANES[0] - LANE_HW, LANES[0] + LANE_HW, LANES[1] - LANE_HW, LANES[1] + LANE_HW, HW];
     const za = LAND - RUNIN, zb = z1 + RUNIN;
@@ -73,11 +84,15 @@ export const escalator = {
       }
       for (const [x, nx] of [[edges[1], 1], [edges[2], -1], [edges[3], 1], [edges[4], -1]]) { // panels facing the lanes
         b.quad('atlas', [x, ya, sa], [x, yb, sb], [x, yb + BAL, sb], [x, ya + BAL, sa], [nx, 0, 0], steel);
+        // a skirt below the panel: its bottom edge would otherwise only just
+        // touch the inner corners of the steps
+        b.quad('atlas', [x, ya - 0.3, sa], [x, yb - 0.3, sb], [x, yb, sb], [x, ya, sa], [nx, 0, 0], atlasFlat('steelDark'));
         slopeRail(b, x + nx * 0.03, sa, ya + BAL + 0.04, sb, yb + BAL + 0.04, 0.04);
       }
     }
     for (let k = 0; k < 6; k += 2) {                // deck end faces
       const xa = edges[k], xb = edges[k + 1];
+      // (same corner points as the lane panels; the sills cover the floor seam)
       b.quad('atlas', [xa, 0, za], [xb, 0, za], [xb, BAL, za], [xa, BAL, za], [0, 0, -1], steel);
       b.quad('atlas', [xa, p.rise, zb], [xb, p.rise, zb], [xb, p.rise + BAL, zb], [xa, p.rise + BAL, zb], [0, 0, 1], steel);
     }

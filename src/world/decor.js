@@ -41,9 +41,24 @@ export function lampsAlong(b, frames, dist, crown, plan = {}) {
   return placed;
 }
 
-// The batten that sits on a joint between two segments (drawn by the child).
+// The batten that sits on a joint between two segments (drawn by the child),
+// and a sill under the threshold. Two segments are separate meshes and their
+// floors can be subdivided differently, so along the threshold a stray pixel
+// can fall between them; the sill (3 mm under the floor, never seen
+// otherwise) makes sure such a pixel shows paving and not the void.
 export function portalLamp(b, f, crown) {
   lamp(b, f, crown - 0.04, { noLight: true });
+  sill(b, f, 1.56);
+}
+
+// A strip 3 mm under a seam between two floors that do not share vertices
+// (different meshes, or different subdivisions). Never seen directly; it is
+// what shows through if the rasteriser leaves a pinhole on the seam.
+export function sill(b, f, halfW, cell = 'floor') {
+  const [px, , pz] = framePoint(f, 0, 0);
+  b.place(px, f.y, pz, f.yaw);
+  b.quad('atlas', [-halfW, -0.003, -0.16], [halfW, -0.003, -0.16], [halfW, -0.003, 0.16], [-halfW, -0.003, 0.16], [0, 1, 0], atlasFlat(cell));
+  b.setXf(null);
 }
 
 // Flat panel on a wall. `f` is a frame on the path, side = -1 | +1 (which

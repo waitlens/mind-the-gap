@@ -152,6 +152,26 @@ export function boxAround(inner, W, H, cx = 0) {
   return out;
 }
 
+// Copy of a profile with one extra point below each foot: the wall then
+// carries on a little way under the floor line. Used where steps run along
+// a wall: the bottom edge of a plain wall would only just touch the inner
+// corners of the steps, and "only just" leaks pixels. The original foot
+// points are kept, so the wall still matches its neighbours at the joints.
+export function skirted(profile, d = 0.25) {
+  const a = profile[0], z = profile[profile.length - 1];
+  const out = [{ ...a, y: a.y - d, v: -0.05 }, ...profile, { ...z, y: z.y - d, v: -0.05 }];
+  out.W = profile.W; out.crown = profile.crown; out.spring = profile.spring; out.len = profile.len;
+  return out;
+}
+
+// Outline a little larger than a profile all round (and reaching below the
+// floor). A solid end wall set just inside the end of a passage is built
+// from this: its rim then lies behind the lining and under the floor, so it
+// overlaps them instead of touching them exactly along an edge.
+export function outsized(profile, d = 0.04) {
+  return profile.map((p) => ({ x: p.x - p.nx * d, y: p.y < 1e-6 ? -d : p.y - p.ny * d }));
+}
+
 // Flat end wall filling the ring between an outer and an inner outline that
 // have the same number of points (inner may be null for a solid wall).
 // `f` is the frame the wall stands on; `facing` = +1 if the visible face

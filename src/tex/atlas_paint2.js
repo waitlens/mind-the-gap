@@ -84,6 +84,22 @@ export const PAINT2 = {
     ctx.bezierCurveTo(w * 0.2, h * 0.5, w * 0.14, h * 0.17, w * 0.5, h * 0.15);
     ctx.fill();
   },
+  // arch ring of the running-tunnel portal: sooty engineering-brick
+  // voussoirs, six across; the bottom of the cell is the inner edge (2 x 1)
+  brick(ctx, w, h, r) {
+    fill(ctx, w, h, '#1d1a17');
+    const n = 6, bw = w / n;
+    for (let i = 0; i < n; i++) {
+      const v = r.int(-10, 10);
+      ctx.fillStyle = `rgb(${138 + v},${86 + v},${66 + v})`;
+      ctx.fillRect(i * bw + 2, 3, bw - 4, h - 6);
+      ctx.fillStyle = 'rgba(255,220,190,0.10)'; ctx.fillRect(i * bw + 2, 3, bw - 4, 4);
+    }
+    const g = ctx.createLinearGradient(0, 0, 0, h);          // soot thickens towards the opening
+    g.addColorStop(0, 'rgba(10,8,6,0.08)'); g.addColorStop(1, 'rgba(10,8,6,0.55)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < 260; i++) { ctx.fillStyle = `rgba(0,0,0,${r.range(0.04, 0.16)})`; ctx.fillRect(r.range(0, w), r.range(0, h), r.range(1, 4), r.range(1, 6)); }
+  },
   // roller shutter (2 x 2 cells)
   shutter(ctx, w, h, r) {
     fill(ctx, w, h, '#6a6f72');

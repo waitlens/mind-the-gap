@@ -25,9 +25,9 @@ function bench(b, side, zc, walls) {
   const x0 = PF.back + 0.14, x1 = PF.back + 0.6, z0 = zc - 0.9, z1 = zc + 0.9;
   const wood = atlasRect('bench'), leg = atlasFlat('steelDark');
   const lo = Math.min(X(x0), X(x1)), hi = Math.max(X(x0), X(x1));
-  b.box('atlas', lo, 0.4, z0, hi, 0.46, z1, wood, null, 'xXyYzZ');                       // seat
+  b.box('cut', lo, 0.4, z0, hi, 0.46, z1, wood, null, 'xXyYzZ');                       // seat
   const bx = X(x0 + 0.02), bx2 = X(x0 + 0.07);
-  b.box('atlas', Math.min(bx, bx2), 0.56, z0, Math.max(bx, bx2), 0.95, z1, wood, null, 'xXYzZ'); // back rest
+  b.box('cut', Math.min(bx, bx2), 0.56, z0, Math.max(bx, bx2), 0.95, z1, wood, null, 'xXYzZ'); // back rest
   for (const z of [z0 + 0.12, zc, z1 - 0.12]) b.box('atlas', lo + 0.05, 0, z - 0.03, hi - 0.05, 0.4, z + 0.03, leg, null, 'xXzZ');
   walls.push([X(x1 + 0.05), z0, X(x1 + 0.05), z1], [X(x0), z0, X(x1 + 0.05), z0], [X(x0), z1, X(x1 + 0.05), z1]);
 }
@@ -39,7 +39,11 @@ export function fitPlatform(ctx, L, side) {
   const X = (x) => side * x;
   // --- lighting: a row of battens hung over the platform
   let k = 0;
-  for (let z = 3; z < L - 2; z += 4.2, k++) {
+  // (spaced evenly from 3 m inside one headwall to 3 m inside the other, so
+  // both ends of the platform — and both tunnel mouths — are lit alike)
+  const nLamps = Math.round((L - 6) / 4.2) + 1;
+  for (; k < nLamps; k++) {
+    const z = 3 + ((L - 6) * k) / (nLamps - 1);
     lamp(b, { x: X(0.5), y: 0, z, yaw: 0 }, 3.45, { dead: p.dark && k % 3 !== 1, flick: p.faulty === k, power: 0.62, radius: 9.5, len: 1.5 });
   }
   // --- frieze: a continuous strip with the station name
@@ -106,9 +110,9 @@ export function fitPlatform(ctx, L, side) {
   const wpos = hangingSign(b, 'sheet', { x: 0, y: 0, z: L - 7, yaw: 0 }, 2.42, 1.7, 0.38, wo, plate, { emit: 1.25 }, X(0));
   items.push({ ...wpos, r: 9, cone: 0.94, label: 'read sign', title: 'SIGN', text: 'Way out ↑ (black on yellow)' });
   // help point and a signal lamp in the tunnel mouth
-  const hp = arcPanel(b, 'atlas', side, -1, L * 0.5 + 1.2, 0.34, 0.7, 1.38, atlasRect('helpPoint'));
+  const hp = arcPanel(b, 'cut', side, -1, L * 0.5 + 1.2, 0.34, 0.7, 1.38, atlasRect('helpPoint'));
   items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', onRead: (g, it, node) => g.director.helpPoint(node) });
-  b.quad('atlas', [X(PF.track + 1.15), 0.9, L - 0.08], [X(PF.track + 1.3), 0.9, L - 0.08], [X(PF.track + 1.3), 1.05, L - 0.08], [X(PF.track + 1.15), 1.05, L - 0.08],
+  b.quad('atlas', [X(PF.track + 0.98), 0.9, L + 0.4], [X(PF.track + 1.13), 0.9, L + 0.4], [X(PF.track + 1.13), 1.05, L + 0.4], [X(PF.track + 0.98), 1.05, L + 0.4],
     [0, 0, -1], atlasFlat('white'), { emit: 1.6, tint: [1, 0.12, 0.08] });
   // --- the figure at the far end
   if (p.figure) {

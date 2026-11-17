@@ -19,6 +19,7 @@ const CELLS = {
   figure: [4, 4, 1, 2], shutter: [5, 4, 2, 2], daylight: [7, 4, 1, 1], edge: [7, 5, 1, 1],
   navy: [0, 5, 1, 1], cream: [1, 5, 1, 1], steelDark: [2, 5, 1, 1], signBack: [3, 5, 1, 1],
   comb: [0, 6, 1, 1], deck: [1, 6, 1, 1], uplight: [2, 6, 1, 1], blackout: [3, 6, 1, 1],
+  brick: [4, 5, 2, 1],
 };
 
 let canvas = null, texture = null;
@@ -27,7 +28,9 @@ export function buildAtlasCanvas() {
   if (canvas) return canvas;
   canvas = makeCanvas(S, S);
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, S, S);
+  // opaque everywhere except inside the few cut-out cells (which clear
+  // themselves), so blurred mip levels never turn see-through
+  ctx.fillStyle = '#3b3a37'; ctx.fillRect(0, 0, S, S);
   const painters = { ...PAINT, ...PAINT2 };
   for (const [name, [cx, cy, cw, ch]] of Object.entries(CELLS)) {
     const fn = painters[name];

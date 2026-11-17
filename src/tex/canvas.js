@@ -50,7 +50,9 @@ export function shade(hex, amt) {
 }
 
 // Sprinkle grime: speckles, drips and a soft darkening towards the bottom.
-export function grime(ctx, x, y, w, h, seed = 1, strength = 1) {
+// drips = false leaves out the long thin run-marks: on wall tiling they read
+// as stray vertical lines once the picture is scaled down and scanlined.
+export function grime(ctx, x, y, w, h, seed = 1, strength = 1, drips = true) {
   const r = new RNG(seed);
   ctx.save();
   ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
@@ -59,9 +61,9 @@ export function grime(ctx, x, y, w, h, seed = 1, strength = 1) {
     const a = r.range(0.02, 0.09) * strength;
     ctx.fillStyle = r.chance(0.75) ? `rgba(30,24,14,${a})` : `rgba(255,255,240,${a * 0.6})`;
     const s = r.range(1, 5);
-    ctx.fillRect(x + r.range(0, w), y + r.range(0, h), s, s * r.range(0.5, 3));
+    ctx.fillRect(x + r.range(0, w), y + r.range(0, h), s, s * r.range(0.5, drips ? 3 : 1.4));
   }
-  for (let i = 0; i < Math.floor((w / 90) * strength); i++) {
+  for (let i = 0; drips && i < Math.floor((w / 90) * strength); i++) {
     const dx = x + r.range(0, w), dy = y + r.range(0, h * 0.7), len = r.range(h * 0.05, h * 0.35);
     const g = ctx.createLinearGradient(0, dy, 0, dy + len);
     g.addColorStop(0, `rgba(40,30,15,${0.10 * strength})`); g.addColorStop(1, 'rgba(40,30,15,0)');

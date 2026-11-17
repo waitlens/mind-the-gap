@@ -35,6 +35,8 @@ export function makeStretch(story, opts = {}) {
     if (plan[plan.length - 1] !== 'corridor') plan.push('corridor');
     plan.push(has('junction') ? 'junction' : 'corridor');
   }
+  // (tests can force what lies beyond a junction, e.g. a short closed stub)
+  if (opts.fromJunction && story.testBranch) plan.splice(0, plan.length, 'corridor', ...story.testBranch);
   story.stretchCount++;
   return {
     id, plan, rng,

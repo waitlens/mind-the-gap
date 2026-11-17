@@ -63,7 +63,17 @@ export function drawTiles(theme, kind = 'passage', size = 1024, sizeV = 512) {
   g.addColorStop(1, 'rgba(25,20,12,0.28)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, sizeV);
-  grime(ctx, 0, 0, size, sizeV, hashStr(theme.id) + 7, 1.1);
+  // dirt: speckles and a few broad soft stains — but no thin drip lines,
+  // which show up on the walls as faint vertical lines that flicker
+  grime(ctx, 0, 0, size, sizeV, hashStr(theme.id) + 7, 1.1, false);
+  for (let i = 0; i < 9; i++) {
+    const cx = r.range(0, size), cy = r.range(0, sizeV), rad = r.range(40, 110);
+    for (const ox of [-size, 0, size]) {            // wrap round the repeat
+      const st = ctx.createRadialGradient(cx + ox, cy, 0, cx + ox, cy, rad);
+      st.addColorStop(0, 'rgba(45,36,20,0.07)'); st.addColorStop(1, 'rgba(45,36,20,0)');
+      ctx.fillStyle = st; ctx.fillRect(cx + ox - rad, cy - rad, rad * 2, rad * 2);
+    }
+  }
   return c;
 }
 

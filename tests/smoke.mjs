@@ -9,6 +9,10 @@
 //           --eval="js"      run JS in the page after start (may be repeated)
 //           --after="js"     run JS after the wait, just before the screenshot
 //           --size=WxH       viewport size
+//           --cracks         also scan closed test worlds for pinholes: a virtual
+//                            camera looks around from thousands of spots and the
+//                            test fails if the void shows through the geometry
+//                            (slow: about two minutes in software rendering)
 // Skips (exit 0) if puppeteer-core or a Chrome binary is not available.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -102,6 +106,25 @@ async function main() {
     }
     const t0 = await page.evaluate(() => window.__game.state.frame || 0);
     await new Promise((r) => setTimeout(r, Number(opt('wait', 4000))));
+    if (opt('cracks', false)) {
+      const res = await page.evaluate(() => {
+        const d = window.__game.debug, out = [];
+        const all = ['platform', 'corridor', 'bend', 'stairs', 'corridor', 'cross', 'platform', 'escalator', 'corridor', 'exit'];
+        d.branch(null); d.force(null);
+        d.plan(all, 3); d.buildAll(14);
+        out.push({ world: 'all segment types', ...d.scanVoid() });
+        d.branch(['corridor', 'deadend']); d.force('clock', 2);
+        d.plan(['platform', 'corridor', 'junction'], 6); d.buildAll(10);
+        out.push({ world: 'junction', ...d.scanVoid() });
+        d.branch(null); d.force(null);
+        return out;
+      });
+      for (const r of res) {
+        console.log(`cracks: ${r.world}: ${r.total} void pixel(s) in ${r.views} views`, JSON.stringify(r.byType));
+        // a handful of single pixels at extreme grazing angles is the noise floor
+        if (r.total > 25) throw new Error(`geometry is not watertight in "${r.world}": ${r.total} void pixels (worst ${JSON.stringify(r.worst)})`);
+      }
+    }
     for (const code of afters) {
       const out = await page.evaluate(code);
       if (out !== undefined) console.log('after →', JSON.stringify(out));

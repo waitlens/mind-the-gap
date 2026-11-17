@@ -125,4 +125,7 @@ Two more things worth knowing:
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,
-`--mobile` emulates a phone.
+`--mobile` emulates a phone. `--cracks` additionally checks that the geometry
+is watertight: it builds closed test worlds, looks around from several
+thousand camera positions with the void painted magenta, and fails if the
+void shows through anywhere (pinholes at seams, missing faces).

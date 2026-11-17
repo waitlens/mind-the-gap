@@ -1,8 +1,8 @@
 // The true way out: a last flight of stairs climbing into daylight, and
 // the dead end used when the generator has nowhere left to go.
-import { PASSAGE, sweep, headwall } from './sweep.js';
+import { PASSAGE, sweep, headwall, outsized, skirted } from './sweep.js';
 import { portalLamp, lamp, hangingSign } from './decor.js';
-import { buildSteps, slopeRail, RISE, GOING } from './seg_stairs.js';
+import { buildSteps, slopeRail, stepZ, stepY } from './seg_stairs.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawWayOut, drawPlate } from '../tex/signs.js';
 import { clamp } from '../util/rng.js';
@@ -12,7 +12,7 @@ const LAND0 = 3, LAND1 = 4.5, STEPS = 24;
 export const exit = {
   type: 'exit',
   plan() {
-    const run = STEPS * GOING, rise = STEPS * RISE, len = LAND0 + run + LAND1;
+    const run = stepZ(0, STEPS), rise = stepY(0, STEPS, 1), len = stepZ(LAND0, STEPS) + LAND1;
     return {
       p: { run, rise, len },
       exits: [],
@@ -28,24 +28,30 @@ export const exit = {
     for (let i = 1; i <= nf; i++) zs.push(LAND0 + (p.run * i) / nf);
     zs.push(p.len - 2.2, p.len);
     const frames = zs.map((z) => ({ x: 0, y: yAt(z), z, yaw: 0 }));
-    const sw = sweep(b, frames, PASSAGE, { floor: null });
+    const sw = sweep(b, frames, skirted(PASSAGE), { floor: null });   // walls reach below the steps
     for (const c of sw.cells) c.surface = 'stone';
     const hw = PASSAGE.W / 2, floor = atlasRect('floor');
-    b.grid('atlas', [-hw, 0, 0], [PASSAGE.W, 0, 0], [0, 0, LAND0], 3, 3, [0, 1, 0], floor, null, true);
-    b.grid('atlas', [-hw, p.rise, p.len - LAND1], [PASSAGE.W, 0, 0], [0, 0, LAND1], 3, 4, [0, 1, 0], floor, null, true);
-    buildSteps(b, LAND0, STEPS, 1);
+    // (a little wider than the passage: the floor runs under the wall base)
+    // landings and steps share the same x breakpoints and meet at exactly
+    // the same coordinates (no T-junctions between them)
+    const fx = -hw - 0.03, fw = PASSAGE.W + 0.06, top = stepZ(LAND0, STEPS);
+    b.grid('atlas', [fx, 0, 0], [fw, 0, 0], [0, 0, LAND0], 3, 3, [0, 1, 0], floor, null, true);
+    b.grid('atlas', [fx, p.rise, top], [fw, 0, 0], [0, 0, p.len - top], 3, 4, [0, 1, 0], floor, null, true);
+    buildSteps(b, LAND0, STEPS, 1, [0, 1, 2, 3].map((i) => fx + fw * (i / 3)));
     for (const x of [-hw + 0.09, hw - 0.09]) slopeRail(b, x, LAND0 - 0.3, 0.95, LAND0 + p.run + 0.3, p.rise + 0.95);
     // daylight: the far end of the passage is simply white
-    const end = frames[frames.length - 1];
+    // (set 2 cm inside the end of the passage, so the lining and the floor
+    // run past it instead of meeting it edge to edge)
+    const end = { x: 0, y: p.rise, z: p.len - 0.02, yaw: 0 };
     const day = atlasFlat('daylight');
-    headwall(b, end, PASSAGE.map((q) => ({ x: q.x, y: q.y })), null, -1, 'atlas', () => [(day[0] + day[2]) / 2, (day[1] + day[3]) / 2], { emit: 2 });
+    headwall(b, end, outsized(PASSAGE), null, -1, 'atlas', () => [(day[0] + day[2]) / 2, (day[1] + day[3]) / 2], { emit: 2 });
     b.addLight(0, p.rise + 1.6, p.len - 0.6, 2.4, 11, false, [1, 1, 1]);
     b.addLight(0, p.rise + 1.2, p.len - 3.5, 1.2, 9, false, [1, 1, 1]);
     // the open gate, folded back against both walls
     const g = atlasRect('gate');
     for (const s of [-1, 1]) {
       const x = s * (hw - 0.06), z = p.len - LAND1 + 0.5;
-      b.quad('atlas', [x, p.rise, z], [x, p.rise, z + 0.7], [x, p.rise + 2.3, z + 0.7], [x, p.rise + 2.3, z], [-s, 0, 0], g, { emit: 0.25 });
+      b.quad('cut', [x, p.rise, z], [x, p.rise, z + 0.7], [x, p.rise + 2.3, z + 0.7], [x, p.rise + 2.3, z], [-s, 0, 0], g, { emit: 0.25 });
     }
     b.addPortal(0, 0, 0, 0);
     portalLamp(b, frames[0], PASSAGE.crown);
@@ -72,7 +78,7 @@ export const deadend = {
     const frames = [{ x: 0, y: 0, z: 0, yaw: 0 }, { x: 0, y: 0, z: 1.5, yaw: 0 }, { x: 0, y: 0, z: p.len, yaw: 0 }];
     const sw = sweep(b, frames, PASSAGE, { floor: atlasRect('floor') });
     const sh = atlasRect('shutter');
-    headwall(b, frames[2], PASSAGE.map((q) => ({ x: q.x, y: q.y })), null, -1, 'atlas',
+    headwall(b, { x: 0, y: 0, z: p.len - 0.02, yaw: 0 }, outsized(PASSAGE), null, -1, 'atlas',
       (x, y) => [sh[0] + (sh[2] - sh[0]) * (x / PASSAGE.W + 0.5), sh[1] + (sh[3] - sh[1]) * (y / PASSAGE.crown)]);
     b.addPortal(0, 0, 0, 0);
     portalLamp(b, frames[0], PASSAGE.crown);
