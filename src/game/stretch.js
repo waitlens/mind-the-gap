@@ -1,0 +1,98 @@
+// A "stretch" is the run of segments between two junctions: one station
+// identity (name, tile colours, line) and a planned list of segment types.
+import { hash32, RNG, angleDiff } from '../util/rng.js';
+import { CFG, LINES } from '../config.js';
+import { SEGMENTS } from '../world/registry.js';
+import { stationName } from './names.js';
+
+let stretchId = 1;
+const has = (t) => !!SEGMENTS[t];
+
+export function makeStretch(story, opts = {}) {
+  const id = stretchId++;
+  const rng = new RNG(hash32(story.seed, 1000 + id * 13));
+  const plan = [];
+  if (opts.first) plan.push(has('platform') ? 'platform' : 'corridor');
+  if (opts.fromJunction) plan.push('corridor');   // the gate passage
+  if (opts.exit) {
+    plan.push('corridor', has('exit') ? 'exit' : 'corridor');
+  } else {
+    const n = rng.int(3, 5);
+    let platforms = opts.first ? 1 : 0, last = plan[plan.length - 1] || '';
+    for (let k = 0; k < n; k++) {
+      const t = rng.weighted([
+        ['corridor', last === 'corridor' ? 1 : 3], ['bend', last === 'bend' ? 0.4 : 2.2],
+        ['stairs', has('stairs') && last !== 'stairs' ? 1.5 : 0], ['escalator', has('escalator') && last !== 'escalator' ? 0.7 : 0],
+        ['platform', has('platform') && platforms < 1 && k > 0 ? 1.6 : 0],
+      ]);
+      plan.push(t);
+      if (t === 'platform') {
+        platforms++;
+        if (has('cross') && rng.chance(0.5)) plan.push('cross', 'platform');
+      }
+      last = t;
+    }
+    if (plan[plan.length - 1] !== 'corridor') plan.push('corridor');
+    plan.push(has('junction') ? 'junction' : 'corridor');
+  }
+  story.stretchCount++;
+  return {
+    id, plan, rng,
+    station: stationName(rng, story.usedNames),
+    theme: opts.theme || story.theme(rng),
+    line: rng.pick(LINES), line2: rng.pick(LINES),
+    dark: !opts.first && !opts.exit && rng.chance(0.06 + 0.05 * story.wrong),
+    first: !!opts.first, exit: !!opts.exit,
+    correct: opts.correct, fromJunction: opts.fromJunction || null,
+    wrongAtStart: story.wrong, clocksBack: !!opts.clocksBack,
+  };
+}
+
+// Segments whose exits leave sideways need the path to be heading "north"
+// (world +Z) so that nothing ever heads back south over older ground.
+const NEEDS_NORTH = new Set(['junction', 'cross']);
+
+function norm(yaw) { return angleDiff(0, yaw); }
+
+// World hook: pick what goes behind exit i of node.
+export function nextInStretch(story, node, i, attempt, rng) {
+  const world = story.game.world;
+  const yaw = norm(world.exitPose(node, i).yaw);
+  let stretch = node.env.stretch, idx = node.env.idx + 1;
+  if (node.def.type === 'junction') {
+    stretch = story.branchStretch(node, i);
+    idx = 0;
+  }
+  let type = stretch.plan[idx];
+  if (type === undefined) { type = 'corridor'; idx = stretch.plan.length; }
+  const env = (extra) => story.envFor(stretch, idx, { yaw, ...extra });
+  const back = (extra) => story.envFor(stretch, idx - 1, { yaw, filler: true, ...extra }); // does not consume the plan
+  const turnHome = yaw > 0.1 ? -1 : yaw < -0.1 ? 1 : 0;
+
+  if (attempt === 0) {
+    if (NEEDS_NORTH.has(type) && turnHome !== 0) return { def: SEGMENTS.bend, env: back({ turn: turnHome }) };
+    if (type === 'bend') {
+      // never turn to face south
+      const turn = turnHome !== 0 ? turnHome : rng.sign();
+      return { def: SEGMENTS.bend, env: env({ turn }) };
+    }
+    if (type === 'junction') return { def: SEGMENTS.junction, env: env(story.junctionEnv(rng)) };
+    if (idx === 0 && stretch.fromJunction) return { def: SEGMENTS.corridor, env: env({ gate: true, len: 8, noticeChance: 0 }), force: true };
+    return { def: SEGMENTS[type] || SEGMENTS.corridor, env: env({}) };
+  }
+  // --- something did not fit: try other ways of getting past the obstacle
+  const alts = [];
+  if (turnHome !== 0) alts.push(['bend', { turn: turnHome }]);
+  else alts.push(['bend', { turn: 1 }], ['bend', { turn: -1 }]);
+  alts.push(['corridor', { short: true }]);
+  if (has('stairs')) alts.push(['stairs', { dir: -1 }], ['stairs', { dir: 1 }]);
+  if (has('escalator')) alts.push(['escalator', { dir: -1 }], ['escalator', { dir: 1 }]);
+  alts.push(['corridor', { short: true, tiny: true }]);
+  const a = alts[attempt - 1];
+  if (a) return { def: SEGMENTS[a[0]], env: back(a[1]) };
+  if (has('deadend')) return { def: SEGMENTS.deadend, env: back({}), force: true };
+  return null;
+}
+
+// How many correct choices remain before the exit stretch is generated.
+export function remaining(story) { return CFG.goal - story.progress; }
