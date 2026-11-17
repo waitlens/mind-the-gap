@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="description" content="Mind the Gap — you got off the last train. The station does not seem to end.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23111'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23b3261e' stroke-width='5'/%3E%3Cpath d='M1 16l4-4h22l4 4-4 4H5z' fill='%2314213d'/%3E%3C/svg%3E">
+  <title>Mind the Gap</title>
+  <script type="module" crossorigin src="./assets/index-DWUu_NxT.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BiIQUx4T.css">
+</head>
+<body>
+  <canvas id="view" aria-label="Game view"></canvas>
+
+  <!-- Touch controls (shown only on touch devices while playing) -->
+  <div id="touch" class="hidden" aria-hidden="true">
+    <div id="stick-zone"><div id="stick-base"><div id="stick-knob"></div></div></div>
+    <div id="look-zone"></div>
+    <button id="btn-use" type="button">READ</button>
+    <button id="btn-run" type="button">RUN</button>
+    <button id="btn-pause" type="button" aria-label="Pause">II</button>
+  </div>
+
+  <!-- Title screen -->
+  <section id="title" class="screen">
+    <div class="panel">
+      <div class="mark" id="title-mark"></div>
+      <h1>Mind the Gap</h1>
+      <p class="sub">The last train has gone. The station has not.</p>
+      <button id="btn-start" type="button" class="big">Press to begin</button>
+      <div class="help desktop-only">
+        <b>WASD</b> walk &nbsp;·&nbsp; <b>Mouse</b> look &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp;
+        <b>E</b> read / interact &nbsp;·&nbsp; <b>Esc</b> pause
+      </div>
+      <div class="help touch-only">
+        <b>Left thumb</b> walk &nbsp;·&nbsp; <b>Right thumb</b> look &nbsp;·&nbsp; <b>READ</b> to read signs
+      </div>
+      <p class="hint">Read the signs. Listen to the announcements. Find the way out.<br>
+        Best with headphones.</p>
+      <label class="opt"><input type="checkbox" id="opt-voice" checked> Spoken announcements</label>
+      <label class="opt"><input type="checkbox" id="opt-hq"> Sharper picture</label>
+    </div>
+  </section>
+
+  <!-- Pause screen -->
+  <section id="pause" class="screen hidden">
+    <div class="panel">
+      <h2>Paused</h2>
+      <p class="sub">The tape is still running.</p>
+      <button id="btn-resume" type="button" class="big">Resume</button>
+    </div>
+  </section>
+
+  <!-- End screen -->
+  <section id="end" class="screen hidden">
+    <div class="panel">
+      <div class="mark" id="end-mark"></div>
+      <h2>Way out</h2>
+      <p class="sub" id="end-line">You climbed out into the morning.</p>
+      <dl id="end-stats"></dl>
+      <button id="btn-again" type="button" class="big">Go back down</button>
+    </div>
+  </section>
+
+  <div id="fade"></div>
+  <noscript>This game needs JavaScript and WebGL.</noscript>
+</body>
+</html>
