@@ -90,7 +90,9 @@ export function addDiagram(ctx, f, side, items, s = HW) {
   const sections = route(env.station, dir);
   if (rng.chance(Math.min(0.8, (env.wrong || 0) * 0.2))) corrupt(sections, rng.pick(['ghost', 'ghost', 'swap', 'repeat']), rng);
   const uv = sheet.add(200, 300, (c, w, h) => drawLineDiagram(c, w, h, sections, { station: env.station, dir }));
-  const pos = wallPanel(b, 'sheet', f, side, s, 0.6, 0.94, 1.41, uv, null, 0.045);
+  // keep it below the spring of the vault (1.35 m + a little): a taller panel
+  // would stick through the curved upper wall
+  const pos = wallPanel(b, 'sheet', f, side, s, 0.42, 0.72, 1.08, uv, null, 0.045);
   items.push({ ...pos, r: 5, label: 'read line diagram', title: 'LINE DIAGRAM', text: routeText(env.station, dir, sections) });
 }
 
