@@ -84,15 +84,54 @@ function addLegend(ctx, f, side, items) {
 
 // The line diagram for one of this station's platforms, as posted in the
 // passages that lead to it ("Northbound platform 1" and what it serves).
+// A wall panel that runs up the straight wall and bends over onto the vault
+// (horseshoe profile), so tall boards stay flush. h is the developed height.
+function vaultPanel(b, layer, f, side, y0, w, h, uv, lift = 0.04) {
+  const A = PASSAGE.W / 2, sp = PASSAGE.spring, B = PASSAGE.crown - sp;
+  const wallAt = (y) => {
+    if (y <= sp) return { X: A, nx: 1, ny: 0 };
+    const t = Math.min(1, (y - sp) / B), X = A * Math.sqrt(1 - t * t);
+    const gx = X / (A * A), gy = (y - sp) / (B * B), l = Math.hypot(gx, gy) || 1;
+    return { X, nx: gx / l, ny: gy / l };
+  };
+  // walk up the wall in small steps, keeping rows at equal developed spacing
+  const rows = [];
+  const N = 10, step = h / N;
+  let y = y0, acc = 0;
+  rows.push({ y, ...wallAt(y) });
+  for (let i = 1; i <= N; i++) {
+    const target = step * i;
+    while (acc < target) {
+      const dy = 0.005, a = wallAt(y), c = wallAt(y + dy);
+      acc += Math.hypot(c.X - a.X, dy); y += dy;
+    }
+    rows.push({ y, ...wallAt(y) });
+  }
+  const [px, , pz] = framePoint(f, 0, 0);
+  b.place(px, f.y, pz, f.yaw);
+  const zA = side > 0 ? -w / 2 : w / 2, zC = -zA;
+  const P = (r, z) => [side * (r.X - lift * r.nx), r.y - lift * r.ny, z];
+  for (let i = 0; i < N; i++) {
+    const r0 = rows[i], r1 = rows[i + 1];
+    const v0 = uv[1] + (uv[3] - uv[1]) * (i / N), v1 = uv[1] + (uv[3] - uv[1]) * ((i + 1) / N);
+    const n = [-side * (r0.nx + r1.nx) / 2, -(r0.ny + r1.ny) / 2, 0];
+    b.quad(layer, P(r0, zA), P(r0, zC), P(r1, zC), P(r1, zA), n, [uv[0], v0, uv[2], v1]);
+  }
+  b.setXf(null);
+  const mid = rows[N >> 1];
+  const centre = framePoint(f, side * (mid.X - lift), mid.y);
+  return { x: centre[0], y: centre[1], z: centre[2] };
+}
+
 export function addDiagram(ctx, f, side, items, s = HW) {
   const { b, sheet, rng, env } = ctx;
   const dir = rng.chance(0.5) ? 'north' : 'south';
   const sections = route(env.station, dir);
   if (rng.chance(Math.min(0.8, (env.wrong || 0) * 0.2))) corrupt(sections, rng.pick(['ghost', 'ghost', 'swap', 'repeat']), rng);
   const uv = sheet.add(200, 300, (c, w, h) => drawLineDiagram(c, w, h, sections, { station: env.station, dir }));
-  // keep it below the spring of the vault (1.35 m + a little): a taller panel
-  // would stick through the curved upper wall
-  const pos = wallPanel(b, 'sheet', f, side, s, 0.42, 0.72, 1.08, uv, null, 0.045);
+  // tall enough to read: the top part follows the curve of the vault so it
+  // never sticks through the wall
+  const pos = vaultPanel(b, 'sheet', f, side, 0.6, 0.9, 1.35, uv, 0.04);
   items.push({ ...pos, r: 5, label: 'read line diagram', title: 'LINE DIAGRAM', text: routeText(env.station, dir, sections) });
 }
 
