@@ -143,7 +143,12 @@ export function buildHeadwall(b, z, facing, side, portal = true) {
   const black = atlasFlat('blackout'), soot = atlasRect('soot');
   for (let i = 0; i < 14; i++) {
     const a0 = (i / 14) * Math.PI * 2, a1 = ((i + 1) / 14) * Math.PI * 2;
-    const P = (r, a, dz) => [X(mx + Math.cos(a) * r), Math.max(PF.bed, my + Math.sin(a) * r), mz + facing * dz];
+    // keep the mouth over the trackbed: never across the platform, never past the tube wall
+    const P = (r, a, dz) => {
+      const y = Math.max(PF.bed, my + Math.sin(a) * r);
+      const x = Math.min(wallX(y, 1) - 0.04, Math.max(PF.edge + 0.04, mx + Math.cos(a) * r));
+      return [X(x), y, mz + facing * dz];
+    };
     b.quad('atlas', [X(mx), my, mz], P(mr, a0, 0), P(mr, a1, 0), [X(mx), my, mz], n, black, { emit: 0 });
     b.quad('atlas', P(mr, a0, 0.01), P(mr + 0.22, a0, 0.01), P(mr + 0.22, a1, 0.01), P(mr, a1, 0.01), n, soot);
   }

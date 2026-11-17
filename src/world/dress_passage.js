@@ -1,10 +1,10 @@
 // Posters, staff notices, whiteboards and small fittings along a passage.
 import { wallPanel, panelFrame } from './decor.js';
-import { atlasRect } from '../tex/atlas.js';
+import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawPoster, drawNotice, drawWhiteboard } from '../tex/posters.js';
 import { drawTileLegend } from '../tex/signs.js';
 import { NOTICES, WHITEBOARD } from '../game/scripts.js';
-import { PASSAGE } from './sweep.js';
+import { PASSAGE, framePoint } from './sweep.js';
 
 const HW = PASSAGE.W / 2;
 
@@ -44,8 +44,26 @@ export function addWhiteboard(ctx, f, side, items, s = HW) {
   items.push({ ...pos, r: 4.2, label: 'read board', title: 'SERVICE INFORMATION', text });
 }
 
+// The passage wall curves inward above the springing line, so a full-height
+// door flush with the wall would poke through the vault. Set the door in a
+// shallow tiled-steel casing that stands out from the wall instead.
+const DOOR_W = 0.95, DOOR_H = 2.0, DOOR_IN = 0.25;
 function addDoor(ctx, f, side) {
-  wallPanel(ctx.b, 'atlas', f, side, HW, 0, 0.95, 2.0, atlasRect('door'), null, 0.03);
+  const { b } = ctx;
+  wallPanel(b, 'atlas', f, side, HW - DOOR_IN + 0.03, 0, DOOR_W, DOOR_H, atlasRect('door'), null, 0.03);
+  const uv = atlasFlat('steelDark');
+  const [px, , pz] = framePoint(f, 0, 0);
+  b.place(px, f.y, pz, f.yaw);
+  const xw = side * HW, xi = side * (HW - DOOR_IN), t = 0.06;
+  const zl = -DOOR_W / 2 - t, zr = DOOR_W / 2 + t, top = DOOR_H + t;
+  // casing front (jambs + head) and its returns back to the wall
+  b.quad('atlas', [xi, 0, zl], [xi, 0, zl + t], [xi, top, zl + t], [xi, top, zl], [-side, 0, 0], uv);
+  b.quad('atlas', [xi, 0, zr - t], [xi, 0, zr], [xi, top, zr], [xi, top, zr - t], [-side, 0, 0], uv);
+  b.quad('atlas', [xi, DOOR_H, zl], [xi, DOOR_H, zr], [xi, top, zr], [xi, top, zl], [-side, 0, 0], uv);
+  b.quad('atlas', [xw, 0, zl], [xi, 0, zl], [xi, top, zl], [xw, top, zl], [0, 0, -1], uv);
+  b.quad('atlas', [xi, 0, zr], [xw, 0, zr], [xw, top, zr], [xi, top, zr], [0, 0, 1], uv);
+  b.quad('atlas', [xw, top, zl], [xi, top, zl], [xi, top, zr], [xw, top, zr], [0, 1, 0], uv);
+  b.setXf(null);
 }
 
 function addSmall(ctx, f, side, cell, y, w, h) {
