@@ -79,6 +79,9 @@ export class World {
   _fits(box, parent) {
     for (const n of this.nodes.values()) {
       if (n === parent) continue;
+      // Far-away ground that is not on screen does not count: the station
+      // is allowed to fold over itself rather than wall the player in.
+      if (!n.built && n.dist > 3) continue;
       if (overlaps(box, n.box)) return false;
     }
     return true;
@@ -89,18 +92,26 @@ export class World {
     const exit = node.exits[i];
     if (exit.child || exit.sealed) return exit.child;
     const { pos, yaw } = this.exitPose(node, i);
+    let first = null;
     for (let attempt = 0; attempt < 14; attempt++) {
       const seed = hash32(node.seed, i * 31 + attempt * 977 + 1);
       const rng = new RNG(seed);
       const pick = this.hooks.choose(node, i, attempt, rng);
       if (!pick) break;
       const plan = pick.def.plan(rng, pick.env);
+      if (!first) first = { pick, plan, seed };
       const box = worldBox(plan.box, pos, yaw);
       if (!pick.force && !this._fits(box, node)) continue;
       exit.child = this._make(pick.def, plan, pick.env, pos, yaw, node, i, seed);
       return exit.child;
     }
+    // Nothing fits: never seal the player in. Place the first choice anyway
+    // (it may overlap old, unseen ground — fine for a station that loops).
     this.stats.deadEnds++;
+    if (first) {
+      exit.child = this._make(first.pick.def, first.plan, first.pick.env, pos, yaw, node, i, first.seed);
+      return exit.child;
+    }
     return null;
   }
 

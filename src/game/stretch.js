@@ -90,8 +90,7 @@ export function nextInStretch(story, node, i, attempt, rng) {
   alts.push(['corridor', { short: true, tiny: true }]);
   const a = alts[attempt - 1];
   if (a) return { def: SEGMENTS[a[0]], env: back(a[1]) };
-  if (has('deadend')) return { def: SEGMENTS.deadend, env: back({}), force: true };
-  return null;
+  return null; // generator then forces the first choice instead of a dead end
 }
 
 // How many correct choices remain before the exit stretch is generated.
