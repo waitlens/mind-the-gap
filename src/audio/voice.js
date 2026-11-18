@@ -2,7 +2,6 @@
 // so every device hears the same woman. Anything not recorded falls back to
 // the browser's own speech synthesis.
 const CLIP_DIR = './voice/';
-const SILENCE = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 export function clipKey(t) {
   let h = 0x811c9dc5;
   for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -26,9 +25,8 @@ export class Voice {
     this.enabled = true;
     this.voice = null;
     this.synth = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
-    this.clips = null; this.el = null;
-    if (typeof Audio !== 'undefined') {
-      try { this.el = new Audio(); this.el.preload = 'auto'; } catch { this.el = null; }
+    this.clips = null; this.ctx = null; this.dest = null; this.src = null; this.buffers = new Map(); this.seq = 0;
+    if (typeof fetch !== 'undefined') {
       fetch(`${CLIP_DIR}index.json`).then((r) => (r.ok ? r.json() : [])).then((ks) => { this.clips = new Set(ks); }).catch(() => {});
     }
     if (this.synth) {
@@ -54,10 +52,6 @@ export class Voice {
   // Some browsers only allow speech after one utterance inside a gesture.
   prime() {
     if (!this.enabled) return;
-    if (this.el && !this._unlocked) {
-      this._unlocked = true;
-      try { this.el.src = SILENCE; const p = this.el.play(); if (p && p.catch) p.catch(() => {}); } catch { /* ignore */ }
-    }
     if (!this.synth) return;
     try {
       const u = new SpeechSynthesisUtterance(' ');
@@ -66,19 +60,35 @@ export class Voice {
     } catch { /* ignore */ }
   }
 
+  // Clips play through the game's own AudioContext (same graph as every other
+  // sound), so they never interrupt or duck the ambient bed on phones.
+  attach(ctx, dest) { this.ctx = ctx; this.dest = dest; }
+
+  _buffer(k) {
+    if (!this.buffers.has(k)) {
+      this.buffers.set(k, fetch(`${CLIP_DIR}${k}.mp3`).then((r) => r.arrayBuffer())
+        .then((ab) => new Promise((res, rej) => this.ctx.decodeAudioData(ab, res, rej))));
+    }
+    return this.buffers.get(k);
+  }
+
   speak(text, opts = {}) {
     if (!this.enabled) return;
     this._stopAll();
     const k = clipKey(text);
-    if (this.clips && this.clips.has(k) && this.el) {
-      const el = this.el;
-      el.src = `${CLIP_DIR}${k}.mp3`;
-      // the "not staff" voice is the same woman, a little slower and lower
-      el.preservesPitch = el.mozPreservesPitch = el.webkitPreservesPitch = !opts.odd;
-      el.defaultPlaybackRate = el.playbackRate = opts.odd ? 0.88 : 1.0;
-      el.volume = 0.9;
-      const p = el.play();
-      if (p && p.catch) p.catch(() => this._synth(text, opts));
+    if (this.clips && this.clips.has(k) && this.ctx) {
+      const id = ++this.seq;
+      this._buffer(k).then((buf) => {
+        if (id !== this.seq || !this.enabled) return;
+        const s = this.ctx.createBufferSource();
+        s.buffer = buf;
+        // the "not staff" voice is the same woman, a little slower and lower
+        s.playbackRate.value = opts.odd ? 0.88 : 1.0;
+        const g = this.ctx.createGain(); g.gain.value = 0.8;
+        s.connect(g); g.connect(this.dest);
+        s.start();
+        this.src = s;
+      }).catch(() => { this.buffers.delete(k); if (id === this.seq) this._synth(text, opts); });
       return;
     }
     this._synth(text, opts);
@@ -98,11 +108,12 @@ export class Voice {
   }
 
   _stopAll() {
-    if (this.el) { try { this.el.pause(); } catch { /* ignore */ } }
+    this.seq++;
+    if (this.src) { try { this.src.stop(); } catch { /* ignore */ } this.src = null; }
     if (this.synth) { try { this.synth.cancel(); } catch { /* ignore */ } }
   }
 
   stop() { this._stopAll(); }
-  pause() { if (this.el && !this.el.paused) { this._elPaused = true; this.el.pause(); } if (this.synth) { try { this.synth.pause(); } catch { /* ignore */ } } }
-  resume() { if (this.el && this._elPaused) { this._elPaused = false; this.el.play().catch(() => {}); } if (this.synth) { try { this.synth.resume(); } catch { /* ignore */ } } }
+  pause() { if (this.synth) { try { this.synth.pause(); } catch { /* ignore */ } } }
+  resume() { if (this.synth) { try { this.synth.resume(); } catch { /* ignore */ } } }
 }

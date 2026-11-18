@@ -67,6 +67,7 @@ export class AudioEngine {
       this.master.gain.setTargetAtTime(0.9, ctx.currentTime, 0.8);
       this.ready = true;
       if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      this.voice.attach(ctx, this.master);
       this.voice.prime();
     } catch (e) {
       this.ready = false;
