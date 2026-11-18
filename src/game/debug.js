@@ -51,6 +51,7 @@ export function installDebug(api, game) {
     },
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
+    folds() { return [...world.nodes.values()].filter((n) => n.hiddenByFold).length; },
     items() { const n = world.current; return n.built ? n.built.items.map((i) => ({ label: i.label, x: i.x, y: i.y, z: i.z })) : []; },
     info() {
       const n = world.current;

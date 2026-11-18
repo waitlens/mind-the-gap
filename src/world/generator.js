@@ -152,6 +152,23 @@ export class World {
     }
     this.buildQueue.sort((a, b) => a.dist - b.dist);
     if (sync) while (this.buildQueue.length) this.build(this.buildQueue.shift());
+    this.cull();
+  }
+
+  // The station may fold over itself (old ground, or a forced placement when
+  // nothing fits). Where two built nodes that are not joined to each other
+  // overlap, show only the one nearer the player, so they never draw through
+  // each other. Walking on swaps them as the distances change.
+  cull() {
+    const built = [...this.nodes.values()].filter((n) => n.built).sort((a, b) => a.dist - b.dist);
+    const shown = [];
+    for (const n of built) {
+      const joined = (m) => m.parent === n || n.parent === m;
+      const clash = n.dist > 1 && shown.some((m) => !joined(m) && overlaps(n.box, m.box, 0.4));
+      n.built.group.visible = !clash;
+      n.hiddenByFold = clash;
+      if (!clash) shown.push(n);
+    }
   }
 
   // Build at most one queued node per call (spreads the cost over frames).
@@ -160,6 +177,7 @@ export class World {
       const n = this.buildQueue.shift();
       if (!this.nodes.has(n.id) || n.built || n.dist === Infinity) continue;
       this.build(n);
+      this.cull();
       return true;
     }
     return false;
