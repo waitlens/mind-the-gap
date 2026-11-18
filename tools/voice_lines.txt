@@ -1,0 +1,127 @@
+Ladies and gentlemen, there is a good service on the Northern line.
+This station is now closed. Please make your way to the way out.
+Please mind the gap between the train and the platform.
+Please stand behind the yellow line, and stand clear of the doors.
+Please keep your belongings with you at all times.
+Customers are reminded that the last northbound train has departed.
+This is Mornington Crescent. Please follow the signs for the way out.
+This is Camden Town. Please follow the signs for the way out.
+This is Chalk Farm. Please follow the signs for the way out.
+This is Belsize Park. Please follow the signs for the way out.
+This is Hampstead. Please follow the signs for the way out.
+This is Golders Green. Please follow the signs for the way out.
+This is this station. Please follow the signs for the way out.
+Please take care on the stairs and hold the handrail.
+Please stand on the right on the escalators.
+See it, say it. Speak to a member of staff, if you can find one.
+This station is now closed. Please make your way to the way out. If you can.
+There is a good service on the Northern line, and on all other lines that still exist.
+Please keep your belongings with you. Unattended belongings may be remembered.
+Customers are reminded that the last train has departed. It was not your train.
+This is Mornington Crescent. This has always been Mornington Crescent.
+This is Camden Town. This has always been Camden Town.
+This is Chalk Farm. This has always been Chalk Farm.
+This is Belsize Park. This has always been Belsize Park.
+This is Hampstead. This has always been Hampstead.
+This is Golders Green. This has always been Golders Green.
+This is this station. This has always been this station.
+Please stand behind the yellow line. A little further. Thank you.
+Would the passenger on the platform please stop looking at the tunnel.
+Please do not count the stairs.
+The next train does not stop at Camden Town. The next train does not stop.
+The next train does not stop at Chalk Farm. The next train does not stop.
+The next train does not stop at Belsize Park. The next train does not stop.
+The next train does not stop at Hampstead. The next train does not stop.
+The next train does not stop at Golders Green. The next train does not stop.
+The next train does not stop at Brent Cross. The next train does not stop.
+This is Mornington Crescent. The next station is Mornington Crescent.
+This is Camden Town. The next station is Camden Town.
+This is Chalk Farm. The next station is Chalk Farm.
+This is Belsize Park. The next station is Belsize Park.
+This is Hampstead. The next station is Hampstead.
+This is Golders Green. The next station is Golders Green.
+This is this station. The next station is this station.
+We can see you on the cameras. You look tired.
+Mind the gap. The gap is minding you.
+This is Mornington Crescent. You have been here before. You will be here again.
+This is Camden Town. You have been here before. You will be here again.
+This is Chalk Farm. You have been here before. You will be here again.
+This is Belsize Park. You have been here before. You will be here again.
+This is Hampstead. You have been here before. You will be here again.
+This is Golders Green. You have been here before. You will be here again.
+This is this station. You have been here before. You will be here again.
+Please make your way to the way out. It has moved. We are sorry for any inconvenience.
+There are no delays. There is nothing left to be delayed.
+You are walking the right way. That is what worries us.
+This is North End. This station was never opened. Please do not alight here.
+Please do not turn round.
+For the way out, please follow signs for the northbound platform. To the left. Please.
+The way out is by the northbound platform, on the left. We would not lie to you.
+Customers for the way out should keep to the left, for the northbound platform. Do hurry.
+For the way out, please follow signs for the northbound platform, to the left.
+Customers for the way out should keep to the left for the northbound platform.
+The way out is by way of the northbound platform, on your left.
+For the way out, please follow signs for the northbound platform. To the right. Please.
+The way out is by the northbound platform, on the right. We would not lie to you.
+Customers for the way out should keep to the right, for the northbound platform. Do hurry.
+For the way out, please follow signs for the northbound platform, to the right.
+Customers for the way out should keep to the right for the northbound platform.
+The way out is by way of the northbound platform, on your right.
+For the way out, please follow signs for the southbound platform. To the left. Please.
+The way out is by the southbound platform, on the left. We would not lie to you.
+Customers for the way out should keep to the left, for the southbound platform. Do hurry.
+For the way out, please follow signs for the southbound platform, to the left.
+Customers for the way out should keep to the left for the southbound platform.
+The way out is by way of the southbound platform, on your left.
+For the way out, please follow signs for the southbound platform. To the right. Please.
+The way out is by the southbound platform, on the right. We would not lie to you.
+Customers for the way out should keep to the right, for the southbound platform. Do hurry.
+For the way out, please follow signs for the southbound platform, to the right.
+Customers for the way out should keep to the right for the southbound platform.
+The way out is by way of the southbound platform, on your right.
+Customers are reminded that all station clocks run forwards.
+Please follow the yellow and black signs for the way out.
+Help point. There is nobody at the other end. Please follow the signs.
+Help point. Your call is in a queue. You are the only caller.
+Help point. Staff left some time ago. Trust the yellow signs and the rising chime.
+This is the way out. Please keep walking.
+Stand clear of the doors, please.
+The train now approaching platform 1 is not in service. Please stand well back from the platform edge.
+The train now approaching platform 2 is not in service. Please stand well back from the platform edge.
+This is Mornington Crescent. The next station is Mornington Crescent. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to Edgware. The next station is Camden Town. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to High Barnet. The next station is Camden Town. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to Mill Hill East. The next station is Camden Town. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to Battersea Power Station. The next station is Euston. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to Kennington. The next station is Euston. The doors will not open at this station.
+This is Mornington Crescent. This is a Northern line train to Morden. The next station is Euston. The doors will not open at this station.
+This is Camden Town. The next station is Camden Town. The doors will not open at this station.
+This is Camden Town. This is a Northern line train to Edgware. The next station is Chalk Farm. The doors will not open at this station.
+This is Camden Town. This is a Northern line train to Golders Green. The next station is Chalk Farm. The doors will not open at this station.
+This is Camden Town. This is a Northern line train to Morden via Bank. The next station is Euston. The doors will not open at this station.
+This is Camden Town. This is a Northern line train to Kennington via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
+This is Camden Town. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
+This is Chalk Farm. The next station is Chalk Farm. The doors will not open at this station.
+This is Chalk Farm. This is a Northern line train to Edgware. The next station is Belsize Park. The doors will not open at this station.
+This is Chalk Farm. This is a Northern line train to Golders Green. The next station is Belsize Park. The doors will not open at this station.
+This is Chalk Farm. This is a Northern line train to Morden via Bank. The next station is Camden Town. The doors will not open at this station.
+This is Chalk Farm. This is a Northern line train to Kennington via Charing Cross. The next station is Camden Town. The doors will not open at this station.
+This is Chalk Farm. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Camden Town. The doors will not open at this station.
+This is Belsize Park. The next station is Belsize Park. The doors will not open at this station.
+This is Belsize Park. This is a Northern line train to Edgware. The next station is Hampstead. The doors will not open at this station.
+This is Belsize Park. This is a Northern line train to Golders Green. The next station is Hampstead. The doors will not open at this station.
+This is Belsize Park. This is a Northern line train to Morden via Bank. The next station is Chalk Farm. The doors will not open at this station.
+This is Belsize Park. This is a Northern line train to Kennington via Charing Cross. The next station is Chalk Farm. The doors will not open at this station.
+This is Belsize Park. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Chalk Farm. The doors will not open at this station.
+This is Hampstead. The next station is Hampstead. The doors will not open at this station.
+This is Hampstead. This is a Northern line train to Edgware. The next station is Golders Green. The doors will not open at this station.
+This is Hampstead. This is a Northern line train to Golders Green. The next station is Golders Green. The doors will not open at this station.
+This is Hampstead. This is a Northern line train to Morden via Bank. The next station is Belsize Park. The doors will not open at this station.
+This is Hampstead. This is a Northern line train to Kennington via Charing Cross. The next station is Belsize Park. The doors will not open at this station.
+This is Hampstead. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Belsize Park. The doors will not open at this station.
+This is Golders Green. The next station is Golders Green. The doors will not open at this station.
+This is Golders Green. This is a Northern line train to Edgware. The next station is Brent Cross. The doors will not open at this station.
+This is Golders Green. This is a Northern line train to Golders Green. The next station is Brent Cross. The doors will not open at this station.
+This is Golders Green. This is a Northern line train to Morden via Bank. The next station is Hampstead. The doors will not open at this station.
+This is Golders Green. This is a Northern line train to Kennington via Charing Cross. The next station is Hampstead. The doors will not open at this station.
+This is Golders Green. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Hampstead. The doors will not open at this station.
