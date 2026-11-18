@@ -13,7 +13,8 @@ export const AMBIENT = [
   'This is {station}. Please follow the signs for the way out.',
   'Please take care on the stairs and hold the handrail.',
   'Please stand on the right on the escalators.',
-  'See it, say it. Speak to a member of staff, if you can find one.',
+  'This is a security message. If you see something that doesn\'t look right, speak to staff, or text the British Transport Police on 61016. We\'ll sort it. See it, say it, sorted.',
+  'If you see something that doesn\'t look right, speak to staff, or text British Transport Police on 61016, and we\'ll get it sorted. That\'s 61016. See it, say it, sorted.',
 ];
 
 // Slightly wrong.
@@ -28,6 +29,7 @@ export const AMBIENT_ODD = [
   'Please do not count the stairs.',
   'The next train does not stop at {next}. The next train does not stop.',
   'This is {station}. The next station is {station}.',
+  'If you see something that doesn\'t look right, speak to staff. If you can find one. See it, say it, sorted.',
 ];
 
 // Clearly not staff.

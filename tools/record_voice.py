@@ -10,7 +10,12 @@ def key(t):
         h ^= ord(ch); h = (h * 0x01000193) & 0xffffffff
     return format(h, '08x')
 
+# how a line should be spoken when it differs from the subtitle text
+def spoken(t):
+    return t.replace('61016', 'six one oh one six')
+
 async def one(t, path, sem):
+    t = spoken(t)
     async with sem:
         for _ in range(4):
             try:
