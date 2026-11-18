@@ -55,17 +55,22 @@ export class Story {
   branchStretch(node, i) {
     if (!node.branches) node.branches = [];
     if (!node.branches[i]) {
+      // Where the branch leads depends on the station the junction is in —
+      // not on the player's progress at the moment it happens to be planned
+      // (junctions can come into sight before the gate behind you has shut).
       const correct = node.p.correct === i;
-      const toExit = correct && this.progress + 1 >= CFG.goal;
-      node.branches[i] = makeStretch(this, { correct, fromJunction: node, exit: toExit, clocksBack: !correct });
+      const here = node.env.stretch ? node.env.stretch.index : this.progress;
+      const index = correct ? here + 1 : Math.max(0, here - 2);
+      node.branches[i] = makeStretch(this, { correct, fromJunction: node, exitIndex: i, exit: index >= CFG.goal, index, clocksBack: !correct });
     }
     return node.branches[i];
   }
 
   // What kind of puzzle the next junction is, and how subtle.
-  junctionEnv(rng) {
+  junctionEnv(rng, stretch) {
     const n = this.junctionsPlanned++;
-    const level = this.progress < 2 ? 0 : this.progress < 4 ? 1 : 2;
+    const at = stretch ? stretch.index : this.progress;     // further up the line, subtler tells
+    const level = at < 2 ? 0 : at < 4 ? 1 : 2;
     const jkind = n === 0 ? 'signs' : rng.weighted([['signs', 3], ['announce', 2], ['clock', 1.6]]);
     // (tests can force a kind / level)
     return { jkind: this.forceKind || jkind, jlevel: this.forceLevel ?? level };

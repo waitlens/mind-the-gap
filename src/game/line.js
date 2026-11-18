@@ -56,9 +56,9 @@ export const SURFACE = 'Golders Green';
 export const STATIONS = {
   'Mornington Crescent': { theme: { id: 'mornington', ground: '#ece4c4', band: '#1d2a5e', accent: '#1d2a5e', skirt: '#182250', grout: '#bdb596', letter: '#7a1f2b' } },
   'Camden Town': { theme: { id: 'camden', ground: '#e9e6cf', band: '#5d86c5', accent: '#5d86c5', skirt: '#3f5f96', grout: '#b9b6a0', letter: '#27406f' } },
-  'Chalk Farm': { theme: { id: 'chalk', ground: '#ede6cd', band: '#8e1b24', accent: '#8e1b24', skirt: '#6f141c', grout: '#beb69c', letter: '#6f141c' } },
-  'Belsize Park': { theme: { id: 'belsize', ground: '#ebe3c6', band: '#5c1a22', accent: '#5c1a22', skirt: '#4a141b', grout: '#bdb497', letter: '#3d1016' } },
-  Hampstead: { tiled: 'Heath Street', theme: { id: 'hampstead', ground: '#ece2bd', band: '#5a1820', accent: '#a8706a', skirt: '#4b141b', grout: '#beb38f', letter: '#5a1820' } },
+  'Chalk Farm': { theme: { id: 'chalk', ground: '#ede6cd', band: '#9a1b24', accent: '#9a1b24', skirt: '#7a141c', grout: '#beb69c', letter: '#6f141c' } },
+  'Belsize Park': { theme: { id: 'belsize', ground: '#ebe3c6', band: '#4d2418', accent: '#4d2418', skirt: '#3d1c12', grout: '#bdb497', letter: '#3a160f' } },
+  Hampstead: { tiled: 'Heath Street', theme: { id: 'hampstead', ground: '#ece2bd', band: '#a66f6a', accent: '#a66f6a', skirt: '#5a1820', grout: '#beb38f', letter: '#5a1820' } },
   'Golders Green': { theme: { id: 'golders', ground: '#eee9d6', band: '#2a5a3c', accent: '#2a5a3c', skirt: '#1f4530', grout: '#bfbaa6', letter: '#1f4530' } },
 };
 

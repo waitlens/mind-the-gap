@@ -83,6 +83,9 @@ export function commit(game, node) {
   ev.glitch(correct ? 0.5 : 1.3);
   if (junction.def.type !== 'junction') return;
   story.decide(correct);
+  // the station you have walked into is the truth; keep the count in step with it
+  const idx = node.env.stretch ? node.env.stretch.index : story.progress;
+  story.progress = Math.min(CFG.goal, idx); game.state.progress = story.progress;
   if (!correct) {
     game.audio.sfx('wrong');
     ev.brownOut(2.2);

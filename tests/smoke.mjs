@@ -9,6 +9,9 @@
 //           --eval="js"      run JS in the page after start (may be repeated)
 //           --after="js"     run JS after the wait, just before the screenshot
 //           --size=WxH       viewport size
+//           --fuzz[=seeds]   also play many junctions from many seeds and fail if
+//                            the generator ever has to force a segment on top of
+//                            another, or a station disagrees with the turns taken
 //           --cracks         also scan closed test worlds for pinholes: a virtual
 //                            camera looks around from thousands of spots and the
 //                            test fails if the void shows through the geometry
@@ -106,6 +109,12 @@ async function main() {
     }
     const t0 = await page.evaluate(() => window.__game.state.frame || 0);
     await new Promise((r) => setTimeout(r, Number(opt('wait', 4000))));
+    if (opt('fuzz', false)) {
+      const seeds = opt('fuzz', true) === true ? 12 : Number(opt('fuzz', 12));
+      const r = await page.evaluate((n) => window.__game.debug.fuzz(n, 14, 301), seeds);
+      console.log(`fuzz: ${r.takes} junctions, ${r.planned} segments planned, ${r.forced} forced, ${r.mismatch} station mismatches, ${r.overflow} sheet overflows, ${r.folds} folds`);
+      if (r.forced || r.mismatch || r.overflow || r.errors) throw new Error(`layout fuzz failed: ${JSON.stringify(r)}`);
+    }
     if (opt('cracks', false)) {
       const res = await page.evaluate(() => {
         const d = window.__game.debug, out = [];

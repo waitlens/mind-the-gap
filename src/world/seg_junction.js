@@ -11,6 +11,7 @@ import { drawPlatformSign } from '../tex/linestrip.js';
 import { drawNameBoard } from '../tex/symbol.js';
 import { wrongName, isGhost } from '../game/names.js';
 import { dirWord, platformNo } from '../game/line.js';
+import { served } from '../game/route.js';
 
 const HX = 3.5, D = 5, H = 2.95;
 
@@ -35,6 +36,7 @@ export const junction = {
         kind, level, correct: rng.int(0, 1), defect: rng.pick(pool),
         lie: kind === 'announce' ? rng.chance(0.3 + 0.12 * level) : false,
         dirs: north0 ? ['north', 'south'] : ['south', 'north'],   // [left branch (exit 0), right branch (exit 1)]
+        inverted: rng.chance(0.4),
       },
       exits: [{ x: HX, y: 0, z: D / 2, yaw: Math.PI / 2 }, { x: -HX, y: 0, z: D / 2, yaw: -Math.PI / 2 }],
       box: [-HX - 0.4, -0.4, 0, HX + 0.4, 3.4, D + 0.4],
@@ -58,14 +60,19 @@ export const junction = {
     for (const s of sides) {
       const right = p.correct === s.exit;
       if (p.kind === 'signs') {
-        const defect = right ? null : p.defect;
-        const uv = sheet.add(250, 56, (c, w, h) => drawWayOut(c, w, h, { dir: s.dir, defect }));
+        // both signs share one colourway: black on yellow, or yellow on black
+        // (both are genuine on the network) — the false one has one defect
+        const defect = right ? null : p.defect, inverted = !!p.inverted;
+        const uv = sheet.add(250, 56, (c, w, h) => drawWayOut(c, w, h, { dir: s.dir, defect, inverted }));
         const pos = northPanel(b, 'sheet', s.cx, 1.52, 1.9, 0.425, uv, lit);
-        items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: wayOutCaption(defect, s.dir), junctionSign: true });
+        items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: wayOutCaption(defect, s.dir, inverted), junctionSign: true });
       } else {
-        const uv = sheet.add(250, 56, (c, w, h) => drawPlatformSign(c, w, h, { dir: s.to, arrow: s.dir }));
-        const pos = northPanel(b, 'sheet', s.cx, 1.52, 1.9, 0.425, uv, lit);
-        const label = `Northern line · ${dirWord(s.to)} platform ${platformNo(s.to)}`;
+        // platform direction sign: line, direction, platform number and the
+        // principal stations served (from the line data)
+        const list = served(env.station, s.to);
+        const uv = sheet.add(280, 84, (c, w, h) => drawPlatformSign(c, w, h, { dir: s.to, arrow: s.dir, list: list.join('  ·  ') }));
+        const pos = northPanel(b, 'sheet', s.cx, 1.44, 1.9, 0.57, uv, lit);
+        const label = `Northern line · ${dirWord(s.to)} platform ${platformNo(s.to)} · ${list.join(', ')}`;
         items.push({ ...pos, r: 7, cone: 0.93, label: 'read sign', title: 'SIGN', text: s.dir === 'left' ? `← ${label}` : `${label} →` });
       }
       if (p.kind === 'clock') {

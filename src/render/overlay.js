@@ -112,11 +112,14 @@ export class Overlay {
       this.text(o.prompt, W / 2, H * 0.5 + 34 * u, cs * 0.9, 'center', '#ffd329');
     }
     if (o.caption) {
-      c.font = `400 ${cs}px ${OSD_FONT}`;
-      const lines = wrapLines(c, o.caption, W * 0.84);
-      let y = bottom - (lines.length - 1) * cs * 1.02;
-      if (o.captionTag) this.text(o.captionTag, W / 2, y - cs * 1.08, cs * 0.8, 'center', '#9fd8ff');
-      for (const ln of lines) { this.text(ln, W / 2, y, cs, 'center'); y += cs * 1.02; }
+      // long announcements (the train's own) are set a size smaller, so the
+      // subtitle never takes over the picture on a narrow screen
+      const ps = o.caption.length > 110 ? cs * (portrait ? 0.78 : 0.88) : cs;
+      c.font = `400 ${ps}px ${OSD_FONT}`;
+      const lines = wrapLines(c, o.caption, W * (portrait ? 0.9 : 0.84));
+      let y = bottom - (lines.length - 1) * ps * 1.02;
+      if (o.captionTag) this.text(o.captionTag, W / 2, y - ps * 1.08, cs * 0.8, 'center', '#9fd8ff');
+      for (const ln of lines) { this.text(ln, W / 2, y, ps, 'center'); y += ps * 1.02; }
     }
     if (o.hint) this.text(o.hint, W / 2, m + fs * 3.2, cs * 0.85, 'center', 'rgba(255,255,255,0.85)');
     this.texture.needsUpdate = true;

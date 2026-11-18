@@ -1,14 +1,20 @@
 # References — "Mind the Gap"
 
 Research notes for the look and sound of the game. **Nothing here was copied
-into the game**: no photographs, logos, fonts or recordings are hot-linked or
-shipped. Every texture (tiles, signs, posters, the station symbol, the
-dot-matrix boards) is drawn at runtime on a `<canvas>`, every sound is
-synthesised with WebAudio.
+into the game**: no photographs, logo files, fonts or recordings from the
+network are hot-linked or shipped. Every texture (tiles, signs, posters, the
+roundel, line diagrams, the dot-matrix boards, the train) is drawn at runtime
+on a `<canvas>`; every sound effect is synthesised with WebAudio; the PA voice
+is a set of clips made with a text-to-speech voice (`tools/record_voice.py`).
 
-For public release the game deliberately does **not** reproduce the real
-Transport for London roundel or any real station name. See
-[What was deliberately changed](#what-was-deliberately-changed).
+**Current state:** since the "London" pass the game uses the *real* Northern
+line — real station names in the real order, real interchanges and line
+colours, and the real roundel — at the player's explicit request for this
+non-commercial fan game (see `LONDON.md`). The first version did the
+opposite (an altered symbol and invented names); the section
+[What was deliberately changed](#what-was-deliberately-changed-first-version-superseded)
+is kept as a record of that. The up-to-date observations are in
+[Reference photos, round 2](#reference-photos-round-2-the-real-network).
 
 ## What I learned
 
@@ -128,7 +134,9 @@ article.
 - Poster sizes: Double Royal 40 × 25 in (the standard Underground poster),
   Quad Royal 40 × 50 in, and four-sheet 60 × 40 in, in simple metal frames.
 
-## What was deliberately changed
+## What was deliberately changed (first version, superseded)
+
+*Historical: none of this applies any more — see the note at the top.*
 
 - **The symbol.** The game's sign is a *notched ring crossed by a lozenge* —
   the bar has pointed ends and the ring is broken where the bar passes through
@@ -147,7 +155,7 @@ article.
 
 | Finding | In the game (`src/…`) |
 |---|---|
-| Oblong glazed tiles, cream ground, coloured dado band and rings over the vault, one colour scheme per station | `tex/tiles.js`, seven schemes in `config.js` (`THEMES`) |
+| Oblong glazed tiles, cream ground, coloured dado band and rings over the vault, one colour scheme per station | `tex/tiles.js`; each station's colours in `game/line.js` (`STATIONS`) |
 | Platform tunnel as a large tube with the platform to one side; four-rail track in a pit; dark running-tunnel mouths | `world/platform_shell.js` |
 | Name boards repeated along the wall with a line-coloured name frieze between them | `world/platform_fit.js`, `tex/symbol.js`, `tex/signs.js` |
 | "Way out" as black sentence-case lettering on a yellow panel; white-on-blue direction signs; one consistent arrow | `tex/signs.js` — and the false signs each break exactly one of those rules |
@@ -157,7 +165,7 @@ article.
 | Amber dot-matrix indicator: order, destination, minutes, time of day in the bottom row | `tex/dynamic.js`, `game/boards.js` |
 | Double Royal / four-sheet poster proportions in plain metal frames | `tex/posters.js`, `world/dress_passage.js` |
 | Collapsible lattice gates closing the station after the last train | `world/gate.js` |
-| Line colour families | `config.js` (`LINES`, with invented line names) |
+| Line colours | `game/line.js` (`LINE_COLORS`), used for the interchange bars on the diagrams |
 
 ## URLs
 
@@ -274,3 +282,16 @@ the roundel on the side between the windows.
 lettering on black (frieze plates) and black on yellow (illuminated signs);
 always "Way out", sentence case, with one arrow. Heritage enamel: white
 "WAY OUT" on blue with a feathered arrow (Wood Green).
+
+
+### How it was used
+
+The photographs were looked at and measured, never copied: nothing from them
+is shipped. Each element was then redrawn in code — `tex/tiles.js` (wall
+finishes), `tex/symbol.js` (roundel), `tex/linemap.js` and `tex/linestrip.js`
+(diagrams), `tex/signs.js` (frieze, tiled name, Way out), `tex/train.js` and
+`world/train.js` (the train), `world/platform_fit.js` and
+`world/platform_track.js` (what goes where on the two walls). Where the game
+knowingly departs from what the photos show (tile colours pushed apart so the
+stations can be told from each other, shorter platforms and trains), it is
+listed in `LONDON.md`.

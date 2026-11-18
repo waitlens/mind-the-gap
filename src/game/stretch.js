@@ -41,12 +41,16 @@ export function makeStretch(story, opts = {}) {
   story.stretchCount++;
   // Which station of the walk this stretch is: one further up the line after
   // a right choice, two back after a wrong one (never before the first).
-  let index = story.progress;
-  if (opts.fromJunction) index = opts.correct ? story.progress + 1 : Math.max(0, story.progress - 2);
+  // (the caller works it out from the junction's own station; the first
+  // stretch of a game starts wherever the story says)
+  const index = opts.index ?? story.progress;
   const station = stationAt(index);
   return {
     id, plan, rng, index: Math.min(index, WALK.length), station,
     theme: themeOf(station),
+    // +1 / -1: which side of its junction this branch left by (it keeps
+    // turning that way); 0 for the first stretch of a game
+    out: opts.fromJunction ? (opts.exitIndex === 0 ? 1 : -1) : 0,
     // which platform of the station this stretch passes through
     dir: rng.chance(0.5) ? 'north' : 'south',
     dark: !opts.first && !opts.exit && rng.chance(0.06 + 0.05 * story.wrong),
@@ -77,14 +81,19 @@ export function nextInStretch(story, node, i, attempt, rng) {
   const back = (extra) => story.envFor(stretch, idx - 1, { yaw, filler: true, ...extra }); // does not consume the plan
   const turnHome = yaw > 0.1 ? -1 : yaw < -0.1 ? 1 : 0;
 
+  // The passage that leads into a junction must already be heading north:
+  // the turn comes before it, so the hall (and the branches that leave it
+  // sideways) stands well clear of whatever the path has just run along.
+  const needsNorth = NEEDS_NORTH.has(type) || (type === 'corridor' && stretch.plan[idx + 1] === 'junction');
   if (attempt === 0) {
-    if (NEEDS_NORTH.has(type) && turnHome !== 0) return { def: SEGMENTS.bend, env: back({ turn: turnHome }) };
+    if (needsNorth && turnHome !== 0) return { def: SEGMENTS.bend, env: back({ turn: turnHome }) };
     if (type === 'bend') {
-      // never turn to face south
-      const turn = turnHome !== 0 ? turnHome : rng.sign();
+      // never turn to face south; and a branch only ever turns away from
+      // its sister branch, so the two can never run into each other
+      const turn = turnHome !== 0 ? turnHome : (stretch.out || rng.sign());
       return { def: SEGMENTS.bend, env: env({ turn }) };
     }
-    if (type === 'junction') return { def: SEGMENTS.junction, env: env(story.junctionEnv(rng)) };
+    if (type === 'junction') return { def: SEGMENTS.junction, env: env(story.junctionEnv(rng, stretch)) };
     // The gate passage still belongs to the station you are leaving (its
     // tiles and name): the new station's colours only show once the gate
     // has shut behind you, as confirmation rather than as a clue.
@@ -95,13 +104,14 @@ export function nextInStretch(story, node, i, attempt, rng) {
     return { def: SEGMENTS[type] || SEGMENTS.corridor, env: env({}) };
   }
   // --- something did not fit: try other ways of getting past the obstacle
-  const alts = [];
+  const alts = [], out = stretch.out || 1;
   if (turnHome !== 0) alts.push(['bend', { turn: turnHome }]);
-  else alts.push(['bend', { turn: 1 }], ['bend', { turn: -1 }]);
+  else alts.push(['bend', { turn: out }]);
   alts.push(['corridor', { short: true }]);
   if (has('stairs')) alts.push(['stairs', { dir: -1 }], ['stairs', { dir: 1 }]);
   if (has('escalator')) alts.push(['escalator', { dir: -1 }], ['escalator', { dir: 1 }]);
   alts.push(['corridor', { short: true, tiny: true }]);
+  if (turnHome === 0) alts.push(['bend', { turn: -out }]);      // towards the sister branch: last resort
   const a = alts[attempt - 1];
   if (a) return { def: SEGMENTS[a[0]], env: back(a[1]) };
   return null; // generator then forces the first choice instead of a dead end

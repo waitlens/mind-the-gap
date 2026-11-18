@@ -33,7 +33,13 @@ export function fitPlatform(ctx, L, side) {
     const z = 3 + ((L - 6) * k) / (nLamps - 1), lit = k % 3 === 0, grp = Math.floor(k / 3);
     lamp(b, { x: X(0.5), y: 0, z, yaw: 0 }, 3.45, { dead: p.dark && grp % 3 !== 1, flick: p.faulty === grp, noLight: !lit, power: 0.62, radius: 9.5, len: 1.25 });
   }
-  // --- track-side wall first (it has the biggest textures to pack)
+  // --- the biggest textures are packed first: the strip of the whole line,
+  //     the tiled name, then the track-side wall's diagram and adverts
+  const fired = tiledName(station);
+  const nameW = Math.min(5.0, 1.0 + 0.2 * (fired.length + 2 * fired.split(' ').length));
+  const ghosts = wrong >= 1.5 && rng.chance(Math.min(0.8, wrong * 0.2)) ? rng.shuffle(GHOSTS).slice(0, rng.int(1, 2)) : [];
+  const stripUV = sheet.add(800, 168, (c, w, h) => drawStrip(c, w, h, { current: station, ghosts }));
+  const nameUV = sheet.add(512, Math.round(512 * 0.53 / nameW), (c, w, h) => drawTiledName(c, w, h, fired, env.theme));
   fitTrackside(ctx, L, side, items);
   // --- frieze: white strip above the tiles, name in blue, Way out plates
   const toExit = side > 0 ? 'left' : 'right';         // the way out is at the far end
@@ -49,11 +55,14 @@ export function fitPlatform(ctx, L, side) {
     return { text, uv: sheet.add(150, 183, (c, w, h) => drawNameBoard(c, w, h, name, { defect })) };
   });
   // --- the name in the tiles, the strip map, posters: one pass along the wall
-  const fired = tiledName(station);
-  const nameW = Math.min(5.0, 1.0 + 0.2 * (fired.length + 2 * fired.split(' ').length));
-  const nameUV = sheet.add(512, Math.round(512 * 0.53 / nameW), (c, w, h) => drawTiledName(c, w, h, fired, env.theme));
-  const ghosts = wrong >= 1.5 && rng.chance(Math.min(0.8, wrong * 0.2)) ? rng.shuffle(GHOSTS).slice(0, rng.int(1, 2)) : [];
-  const stripUV = sheet.add(800, 168, (c, w, h) => drawStrip(c, w, h, { current: station, ghosts }));
+  // three posters, repeated along the wall
+  const posters = [0, 1, 2].map(() => {
+    const odd = rng.chance(Math.min(0.7, wrong * 0.17));
+    let info;
+    const uv = sheet.add(112, 168, (c, cw, ch) => { info = drawPoster(c, cw, ch, rng, odd, true); });
+    return { uv, text: `${info.headline}. ${info.strap}.` };
+  });
+  let np = 0;
   const order = ['roundel', p.start ? 'notice' : 'poster', 'name', 'poster', 'roundel', 'strip', 'poster', 'roundel', 'name', 'poster', 'help'];
   const widths = { roundel: 1.15, poster: 1.0, name: nameW, strip: 4.4, notice: 0.5, help: 0.34 };
   let z = 3.0, n = 0, nb = 0;
@@ -66,11 +75,9 @@ export function fitPlatform(ctx, L, side) {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.85, 2.25, bd.uv);
       items.push({ ...pos, r: 6, label: 'read name board', title: 'STATION', text: bd.text });
     } else if (kind === 'poster') {
-      const odd = rng.chance(Math.min(0.7, wrong * 0.17));
-      let info;
-      const uv = sheet.add(112, 168, (c, cw, ch) => { info = drawPoster(c, cw, ch, rng, odd, true); });
-      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.62, 2.12, uv);
-      items.push({ ...pos, r: 5, label: 'read poster', title: 'POSTER', text: `${info.headline}. ${info.strap}.` });
+      const ps = posters[np++ % 3];
+      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.62, 2.12, ps.uv);
+      items.push({ ...pos, r: 5, label: 'read poster', title: 'POSTER', text: ps.text });
     } else if (kind === 'name') {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.72, 2.25, nameUV, null, 0.025);
       items.push({ ...pos, r: 7, label: 'read tiles', title: 'TILED NAME', text: `· ${fired.toUpperCase().split(' ').join(' · ')} ·${fired !== station ? ` (the frieze says ${station})` : ''}` });
@@ -79,7 +86,8 @@ export function fitPlatform(ctx, L, side) {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.0, 1.92, stripUV);
       items.push({ ...pos, r: 6, cone: 0.92, label: 'read line map', title: 'NORTHERN LINE', text: stripText(station, ghosts) });
     } else if (kind === 'notice') {
-      const notice = NOTICES[0];
+      // the first thing to read in the game: where you are and where the way out is
+      const notice = NOTICES.find((q) => q.key === 'line') || NOTICES[0];
       const uv = sheet.add(168, 216, (c, cw, ch) => drawNotice(c, cw, ch, notice, rng));
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
       items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });

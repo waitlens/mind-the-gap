@@ -54,6 +54,39 @@ export const interchangeText = (name) => {
   return `Change here for ${names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0]}.`;
 };
 
+// The principal stations a platform serves, for direction signs: the next
+// stop, where the branches divide or rejoin, and the ends of the line.
+export function served(station, dir) {
+  const out = [];
+  const add = (n) => { if (n && n !== station && !out.includes(n)) out.push(n); };
+  route(station, dir).forEach((s, i) => {
+    if (s.type === 'trunk') { if (i === 0) add(s.stations[1]); add(s.stations[s.stations.length - 1]); }
+    else if (s.rejoin) s.labels.forEach((l) => add(l.replace('via ', '')));
+    else { add(s.left[s.left.length - 1]); add(s.right[s.right.length - 1]); }
+  });
+  return out;
+}
+
+// "Change here for…": the other lines at an interchange — or, at Camden
+// Town, where the line divides, the branch this train is not taking.
+export function changeText(station, dir, via = '') {
+  if (station === 'Camden Town') {
+    if (dir === 'north') return 'Change here for the High Barnet branch.';
+    return via === 'via Bank' ? 'Change here for trains via Charing Cross.' : 'Change here for trains via Bank.';
+  }
+  return interchangeText(station);
+}
+
+// What the train says when it stops. Kept here so that the game and the
+// recorded voice clips (tools/voice_lines.mjs) use the very same sentence.
+export function trainCall(station, dir, dest, via = '') {
+  const next = nextStation(station, dir, via || dest) || station;
+  const change = changeText(station, dir, via);
+  return `This is ${station}. ${change ? `${change} ` : ''}This is a Northern line train to ${dest}${via ? ` ${via}` : ''}. `
+    + `The next station is ${next}. The doors will not open at this station.`;
+}
+export const trainCallWrong = (station) => `This is ${station}. The next station is ${station}. The doors will not open at this station.`;
+
 // Make a diagram subtly wrong. kind: 'ghost' | 'swap' | 'missing' | 'repeat'.
 // Returns the kind actually applied (or null).
 export function corrupt(sections, kind, rng) {

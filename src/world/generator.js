@@ -6,24 +6,11 @@ import { GeoBuilder, placeVertices } from './builder.js';
 import { RNG, hash32 } from '../util/rng.js';
 import { CFG } from '../config.js';
 import { makeWorldMaterial } from '../render/materials.js';
+import { worldBox, overlaps, describeClash } from './boxes.js';
 
 let nextId = 1;
 // layers drawn with an alpha test (their textures have real holes)
 const CUTOUT_LAYERS = new Set(['sheet', 'cut', 'gate', 'figure']);
-
-function worldBox(box, pos, yaw) {
-  const c = Math.cos(yaw), s = Math.sin(yaw);
-  let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
-  for (const [x, z] of [[box[0], box[2]], [box[3], box[2]], [box[0], box[5]], [box[3], box[5]]]) {
-    const wx = pos.x + x * c + z * s, wz = pos.z - x * s + z * c;
-    x0 = Math.min(x0, wx); x1 = Math.max(x1, wx); z0 = Math.min(z0, wz); z1 = Math.max(z1, wz);
-  }
-  return [x0, pos.y + box[1], z0, x1, pos.y + box[4], z1];
-}
-
-function overlaps(a, b, m = 0.25) {
-  return a[0] < b[3] - m && a[3] > b[0] + m && a[1] < b[4] - m && a[4] > b[1] + m && a[2] < b[5] - m && a[5] > b[2] + m;
-}
 
 export class World {
   // hooks: { choose(node, exitIndex, attempt, rng) → {def, env} | null,
@@ -35,7 +22,7 @@ export class World {
     this.nodes = new Map();
     this.current = null;
     this.buildQueue = [];
-    this.stats = { built: 0, planned: 0, deadEnds: 0 };
+    this.stats = { built: 0, planned: 0, deadEnds: 0, forced: [] };
   }
 
   clear() {
@@ -110,6 +97,9 @@ export class World {
     // Nothing fits: never seal the player in. Place the first choice anyway
     // (it may overlap old, unseen ground — fine for a station that loops).
     this.stats.deadEnds++;
+    if (first && this.stats.forced.length < 60) {
+      this.stats.forced.push(describeClash(this.nodes, node, first.pick, worldBox(first.plan.box, pos, yaw), yaw));
+    }
     if (first) {
       exit.child = this._make(first.pick.def, first.plan, first.pick.env, pos, yaw, node, i, first.seed);
       return exit.child;
@@ -207,7 +197,7 @@ export class World {
     this.scene.add(group);
     group.updateMatrixWorld(true);
     node.built = {
-      group, sheetTex, cells: res.cells || [], walls: res.walls || [], items: res.items || [],
+      group, sheetTex, sheetOverflow: sheet ? sheet.overflow : 0, cells: res.cells || [], walls: res.walls || [], items: res.items || [],
       frames: res.frames || null, extra: res.extra || null,
       gate: group.children.find((m) => m.name === 'gate') || null,
       figure: group.children.find((m) => m.name === 'figure') || null,

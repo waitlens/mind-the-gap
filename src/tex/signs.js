@@ -17,7 +17,7 @@ export const WAYOUT_DEFECTS = {
   caps: { level: 1, text: 'WAY OUT' },
   mirror: { level: 1, text: 'Way out', mirror: true },
   arrow2: { level: 1, text: 'Way out', arrow2: true },
-  pale: { level: 1, text: 'Way out', bg: '#cfe08a' },
+  pale: { level: 1, text: 'Way out', bg: '#cfe08a', fg: SIGN.black },
   serif: { level: 2, text: 'Way out', font: "Georgia, 'Times New Roman', serif" },
   title: { level: 2, text: 'Way Out' },
   cut: { level: 2, text: 'Way cut' },

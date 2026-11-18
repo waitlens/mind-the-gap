@@ -96,11 +96,11 @@ This is Mornington Crescent. This is a Northern line train to Battersea Power St
 This is Mornington Crescent. This is a Northern line train to Kennington. The next station is Euston. The doors will not open at this station.
 This is Mornington Crescent. This is a Northern line train to Morden. The next station is Euston. The doors will not open at this station.
 This is Camden Town. The next station is Camden Town. The doors will not open at this station.
-This is Camden Town. This is a Northern line train to Edgware. The next station is Chalk Farm. The doors will not open at this station.
-This is Camden Town. This is a Northern line train to Golders Green. The next station is Chalk Farm. The doors will not open at this station.
-This is Camden Town. This is a Northern line train to Morden via Bank. The next station is Euston. The doors will not open at this station.
-This is Camden Town. This is a Northern line train to Kennington via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
-This is Camden Town. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
+This is Camden Town. Change here for the High Barnet branch. This is a Northern line train to Edgware. The next station is Chalk Farm. The doors will not open at this station.
+This is Camden Town. Change here for the High Barnet branch. This is a Northern line train to Golders Green. The next station is Chalk Farm. The doors will not open at this station.
+This is Camden Town. Change here for trains via Charing Cross. This is a Northern line train to Morden via Bank. The next station is Euston. The doors will not open at this station.
+This is Camden Town. Change here for trains via Bank. This is a Northern line train to Kennington via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
+This is Camden Town. Change here for trains via Bank. This is a Northern line train to Battersea Power Station via Charing Cross. The next station is Mornington Crescent. The doors will not open at this station.
 This is Chalk Farm. The next station is Chalk Farm. The doors will not open at this station.
 This is Chalk Farm. This is a Northern line train to Edgware. The next station is Belsize Park. The doors will not open at this station.
 This is Chalk Farm. This is a Northern line train to Golders Green. The next station is Belsize Park. The doors will not open at this station.

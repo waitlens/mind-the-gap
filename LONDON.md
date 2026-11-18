@@ -91,3 +91,35 @@ DV look untouched; one extra draw call for the train, none for the maps (they
 go on the existing per-segment sign sheet); no new real-time lights; seam and
 tunnel-arch fixes untouched (`node tests/smoke.mjs --cracks` must stay clean);
 no dead ends (generation fuzz re-run).
+
+## What was built (status after this pass)
+
+| Plan item | State |
+|---|---|
+| A. One line as data | Done — `src/game/line.js`, `src/game/route.js`. |
+| B. Geography is the game | Done — Mornington Crescent → Camden Town → Chalk Farm → Belsize Park → Hampstead → out at Golders Green; a right turn is one station up, a wrong one two back. |
+| C. Anomalies from real ghost stations | Done — North End, South Kentish Town, City Road, King William Street on diagrams; closed stations and former names on roundels; swapped, repeated or missing stations. |
+| D. Strip maps and signs | Done — track-side line diagram, whole-line strip on the platform wall, diagrams in passages, platform direction signs with stations served in junction halls. READ gives the full ordered list. |
+| E. Platform dressing after the photos | Done — roundel panels, name fired into the tiles, white frieze with yellow-on-black Way out plates, plain cream track-side wall with black dado, cable runs, big curved adverts and small roundels. This also fixes the "sign on the floor": it was the old wide name board set at the foot of the track-side wall. |
+| F. The train | Done — indicator counts it down; wind, rumble and singing rails; it comes out of one tunnel mouth, stops ("Please mind the gap…", then its own "This is Camden Town. Change here for…"), door chime, "Stand clear of the doors, please", and leaves through the other mouth. One extra draw call. |
+| G. Wording | Done — indicator rows, announcements, notices. |
+| H. Extras | Gate line with card readers before the daylight; "Stand on the right" plates; warm-wind / brake-dust and cold-air captions. Not done: an OFL Johnston revival font (none could be fetched; lettering stays Hammersmith One, which is Johnston-derived). |
+
+### Where the game knowingly departs from the photographs
+
+- **Tile colours.** Chalk Farm, Belsize Park and Hampstead are all dark reds
+  in reality. The game keeps Chalk Farm ox-blood, pushes Belsize Park towards
+  brown and gives Hampstead its dusty-pink accent as the main colour, so that
+  five stations read as five colours at camcorder resolution — the tiles are
+  how you tell which way you went.
+- **Camden Town** really has four platforms, two per branch. The game only
+  shows its Edgware-branch pair (northbound 1, southbound 2).
+- **Platform length** is 30–42 m, not 110 m, so a four-car train stands in for
+  a six-car one; fog hides the rest.
+- **Trains do not open their doors.** The station is closed.
+- **"Way out" on the indicator** is the game's progress meter, not something a
+  real indicator shows.
+
+Side-by-side comparisons with the reference photos were saved as
+`/tmp/shots/lon_compare_*.png` (platform wall, line diagram, tiles, roundel,
+train).

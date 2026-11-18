@@ -19,6 +19,8 @@ export class Player {
     this.zoom = 0;         // 0..1 (reading)
     this.zoomTarget = 0;
     this.loc = null;
+    this.windX = 0; this.windZ = 0;   // m/s, set by the train controller
+    this.shake = 0;
   }
 
   // Face along a path direction given as a segment yaw (dir = sin, cos).
@@ -47,7 +49,8 @@ export class Player {
     this.vx = damp(this.vx, tx, k, dt); this.vz = damp(this.vz, tz, k, dt);
 
     const ox = this.pos.x, oz = this.pos.z;
-    const loc = moveFeet(world, this.pos, this.vx * dt, this.vz * dt, CFG.radius);
+    // (wind: the push of air along a platform when a train comes through)
+    const loc = moveFeet(world, this.pos, (this.vx + this.windX) * dt, (this.vz + this.windZ) * dt, CFG.radius);
     let step = false;
     if (loc) {
       this.loc = loc;
@@ -59,7 +62,7 @@ export class Player {
     this.walked += moved;
     const stride = running ? 1.05 : 0.74;
     const before = Math.floor(this.stepDist / stride);
-    this.stepDist += moved;
+    this.stepDist += Math.min(moved, Math.hypot(this.vx, this.vz) * dt);   // being blown along is not walking
     if (Math.floor(this.stepDist / stride) !== before) step = true;
 
     // camera: smoothed floor height, step bob, handheld sway
@@ -79,7 +82,8 @@ export class Player {
     const cam = this.camera;
     cam.position.set(this.pos.x + c * bobX, this.eyeY + bobY, this.pos.z - s * bobX);
     cam.rotation.set(this.pitch + swayP * (1 - 0.6 * this.zoom) + noise1(t * 29, 41) * 0.009 * sh, this.yaw + swayY * (1 - 0.6 * this.zoom) + noise1(t * 31, 42) * 0.007 * sh, swayR);
-    const fov = CFG.fov - 36 * this.zoom;
+    // (zoom in less on portrait screens, or a board no longer fits across)
+    const fov = CFG.fov - (cam.aspect < 1 ? 20 : 36) * this.zoom;
     if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix(); }
     return { step, running };
   }

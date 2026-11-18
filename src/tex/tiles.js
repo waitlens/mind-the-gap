@@ -133,11 +133,26 @@ export function drawTiles(theme, kind = 'passage') {
   return kind === 'platform' ? drawPlatform(theme) : drawPassage(theme);
 }
 
-const cache = new Map();
+const cache = new Map();   // "theme:kind" → texture
+const recent = [];         // theme ids, most recently used last
+const KEEP = 4;            // stations whose wall textures stay in memory
 
 // Shared, cached texture for a theme. kind = 'passage' | 'platform'.
+// Only the last few stations' textures are kept (a platform texture is 4 MB
+// before mipmaps): you can never see more than three stations at once — the
+// one you are in and the two a junction leads to.
 export function tileTexture(theme, kind = 'passage') {
-  const key = theme.id + ':' + kind;
+  const at = recent.indexOf(theme.id);
+  if (at >= 0) recent.splice(at, 1);
+  recent.push(theme.id);
+  while (recent.length > KEEP) {
+    const old = recent.shift();
+    for (const k of ['passage', 'platform']) {
+      const t = cache.get(`${old}:${k}`);
+      if (t) { t.dispose(); cache.delete(`${old}:${k}`); }
+    }
+  }
+  const key = `${theme.id}:${kind}`;
   let t = cache.get(key);
   if (!t) {
     t = canvasTexture(drawTiles(theme, kind), { repeatU: true });

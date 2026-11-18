@@ -148,6 +148,34 @@ export function installDebug(api, game) {
     preview,
     // Bring the next train forward (it arrives `s` seconds from now).
     train(s = 2) { game.trains.soon(s); return game.trains.schedule(); },
+    // Play many games at once: take junctions right and wrong from several
+    // seeds, planning well ahead each time, and report anything that should
+    // never happen — a segment forced on top of another, a station that does
+    // not match the count of right and wrong turns, a sign sheet overflowing.
+    fuzz(seeds = 6, takes = 12, first = 1) {
+      const out = { takes: 0, planned: -world.stats.planned, forced: 0, folds: 0, overflow: 0, mismatch: 0, exits: 0 };
+      world.stats.deadEnds = 0; world.stats.forced.length = 0;
+      for (let seed = first; seed < first + seeds; seed++) {
+        game.reset(seed);
+        let r = seed * 7919, idx = 0;
+        for (let i = 0; i < takes; i++) {
+          r = (r * 1103515245 + 12345) & 0x7fffffff;
+          const ok = seed % 5 === 0 ? false : (r >> 8) % 3 !== 0;
+          const t = api.debug.take(ok);
+          if (!t) { out.exits++; break; }
+          out.takes++; idx = ok ? idx + 1 : Math.max(0, idx - 2);
+          const st = world.current.env.stretch;
+          if (st.index !== idx || t.progress !== Math.min(idx, CFG.goal)) out.mismatch++;
+          api.debug.buildAll(5);
+          out.folds = Math.max(out.folds, api.debug.folds());
+          for (const n of world.nodes.values()) if (n.built && n.built.sheetOverflow) out.overflow++;
+        }
+      }
+      out.planned += world.stats.planned; out.forced = world.stats.deadEnds; out.clashes = world.stats.forced.slice(0, 3);
+      out.errors = game.state.errors;
+      game.reset(first);
+      return out;
+    },
     // Restart with a forced list of segment types (for tests / screenshots).
     plan(list, seed = 7, wrong = 0, progress = 0) { game.reset(seed, list, wrong, progress); return api.debug.info(); },
     // Jump to the next junction and commit to its right (or wrong) branch.

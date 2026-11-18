@@ -45,30 +45,34 @@ export const exit = {
     const end = { x: 0, y: p.rise, z: p.len - 0.02, yaw: 0 };
     const day = atlasFlat('daylight');
     headwall(b, end, outsized(PASSAGE), null, -1, 'atlas', () => [(day[0] + day[2]) / 2, (day[1] + day[3]) / 2], { emit: 2 });
-    b.addLight(0, p.rise + 1.6, p.len - 0.6, 2.4, 11, false, [1, 1, 1]);
-    b.addLight(0, p.rise + 1.2, p.len - 3.5, 1.2, 9, false, [1, 1, 1]);
+    b.addLight(0, p.rise + 1.6, p.len - 0.6, 1.9, 10, false, [1, 1, 1]);
+    b.addLight(0, p.rise + 1.2, p.len - 3.2, 0.7, 8, false, [1, 1, 1]);
     // the open gate, folded back against both walls
     const g = atlasRect('gate');
     for (const s of [-1, 1]) {
       const x = s * (hw - 0.06), z = top + 0.3;
       b.quad('cut', [x, p.rise, z], [x, p.rise, z + 0.7], [x, p.rise + 2.3, z + 0.7], [x, p.rise + 2.3, z], [-s, 0, 0], g, { emit: 0.25 });
     }
-    // the gate line: two steel ticket gates with yellow card readers, their
-    // paddles standing open
+    // the gate line, wall to wall: four steel cabinets making three walkways,
+    // a yellow card reader on each, the red paddles standing open
     const gz0 = top + 1.5, gz1 = gz0 + 1.0, gateWalls = [];
-    const steel = atlasFlat('metal'), y0 = p.rise;
-    for (const cx of [-0.5, 0.5]) {
-      b.box('atlas', cx - 0.11, y0, gz0, cx + 0.11, y0 + 0.98, gz1, steel, null, 'xXYzZ');
-      b.quad('atlas', [cx - 0.08, y0 + 0.985, gz0 + 0.08], [cx + 0.08, y0 + 0.985, gz0 + 0.08], [cx + 0.08, y0 + 0.985, gz0 + 0.26], [cx - 0.08, y0 + 0.985, gz0 + 0.26],
-        [0, 1, 0], atlasFlat('yellow'), { emit: 1.1 });                                   // the reader
-      b.quad('atlas', [cx + 0.06, y0 + 0.7, gz0 - 0.005], [cx - 0.06, y0 + 0.7, gz0 - 0.005], [cx - 0.06, y0 + 0.82, gz0 - 0.005], [cx + 0.06, y0 + 0.82, gz0 - 0.005],
-        [0, 0, -1], atlasFlat('white'), { emit: 1.7, tint: [0.15, 1, 0.3] });             // green arrow lamp
-      for (const sx of [-1, 1]) {                                                         // red paddles, folded open
-        const px = cx + sx * 0.125;
-        b.quad('atlas', [px, y0 + 0.25, gz0 + 0.5], [px, y0 + 0.25, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.5], [sx, 0, 0], atlasFlat('white'), { tint: [0.85, 0.12, 0.1] });
+    const steel = atlasFlat('metal'), y0 = p.rise, hwc = 0.09;
+    const posts = [-1.41, -0.47, 0.47, 1.41];
+    posts.forEach((cx, k) => {
+      b.box('atlas', cx - hwc, y0, gz0, cx + hwc, y0 + 0.98, gz1, steel, { tint: [0.62, 0.65, 0.68] }, 'xXYzZ');
+      if (k > 0) {       // the reader is on your right as you walk out
+        b.quad('atlas', [cx - 0.07, y0 + 0.985, gz0 + 0.08], [cx + 0.07, y0 + 0.985, gz0 + 0.08], [cx + 0.07, y0 + 0.985, gz0 + 0.24], [cx - 0.07, y0 + 0.985, gz0 + 0.24],
+          [0, 1, 0], atlasFlat('yellow'), { emit: 1.1 });
+        b.quad('atlas', [cx + 0.05, y0 + 0.72, gz0 - 0.005], [cx - 0.05, y0 + 0.72, gz0 - 0.005], [cx - 0.05, y0 + 0.82, gz0 - 0.005], [cx + 0.05, y0 + 0.82, gz0 - 0.005],
+          [0, 0, -1], atlasFlat('white'), { emit: 1.7, tint: [0.15, 1, 0.3] });           // green "go" lamp
       }
-      gateWalls.push([cx - 0.11, gz0, cx - 0.11, gz1], [cx + 0.11, gz0, cx + 0.11, gz1], [cx - 0.11, gz0, cx + 0.11, gz0], [cx - 0.11, gz1, cx + 0.11, gz1]);
-    }
+      for (const sx of [-1, 1]) {                                                         // paddles folded back against the cabinet
+        if ((k === 0 && sx < 0) || (k === posts.length - 1 && sx > 0)) continue;
+        const px = cx + sx * (hwc + 0.012);
+        b.quad('atlas', [px, y0 + 0.3, gz0 + 0.52], [px, y0 + 0.3, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.9], [px, y0 + 0.85, gz0 + 0.52], [sx, 0, 0], atlasFlat('white'), { tint: [0.85, 0.12, 0.1] });
+      }
+      gateWalls.push([cx - hwc, gz0, cx - hwc, gz1], [cx + hwc, gz0, cx + hwc, gz1], [cx - hwc, gz0, cx + hwc, gz0], [cx - hwc, gz1, cx + hwc, gz1]);
+    });
     b.addPortal(0, 0, 0, 0);
     portalLamp(b, frames[0], PASSAGE.crown);
     lamp(b, { x: 0, y: yAt(LAND0 + p.run * 0.3), z: LAND0 + p.run * 0.3, yaw: 0 }, PASSAGE.crown - 0.04, {});

@@ -39,7 +39,7 @@ export class Director {
     enterJunction(this.game, node);
     if (this.firstJunction) {
       this.firstJunction = false;
-      this.queueHint('One way is right. Read both signs before you choose.', 7);
+      this.queueHint('One way is right. Read the signs, watch the clocks, listen for the chime.', 7);
     }
   }
   helpPoint(node) { helpPoint(this.game, node); }

@@ -1,7 +1,7 @@
 // Lists every line the PA can say (for pre-recording with a neural voice).
 // Run: node tools/voice_lines.mjs > tools/voice_lines.txt
 import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE } from '../src/game/scripts.js';
-import { nextStation, destinations } from '../src/game/route.js';
+import { nextStation, destinations, trainCall, trainCallWrong } from '../src/game/route.js';
 import { WALK, SURFACE } from '../src/game/line.js';
 
 const out = new Set();
@@ -32,12 +32,11 @@ out.add('This is the way out. Please keep walking.');
 out.add('Stand clear of the doors, please.');
 for (const p of [1, 2]) out.add(`The train now approaching platform ${p} is not in service. Please stand well back from the platform edge.`);
 for (const st of stations) for (const dir of ['north', 'south']) {
-  out.add(`This is ${st}. The next station is ${st}. The doors will not open at this station.`);
+  out.add(trainCallWrong(st));
   let ds = [];
   try { ds = destinations(st, dir); } catch { ds = []; }
   for (const [dest, via] of ds) {
-    const next = nextStation(st, dir, via || dest) || st;
-    out.add(`This is ${st}. This is a Northern line train to ${dest}${via ? ` ${via}` : ''}. The next station is ${next}. The doors will not open at this station.`);
+    out.add(trainCall(st, dir, dest, via));
   }
 }
 for (const l of out) console.log(l);

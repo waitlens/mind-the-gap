@@ -3,7 +3,7 @@
 // windows, grey roof, dark underframe; a red cab end with a black window
 // band, headlights and an amber destination blind.
 import * as THREE from 'three';
-import { makeCanvas, HEAD_FONT, OSD_FONT } from './canvas.js';
+import { makeCanvas, OSD_FONT } from './canvas.js';
 import { drawSymbol } from './symbol.js';
 
 const W = 512, H = 256;
@@ -112,4 +112,3 @@ export function trainRect(name) {
   const [x, y, w, h] = TRAIN_UV[name];
   return [(x + 0.5) / W, 1 - (y + h - 0.5) / H, (x + w - 0.5) / W, 1 - (y + 0.5) / H];
 }
-export { HEAD_FONT };

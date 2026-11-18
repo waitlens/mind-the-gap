@@ -17,14 +17,24 @@ export function pickNotice(ctx) {
   return ctx.rng.pick(fresh.length ? fresh : NOTICES);
 }
 
+// A passage shows the same few adverts over and over, as the real ones do —
+// which also keeps each segment's sign sheet within its 512 x 512 pixels.
+const POSTERS_PER_PASSAGE = 3;
+
 export function addPoster(ctx, f, side, items, s = HW) {
   const { b, sheet, rng } = ctx;
-  const odd = rng.chance(Math.min(0.7, (ctx.env.wrong || 0) * 0.17));
-  let info;
-  const uv = sheet.add(104, 164, (c, w, h) => { info = drawPoster(c, w, h, rng, odd); });
-  const pos = wallPanel(b, 'sheet', f, side, s, 0.52, 0.64, 1.0, uv, null, 0.045);
+  const pool = ctx.posterPool || (ctx.posterPool = []);
+  let p;
+  if (pool.length < POSTERS_PER_PASSAGE) {
+    const odd = rng.chance(Math.min(0.7, (ctx.env.wrong || 0) * 0.17));
+    let info;
+    const uv = sheet.add(104, 164, (c, w, h) => { info = drawPoster(c, w, h, rng, odd); });
+    p = { uv, text: `${info.headline}. ${info.strap}.` };
+    pool.push(p);
+  } else p = pool[rng.int(0, pool.length - 1)];
+  const pos = wallPanel(b, 'sheet', f, side, s, 0.52, 0.64, 1.0, p.uv, null, 0.045);
   panelFrame(b, f, side, s - 0.01, 0.52, 0.64, 1.0);
-  items.push({ ...pos, r: 4.2, label: 'read poster', title: 'POSTER', text: `${info.headline}. ${info.strap}.` });
+  items.push({ ...pos, r: 4.2, label: 'read poster', title: 'POSTER', text: p.text });
 }
 
 export function addNotice(ctx, f, side, items, s = HW) {
@@ -144,8 +154,12 @@ export function dressPassageFull(ctx, frames, dist) {
   // slots along each wall
   const slots = [];
   for (let z = 2.2; z <= total - 2.2; z += 1.55) slots.push(z);
-  let noticeDone = false, legendDone = false, diagramDone = false;
+  let noticeDone = false, legendDone = false, diagramDone = false, boardDone = false;
   const free = [];
+  // Decide what goes in each slot first, then build the pieces largest
+  // texture first, so they all pack into the segment's sign sheet.
+  const todo = [];
+  const later = (prio, fn) => todo.push([prio, fn]);
   const wantNotice = rng.chance(ctx.env.noticeChance ?? 0.34);
   for (const side of [-1, 1]) {
     let skip = 0;
@@ -153,18 +167,22 @@ export function dressPassageFull(ctx, frames, dist) {
       if (skip > 0) { skip--; continue; }
       const f = { x: 0, y: 0, z, yaw: 0 };
       const roll = rng.next();
-      if (wantNotice && !noticeDone && roll < 0.3) { addNotice(ctx, f, side, items); noticeDone = true; continue; }
-      if (roll < 0.1 && !diagramDone) { addDiagram(ctx, f, side, items); diagramDone = true; continue; }
-      if (roll < 0.5) addPoster(ctx, f, side, items);
-      else if (roll < 0.56 && z > 3 && z < total - 3) { addDoor(ctx, f, side); }
-      else if (roll < 0.62) { addWhiteboard(ctx, f, side, items); }
-      else if (roll < 0.67 && !legendDone && z < total - 3) { addLegend(ctx, f, side, items); legendDone = true; skip = 1; }
-      else if (roll < 0.72) addSmall(ctx, f, side, 'grille', 0.25, 0.5, 0.5);
-      else if (roll < 0.76) addSmall(ctx, f, side, 'extinguisher', 0.75, 0.45, 0.45);
+      if (wantNotice && !noticeDone && roll < 0.3) { later(1, () => addNotice(ctx, f, side, items)); noticeDone = true; continue; }
+      if (roll < 0.1 && !diagramDone) { later(0, () => addDiagram(ctx, f, side, items)); diagramDone = true; continue; }
+      if (roll < 0.5) later(4, () => addPoster(ctx, f, side, items));
+      else if (roll < 0.56 && z > 3 && z < total - 3) later(5, () => addDoor(ctx, f, side));
+      else if (roll < 0.62) {
+        if (boardDone) later(4, () => addPoster(ctx, f, side, items));
+        else { later(2, () => addWhiteboard(ctx, f, side, items)); boardDone = true; }
+      } else if (roll < 0.67 && !legendDone && z < total - 3) { later(3, () => addLegend(ctx, f, side, items)); legendDone = true; skip = 1; }
+      else if (roll < 0.72) later(5, () => addSmall(ctx, f, side, 'grille', 0.25, 0.5, 0.5));
+      else if (roll < 0.76) later(5, () => addSmall(ctx, f, side, 'extinguisher', 0.75, 0.45, 0.45));
       else free.push([f, side]);
     }
   }
   // the notice goes in a slot that was left bare (never on top of a poster)
-  if (wantNotice && !noticeDone && free.length) { const [f, side] = rng.pick(free); addNotice(ctx, f, side, items); }
+  if (wantNotice && !noticeDone && free.length) { const [f, side] = rng.pick(free); later(1, () => addNotice(ctx, f, side, items)); }
+  todo.sort((a, b) => a[0] - b[0]);
+  for (const [, fn] of todo) fn();
   return items;
 }

@@ -8,11 +8,12 @@ import { MOUTH } from '../world/platform_end.js';
 import { setBlind } from '../tex/train.js';
 import { toWorld } from '../world/collide.js';
 import { nextTrains } from './boards.js';
-import { nextStation } from './route.js';
+import { trainCall, trainCallWrong } from './route.js';
 import { platformNo } from './line.js';
 import { RNG, clamp, damp } from '../util/rng.js';
 
-const T_APPROACH = 5.5, T_ARRIVE = 6.5, T_DWELL = 10.5, ACCEL = 1.0;
+const T_APPROACH = 5.5, T_ARRIVE = 6.5, ACCEL = 1.0;
+const MIND_THE_GAP = 'Please mind the gap between the train and the platform.';
 
 export class Trains {
   constructor(game) {
@@ -25,13 +26,14 @@ export class Trains {
 
   reset() {
     this.rng = new RNG((this.game.state.seed || 1) ^ 0x7a11);
-    this.nextAt = 75; this.period = 215;
+    this.nextAt = 32; this.period = 215;      // the first one comes while you are still finding your feet
     this.phase = 'idle';        // idle | approach | arrive | dwell | depart | distant
     this.node = null; this.t = 0; this.s = 0;
     this.level = 0;             // 0..1: how much train there is in the air (rumble, wind, flicker)
     this.target = 0;
     this.seenId = 0; this.count = 0;
     this.mesh.visible = false;
+    this.game.state.train = 'idle'; this.game.state.trains = 0;
   }
 
   schedule() { return { nextAt: this.nextAt, period: this.period }; }
@@ -90,18 +92,25 @@ export class Trains {
         }
       } else if (this.phase === 'dwell') {
         this.target = 0.22;
-        const say = (text) => g.director.announcer.say({ text, chime: 'none', tag: '(from the train)' });
-        if (this.spoke === 0 && this.t > 0.9) {
+        // platform PA, then the train's own voice, then the doors (each step
+        // waits for the one before, using the announcer's own timing estimate)
+        const an = g.director.announcer, est = (text) => Math.max(3.2, text.split(/\s+/).length * 0.43) + 0.8;
+        const fromTrain = (text, urgent) => an.say({ text, chime: 'none', tag: '(from the train)', urgent });
+        if (this.spoke === 0 && this.t > 0.4) {
           this.spoke = 1;
-          const st = node.env.station, tr = this.train;
-          const next = nextStation(st, node.p.dir, tr.via || tr.dest) || st;
-          const wrong = g.state.wrong;
-          say(wrong >= 2.5 && this.rng.chance(0.5)
-            ? `This is ${st}. The next station is ${st}. The doors will not open at this station.`
-            : `This is ${st}. This is a Northern line train to ${tr.dest}${tr.via ? ` ${tr.via}` : ''}. The next station is ${next}. The doors will not open at this station.`);
+          an.say({ text: MIND_THE_GAP, chime: 'none', tag: '(platform)', urgent: true });
+          this.tCall = this.t + est(MIND_THE_GAP) + 0.2;
         }
-        if (this.spoke === 1 && this.t > T_DWELL - 2.6) { this.spoke = 2; g.audio.sfx('doorChime'); say('Stand clear of the doors, please.'); }
-        if (this.t >= T_DWELL) { this.phase = 'depart'; this.t = 0; g.audio.sfx('trainDepart'); }
+        if (this.spoke === 1 && this.t > this.tCall) {
+          this.spoke = 2;
+          const st = node.env.station, tr = this.train;
+          const text = g.state.wrong >= 2.5 && this.rng.chance(0.5) ? trainCallWrong(st) : trainCall(st, node.p.dir, tr.dest, tr.via);
+          fromTrain(text, true);
+          this.tClose = this.t + est(text) + 0.3;
+        }
+        if (this.spoke === 2 && this.t > this.tClose) { this.spoke = 3; fromTrain('Stand clear of the doors, please.'); }
+        if (this.spoke === 3 && this.t > this.tClose + 1.5) { this.spoke = 4; g.audio.sfx('doorChime'); }
+        if (this.spoke === 4 && this.t > this.tClose + 5.0) { this.phase = 'depart'; this.t = 0; g.audio.sfx('trainDepart'); }
       } else if (this.phase === 'depart') {
         this.s = stop + 0.5 * ACCEL * this.t * this.t;
         this.target = clamp(0.3 + this.t * 0.12, 0, 1);
@@ -117,7 +126,17 @@ export class Trains {
       }
     }
     this.level = damp(this.level, this.target, this.target > this.level ? 2.2 : 0.9, dt);
-    g.player.shake = this.level * (onPlatform && this.node ? 1 : 0.25);
+    const here = onPlatform && this.node === cur;
+    g.player.shake = this.level * (here ? 1 : 0.25);
+    // the piston of air the train pushes ahead of it (and drags after it)
+    // nudges the player along the platform in the direction of travel
+    // (gently: about a metre and a half over the whole event, less while reading)
+    const push = here && this.phase !== 'dwell' ? (this.phase === 'depart' ? 0.1 : 0.2) * this.level * (1 - 0.8 * g.player.zoom) : 0;
+    g.player.windX = push ? Math.sin(cur.yaw) * push : 0;
+    g.player.windZ = push ? Math.cos(cur.yaw) * push : 0;
+    // never draw the train in a platform that is hidden (see World.cull)
+    if (this.node && this.node.built && !this.node.built.group.visible) this.mesh.visible = false;
+    else if (this.node && (this.phase === 'arrive' || this.phase === 'dwell' || this.phase === 'depart')) this.mesh.visible = true;
     g.state.train = this.phase;
   }
 }
