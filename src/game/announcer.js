@@ -2,7 +2,7 @@
 // subtitle on the camcorder display so the game is playable without sound.
 // A rising chime marks a genuine announcement; a falling one is… not staff.
 import { RNG } from '../util/rng.js';
-import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE } from './scripts.js';
+import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD } from './scripts.js';
 import { nextStation } from './route.js';
 
 export class Announcer {
@@ -16,6 +16,8 @@ export class Announcer {
     this.queue = [];
     this.cur = null;        // { text, tag, t, dur, phase }
     this.nextAmbient = 16;
+    this.nextSecurity = 45;  // first security message, then every ~3 minutes
+    this.securityN = 0;
     this.last = null;       // last junction announcement (for replay)
     if (this.game.audio) this.game.audio.stopSpeech();
   }
@@ -55,6 +57,17 @@ export class Announcer {
         g.audio.speak(c.text, { odd: !!c.a.odd });
       }
       if (c.t >= c.dur) this.cur = null;
+      return;
+    }
+    // the security message, on a fixed timer like the real network
+    this.nextSecurity -= dt;
+    if (this.nextSecurity <= 0) {
+      this.nextSecurity = 180;
+      this.nextAmbient = Math.max(this.nextAmbient, 20);
+      const odd = g.state.wrong >= 3 && this.securityN % 3 === 2;
+      const text = odd ? SECURITY_ODD[0] : SECURITY[this.securityN % SECURITY.length];
+      this.securityN++;
+      this.say({ text, chime: odd ? 'fall' : 'rise', odd });
       return;
     }
     // ambient announcements, stranger as the station goes wrong

@@ -13,8 +13,6 @@ This is Golders Green. Please follow the signs for the way out.
 This is this station. Please follow the signs for the way out.
 Please take care on the stairs and hold the handrail.
 Please stand on the right on the escalators.
-This is a security message. If you see something that doesn't look right, speak to staff, or text the British Transport Police on 61016. We'll sort it. See it, say it, sorted.
-If you see something that doesn't look right, speak to staff, or text British Transport Police on 61016, and we'll get it sorted. That's 61016. See it, say it, sorted.
 This station is now closed. Please make your way to the way out. If you can.
 There is a good service on the Northern line, and on all other lines that still exist.
 Please keep your belongings with you. Unattended belongings may be remembered.
@@ -42,7 +40,6 @@ This is Belsize Park. The next station is Belsize Park.
 This is Hampstead. The next station is Hampstead.
 This is Golders Green. The next station is Golders Green.
 This is this station. The next station is this station.
-If you see something that doesn't look right, speak to staff. If you can find one. See it, say it, sorted.
 We can see you on the cameras. You look tired.
 Mind the gap. The gap is minding you.
 This is Mornington Crescent. You have been here before. You will be here again.
@@ -57,6 +54,9 @@ There are no delays. There is nothing left to be delayed.
 You are walking the right way. That is what worries us.
 This is North End. This station was never opened. Please do not alight here.
 Please do not turn round.
+This is a security message. If you see something that doesn't look right, speak to staff, or text the British Transport Police on 61016. We'll sort it. See it, say it, sorted.
+If you see something that doesn't look right, speak to staff, or text British Transport Police on 61016, and we'll get it sorted. That's 61016. See it, say it, sorted.
+If you see something that doesn't look right, speak to staff. If you can find one. See it, say it, sorted.
 For the way out, please follow signs for the northbound platform. To the left. Please.
 The way out is by the northbound platform, on the left. We would not lie to you.
 Customers for the way out should keep to the left, for the northbound platform. Do hurry.
