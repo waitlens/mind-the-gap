@@ -49,7 +49,7 @@ export function fitPlatform(ctx, L, side) {
   // staff notice go on the sheet straight after the diagram — biggest
   // pieces first, or the 1024 x 1024 sheet does not pack)
   let easel = null, noticeSlot = null, infoUV = null;
-  fitTrackside(ctx, L, side, items, () => {
+  const trackside = fitTrackside(ctx, L, side, items, () => {
     const r2 = extraRng(ctx);
     if (p.start) infoUV = sheet.add(288, 360, (c, w, h) => drawCustomerInfo(c, w, h, CUSTOMER_INFO, station, r2));
     // always on the first platform, where it is still an ordinary cheerful one
@@ -164,7 +164,7 @@ export function fitPlatform(ctx, L, side) {
   //     floor): about one platform in two or three. Its front page is the
   //     last and smallest piece on the sign sheet.
   const r2 = extraRng(ctx);
-  if (benches.length && r2.chance(env.paperChance ?? 0.3)) {
+  if (benches.length && !p.train && r2.chance(env.paperChance ?? 0.3)) {
     const story = pickPaper(r2, env), face = paintPaper(ctx, story);
     const zb = r2.pick(benches), floor = r2.chance(0.25);
     // the top of the page lies towards the back wall, give or take
@@ -181,5 +181,5 @@ export function fitPlatform(ctx, L, side) {
     b.quad('figure', [fx + 0.3, 0, fz], [fx - 0.3, 0, fz], [fx - 0.3, 1.78, fz], [fx + 0.3, 1.78, fz], [0, 0, -1], atlasRect('figure'), { emit: 0.02 });
     zones.push({ x0: -9, x1: 9, z0: L - 7 - 12.5, z1: L, fire: (game, node) => game.director.events.figureGone(node) });
   }
-  return { items, walls, zones, spawn };
+  return { items, walls, zones, spawn, art: { strip: stripUV, ads: trackside.ads } };
 }

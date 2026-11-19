@@ -37,6 +37,14 @@ export function dynRect(name) {
   return [(x + e) / W, 1 - (y + h - e) / H, (x + w - e) / W, 1 - (y + e) / H];
 }
 
+// One text row of a board (0–2, or 3 for the footer), optionally only the
+// left `frac` of it: the scrolling LED displays inside the standing train
+// show the board's ticker line.
+export function dynRow(name, row, frac = 1) {
+  const [x, y, w, h] = REG[name], rh = h / 4;
+  return [(x + 8) / W, 1 - (y + rh * (row + 1) - 1) / H, (x + 8 + (w - 16) * frac) / W, 1 - (y + rh * row + 2) / H];
+}
+
 // rows: [{l, r}] up to 3; footer: string (time of day)
 function drawBoard(reg, rows, footer) {
   const [x, y, w, h] = REG[reg];

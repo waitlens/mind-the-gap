@@ -58,6 +58,11 @@ This is a security message. If you see something that doesn't look right, speak 
 If you see something that doesn't look right, speak to staff, or text British Transport Police on 61016, and we'll get it sorted. That's 61016. See it, say it, sorted.
 If you see something that doesn't look right, speak to staff. If you can find one. See it, say it, sorted.
 This station is now closed. Please read the customer information notice on the platform, then make your way to the way out.
+This train is being held here to regulate the service. We will be on the move shortly.
+This is a Northern line train to Edgware. Please move right down inside the cars.
+This train terminates here. All change, please. All change.
+This train is being held here. We do not know what is holding it.
+The next station is this one. The next station is this one.
 For the way out, please follow signs for the northbound platform. To the left. Please.
 The way out is by the northbound platform, on the left. We would not lie to you.
 Customers for the way out should keep to the left, for the northbound platform. Do hurry.

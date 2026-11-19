@@ -69,4 +69,5 @@ export function fitTrackside(ctx, L, side, items, afterBig = null) {
       if (count === 1 && zb - za - AW > 7) { roundel((za + zc - AW / 2) / 2); roundel((zb + zc + AW / 2) / 2); }
     }
   }
+  return { ads: ads.map((a) => a.uv) };
 }

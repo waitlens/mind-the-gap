@@ -164,6 +164,13 @@ down, a warm wind pushes out of the tunnel, and a Northern line train comes
 out of the dark, stops, keeps its doors shut, tells you where you are and what
 the next station is, and leaves. It is not in service. You cannot board it.
 
+Now and then there is one you *can* board: three cars of 1995 Stock standing
+at a platform, lights on, nobody aboard, held "to regulate the service". The
+doors of the two end cars are open, the middle car's are not, and the
+platform alongside it is boarded off — "Platform closed. Please pass along
+inside the train." So you get on, walk through the doors between the cars,
+and get off at the far end. The train has something to say in each car.
+
 ## What is in it
 
 - Endless procedural layout from modular segments — corridor, curved bend,
@@ -190,6 +197,14 @@ the next station is, and leaves. It is not in service. You cannot board it.
   paragraph. 8 ordinary front pages, 6 odd, 4 that are about you
   (`src/game/paper.js`); a few of them mention a rule of the station in
   passing.
+- **Set pieces modelled on real places** (measurements and sources in
+  `REFERENCES.md`, "Scenes, round 3"; `window.__game.debug.scene(name)` jumps
+  to each):
+  - `train` — the standing train: a three-car unit to the 1995 Stock's real
+    dimensions (17.77 m cars, 2.63 m wide, 1,406 mm and 703 mm doors in
+    their measured places, 7 + 3 + 7 seats a side), refurbished interior —
+    Barman moquette, dark-blue poles, black armrests, speckled floor, line
+    diagrams and adverts along the cove, scrolling LED displays.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -218,7 +233,9 @@ the next station is, and leaves. It is not in service. You cannot board it.
   ahead to the next thing whose READ label contains `label`, e.g.
   `'whiteboard'` or `'newspaper'`, and stand in front of it), `census()` /
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
-  of room), `hush()` (clear hints and stop the PA, for screenshots).
+  of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
+  (jump to a set piece: `'train'`, with `{ car: 0|1|2 }` to stand inside a
+  car), `local()` (where you are in the current segment's own coordinates).
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,

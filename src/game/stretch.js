@@ -36,6 +36,16 @@ export function makeStretch(story, opts = {}) {
     if (plan[plan.length - 1] !== 'corridor') plan.push('corridor');
     plan.push(has('junction') ? 'junction' : 'corridor');
   }
+  // Set pieces are dealt out from a random stream of their own, after the
+  // plan is made, so the layout a seed has always given is otherwise the same.
+  const sp = new RNG(hash32(story.seed, 5000 + id * 17));
+  // A train standing at a platform with its doors open (world/trainstop.js)
+  // takes the place of an ordinary platform: about one stretch in three,
+  // sooner if the walk has not met one yet. Never the platform you start on.
+  if (has('trainstop') && !opts.exit) {
+    const at = plan.findIndex((t, i) => t === 'platform' && !(opts.first && i === 0));
+    if (at >= 0 && sp.chance(story.trainStops ? 0.22 : opts.first ? 0.25 : 0.5)) { plan[at] = 'trainstop'; story.trainStops = (story.trainStops || 0) + 1; }
+  }
   // (tests can force what lies beyond a junction, e.g. a short closed stub)
   if (opts.fromJunction && story.testBranch) plan.splice(0, plan.length, 'corridor', ...story.testBranch);
   story.stretchCount++;

@@ -5,18 +5,19 @@ import { buildHeadwall, MOUTH } from './platform_end.js';
 import { fitPlatform } from './platform_fit.js';
 import { portalLamp } from './decor.js';
 import { PASSAGE } from './sweep.js';
+import { fitTrainstop, TRAINSTOP } from './trainstop.js';
 
 export const platform = {
   type: 'platform',
   sheetSize: 1024,
   plan(rng, env) {
     const start = !!(env.stretch && env.stretch.first && env.idx === 0);
-    const L = start ? 30 : rng.pick([30, 36, 36, 42]);
+    const L = env.platformL || (start ? 30 : rng.pick([30, 36, 36, 42]));
     const side = rng.sign();
     // Which platform this is. A second platform in the same stretch (reached
     // by a cross-passage) is the one for the other direction.
     const st = env.stretch;
-    const earlier = st ? st.plan.slice(0, env.idx).filter((t) => t === 'platform').length : 0;
+    const earlier = st ? st.plan.slice(0, env.idx).filter((t) => t === 'platform' || t === 'trainstop').length : 0;
     const base = (st && st.dir) || 'north';
     const dir = earlier % 2 ? (base === 'north' ? 'south' : 'north') : base;
     const xa = PF.back - 0.4, xb = PF.cx + PF.R + 0.4;
@@ -48,17 +49,36 @@ export const platform = {
     const mid = (PF.back + PF.edge) / 2, hw = (PF.edge - PF.back) / 2;
     const cells = [{ ax: X(mid), az: 0, bx: X(mid), bz: L, hw, ya: 0, yb: 0 }];
     const pw = PASSAGE.W / 2;
+    // (a train standing at the platform with its doors open: see trainstop.js)
+    const stop = p.train ? fitTrainstop(ctx, L, side, fit.art) : null;
     const walls = [
       [X(PF.back + 0.08), 0, X(PF.back + 0.08), L],       // back wall
-      [X(PF.edge - 0.1), 0, X(PF.edge - 0.1), L],         // platform edge: mind the gap
       [X(PF.back), L, X(-pw), L], [X(pw), L, X(PF.edge), L],
     ];
+    // platform edge: mind the gap — except at an open doorway
+    let ze = 0;
+    for (const [za, zb] of stop ? stop.gaps : []) { walls.push([X(PF.edge - 0.1), ze, X(PF.edge - 0.1), za]); ze = zb; }
+    walls.push([X(PF.edge - 0.1), ze, X(PF.edge - 0.1), L]);
     if (p.start) walls.push([X(PF.back), 0, X(PF.edge), 0]);
     else walls.push([X(PF.back), 0, X(-pw), 0], [X(pw), 0, X(PF.edge), 0]);
     for (const w of fit.walls) walls.push(w);
     const extra = { zones: fit.zones };
+    if (stop) { cells.push(...stop.cells); walls.push(...stop.walls); fit.items.push(...stop.items); extra.zones.push(...stop.zones); }
     // (you step off the last train facing the Customer Information board)
     if (p.start) extra.spawn = fit.spawn || { x: X(0.1), z: 6, yaw: 0 };
     return { cells, walls, items: fit.items, extra };
   },
+};
+
+// The same platform, longer, with a three-car train standing at it.
+// (A type of its own: the running train never calls here.)
+export const trainstop = {
+  type: 'trainstop',
+  sheetSize: 1024,
+  plan(rng, env) {
+    const pl = platform.plan(rng, { ...env, platformL: TRAINSTOP.L });
+    Object.assign(pl.p, { train: true, figure: false, start: false });
+    return pl;
+  },
+  build: (ctx) => platform.build(ctx),
 };

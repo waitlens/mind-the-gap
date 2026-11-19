@@ -25,6 +25,18 @@ export const SECURITY_ODD = [
   'If you see something that doesn\'t look right, speak to staff. If you can find one. See it, say it, sorted.',
 ];
 
+// Said inside the train that is standing at a platform with its doors open
+// (world/trainstop.js): one line in each car as you walk through.
+export const TRAIN_PA = [
+  'This train is being held here to regulate the service. We will be on the move shortly.',
+  'This is a Northern line train to Edgware. Please move right down inside the cars.',
+];
+export const TRAIN_PA_ODD = [
+  'This train terminates here. All change, please. All change.',
+  'This train is being held here. We do not know what is holding it.',
+  'The next station is this one. The next station is this one.',
+];
+
 // Slightly wrong.
 export const AMBIENT_ODD = [
   'This station is now closed. Please make your way to the way out. If you can.',

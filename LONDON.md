@@ -221,3 +221,38 @@ seconds in, the PA says one welcome line pointing at the board (one new
 clip). After that a junction only speaks on arrival if the announcement is
 the clue; sign and clock junctions are silent. The two lines they used to
 say are now what the help point in those halls answers with when pressed.
+
+## Round 6: five real places
+
+The player's brief: scenes "faithful to the real places, as close to 1:1 as
+possible". Each was researched first (`REFERENCES.md`, "Scenes, round 3")
+and built to the numbers found; where the game departs from them it says so
+here.
+
+### The standing train (`src/world/railcar.js`, `railcar_fit.js`, `trainstop.js`, `src/tex/car.js`)
+
+A real half-train — uncoupling motor car, trailer, driving motor car — at
+the 1995 Stock's own dimensions from TfL's information sheet: 17.77 m over
+body ends, 2.63 m wide, door openings of 1,406 and 703 mm where the drawing
+puts them, rows of seven, three and seven seats a side with two tip-ups
+either side of the three. The inside is the present-day refurbished one:
+Barman moquette, dark-blue poles and rails, black armrests, ivory panels,
+the pale speckled floor going dark in the doorways, one pole on the centre
+line of each double doorway, diagrams and advert cards along the cove (the
+platform's own strip map and adverts, re-used from its sign sheet), LED
+displays that scroll the indicator's ticker line. Windows and open doorways
+are real openings. The outside uses the running train's colours, and the cab
+end its very painting.
+
+It stands at a 58 m platform (the longest in the game; three cars need
+54 m). The 1995 Stock is the one deep-level stock with selective door
+operation, and the scene uses it: end cars open, middle car shut, the
+platform beside the middle car behind blue hoardings — so the route is
+through the train. One announcement in each car, in the train's voice
+(five new clips).
+
+Departures: the running train is still the short 8.5 m-car one, because it
+has to fit a 30 m platform and the game's tunnel mouths; the two are never
+seen together. The far-side doors stay shut (there is a tunnel wall there).
+Interior headroom (2.07 m) is derived, not sourced. About 8,000 triangles
+and two extra draw calls on the one platform that has it.

@@ -1,7 +1,7 @@
 // All segment types by name.
 import { corridor, bend } from './seg_corridor.js';
 import { junction } from './seg_junction.js';
-import { platform } from './seg_platform.js';
+import { platform, trainstop } from './seg_platform.js';
 import { stairs } from './seg_stairs.js';
 import { escalator } from './seg_escalator.js';
 import { exit, deadend } from './seg_exit.js';
@@ -12,6 +12,7 @@ export const SEGMENTS = {
   bend,
   junction,
   platform,
+  trainstop,
   stairs,
   escalator,
   exit,

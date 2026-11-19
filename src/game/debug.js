@@ -4,6 +4,19 @@ import { toWorld, toLocal } from '../world/collide.js';
 import { CFG } from '../config.js';
 import { preview } from './debug_tex.js';
 
+// Set pieces reachable with debug.scene(name).
+const SCENES = {
+  // opts.car = 0 | 1 | 2 stands you inside that car (opts.z: metres from its rear end)
+  train: {
+    plan: ['platform', 'corridor', 'trainstop', 'corridor', 'junction'], advance: 2, at: [0, 1.5],
+    after(d, game, o) {
+      if (o.car === undefined) return;
+      const n = game.world.current;
+      d.at(n.p.side * 3.045, 2.1 + o.car * 18.02 + (o.z ?? 9), o.yaw || 0);
+    },
+  },
+};
+
 export function installDebug(api, game) {
   const p = game.player, world = game.world;
 
@@ -77,6 +90,8 @@ export function installDebug(api, game) {
     },
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
+    // The player's position in the current node's own coordinates.
+    local() { const n = world.current, [x, z] = toLocal(n, p.pos.x, p.pos.z); return { x, y: p.pos.y - n.pos.y, z, type: n.def.type }; },
     folds() { return [...world.nodes.values()].filter((n) => n.hiddenByFold).length; },
     items() { const n = world.current; return n.built ? n.built.items.map((i) => ({ label: i.label, x: i.x, y: i.y, z: i.z })) : []; },
     info() {
@@ -215,6 +230,20 @@ export function installDebug(api, game) {
       out.errors = game.state.errors;
       game.reset(first);
       return out;
+    },
+    // Jump to one of the set-piece scenes. Each entry: the forced layout,
+    // how many segments to walk in, and where to stand. opts: { seed, wrong }.
+    scene(name, opts = {}) {
+      const sc = SCENES[name];
+      if (!sc) return Object.keys(SCENES);
+      api.debug.force(null); api.debug.branch(null);
+      game.reset(opts.seed ?? sc.seed ?? 7, sc.plan, opts.wrong ?? sc.wrong ?? 0, sc.progress ?? 1);
+      game.director.reset();
+      if (sc.advance) api.debug.advance(sc.advance);
+      const at = sc.at || [0, 1.2, 0];
+      api.debug.at(at[0], at[1], at[2] || 0, at[3] || 0);
+      if (sc.after) sc.after(api.debug, game, opts);
+      return api.debug.info();
     },
     // Restart with a forced list of segment types (for tests / screenshots).
     plan(list, seed = 7, wrong = 0, progress = 0) { game.reset(seed, list, wrong, progress); return api.debug.info(); },

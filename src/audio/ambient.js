@@ -71,7 +71,7 @@ export class Ambient {
     this.rumble.gain.setTargetAtTime(0.16 + 0.1 * noise1(t * 0.13, 1) + train * 0.75, now, 0.3);
     this.rumbleLP.frequency.setTargetAtTime(62 + train * 120, now, 0.4);
     // wind: slow swells, gusting with the train; stronger on platforms
-    const open = node && node.def.type === 'platform' ? 1.5 : 1;
+    const open = node && (node.def.type === 'platform' || node.def.type === 'trainstop') ? 1.5 : 1;
     const swell = 0.5 + 0.5 * noise1(t * 0.09, 2);
     this.wind.gain.setTargetAtTime((0.018 + 0.045 * swell * swell + train * 0.11) * open, now, 0.4);
     this.windBP.frequency.setTargetAtTime(300 + 420 * (0.5 + 0.5 * noise1(t * 0.17, 3)) + train * 500, now, 0.5);
