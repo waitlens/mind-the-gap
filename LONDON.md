@@ -167,3 +167,28 @@ what fits before it draws anything (`Sheet.room`): the poem gives way first,
 then the number of different adverts. On platforms the poem, the whiteboard
 and the notice are placed straight after the line diagram (largest first).
 `node tests/smoke.mjs --fuzz=40` reports no sheet overflows.
+
+## Round 4: the paper on the bench
+
+Every Tube platform has one by mid-morning: a free tabloid, read once and
+left on the bench. Ours is *The Commute* — an invented title; no real
+masthead or logo is imitated beyond the genre (white capitals on red, a blue
+date strap, "FREE"). The front page is drawn at runtime (`src/tex/paper.js`):
+headline, standfirst, a picture built from a few grey shapes under a halftone
+screen, greeked columns, a fold across the middle. The prop
+(`src/world/paper.js`) is a dozen quads: a slightly crumpled sheet with a
+ridge along the fold, a curled corner and the inside pages slipped out from
+under it, lying on the seat of a bench or on the floor next to one.
+
+The stories (`src/game/paper.js`) are written for the game. Ordinary London
+news first (strike threat, rain, Northern line delays, house prices, a fox
+in a pub); then a passenger missing after the last train and a 23:47 that
+has been due for eleven days; then the reader. The date line is today's,
+then yesterday's or doubled, then 22 June 1907 — the day this branch opened.
+A few stories mention a rule in passing (yellow and black signs, tile
+colours, clocks that only run forwards, the rising chime, "up the line");
+none of them says which way to turn.
+
+Cost: one 150 x 194 piece, placed last on the platform's sign sheet (the
+packer was re-checked for every combination with the poem, whiteboard and
+notice), no new texture, no new draw call.

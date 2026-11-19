@@ -177,11 +177,12 @@ export function installDebug(api, game) {
       return [...world.nodes.values()].filter((m) => m.built && m.built.sheetOverflow)
         .map((m) => ({ type: m.def.type, n: m.built.sheetOverflow, labels: m.built.items.map((i) => i.label).join(',') }));
     },
-    // Every built segment with its whiteboards and poems (for counting them).
+    // Every built segment with its whiteboards, poems and newspapers (for counting them).
     census() {
       return [...world.nodes.values()].filter((m) => m.built).map((m) => ({
         key: `${game.state.seed}:${m.id}`, type: m.def.type,
         boards: m.built.items.filter((i) => i.board).map((i) => i.board), poems: m.built.items.filter((i) => i.poem).map((i) => i.poem),
+        papers: m.built.items.filter((i) => i.paper).map((i) => i.paper),
       }));
     },
     builtCount() { return [...world.nodes.values()].filter((m) => m.built).length; },

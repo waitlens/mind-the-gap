@@ -21,6 +21,8 @@ import { stripText } from '../game/route.js';
 import { pickNotice } from './dress_passage.js';
 import { pickThought } from '../game/thoughts.js';
 import { easelBoard, paintBoard, extraRng } from './whiteboard.js';
+import { pickPaper } from '../game/paper.js';
+import { paintPaper, layPaper } from './paper.js';
 
 export function fitPlatform(ctx, L, side) {
   const { b, p, sheet, rng, env } = ctx;
@@ -85,6 +87,7 @@ export function fitPlatform(ctx, L, side) {
   let np = 0;
   const order = ['roundel', p.start ? 'notice' : 'poster', 'name', 'poster', 'roundel', 'strip', 'poster', 'roundel', 'name', 'poster', 'help'];
   const widths = { roundel: 1.15, poster: 1.0, name: nameW, strip: 4.4, notice: 0.5, help: 0.34 };
+  const benches = [];
   let z = 3.0, n = 0, nb = 0;
   while (n < 40) {
     const kind = order[n % order.length], w = widths[kind];
@@ -102,6 +105,7 @@ export function fitPlatform(ctx, L, side) {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.72, 2.25, nameUV, null, 0.025);
       items.push({ ...pos, r: 7, label: 'read tiles', title: 'TILED NAME', text: `· ${fired.toUpperCase().split(' ').join(' · ')} ·${fired !== station ? ` (the frieze says ${station})` : ''}` });
       bench(b, side, zc, walls);
+      benches.push(zc);
     } else if (kind === 'strip') {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.0, 1.92, stripUV);
       items.push({ ...pos, r: 6, cone: 0.92, label: 'read line map', title: 'NORTHERN LINE', text: stripText(station, ghosts) });
@@ -142,6 +146,18 @@ export function fitPlatform(ctx, L, side) {
   const plate = sheet.add(250, 56, (c, w, h) => drawPlate(c, w, h, `${dirWord(dir)} platform ${platformNo(dir)}`, { sub: 'Northern line', bg: '#f6f6f1', fg: '#16213f' }));
   const wpos = hangingSign(b, 'sheet', { x: 0, y: 0, z: L - 7, yaw: 0 }, 2.42, 1.7, 0.38, wo, plate, { emit: 1.25 }, X(0));
   items.push({ ...wpos, r: 9, cone: 0.94, label: 'read sign', title: 'SIGN', text: 'Way out ↑ (black on yellow)' });
+  // --- somebody's free paper, left on a bench (or slid off it onto the
+  //     floor): about one platform in two or three. Its front page is the
+  //     last and smallest piece on the sign sheet.
+  const r2 = extraRng(ctx);
+  if (benches.length && r2.chance(env.paperChance ?? 0.42)) {
+    const story = pickPaper(r2, env), face = paintPaper(ctx, story);
+    const zb = r2.pick(benches), floor = r2.chance(0.25);
+    // the top of the page lies towards the back wall, give or take
+    const yaw = -side * Math.PI / 2 + r2.range(-0.4, 0.4), n = [side, 0];
+    if (floor) items.push(layPaper(ctx, X(PF.back + r2.range(0.85, 1.05)), 0, zb + r2.sign() * r2.range(0.3, 1.2), yaw + r2.range(-0.5, 0.5), story, face, { floor: true, n }));
+    else items.push(layPaper(ctx, X(PF.back + 0.41), 0.46, zb + r2.range(-0.6, 0.6), yaw, story, face, { n }));
+  }
   // a signal lamp in the tunnel mouth
   b.quad('atlas', [X(PF.track + 0.98), 0.9, L + 0.4], [X(PF.track + 1.13), 0.9, L + 0.4], [X(PF.track + 1.13), 1.05, L + 0.4], [X(PF.track + 0.98), 1.05, L + 0.4],
     [0, 0, -1], atlasFlat('white'), { emit: 1.6, tint: [1, 0.12, 0.08] });

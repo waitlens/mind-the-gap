@@ -36,7 +36,7 @@ npm test           # headless smoke test (needs Chrome; run `npm run build` firs
 | Pause | `Esc` or `P` | **II** button |
 
 Aim the small viewfinder cross at a sign, line diagram, poster, poem, notice,
-whiteboard, clock, indicator board or help point. When `[E] read …` appears, press it: the
+whiteboard, newspaper, clock, indicator board or help point. When `[E] read …` appears, press it: the
 camcorder zooms in and a caption card shows what the thing says — for a line
 diagram, the full list of stations in order. Press again (or walk away) to put
 it down.
@@ -148,7 +148,9 @@ The whiteboard's cheerful thought for the day turns into *"You've read this
 board before"* and stops being signed by anyone you could name, and the
 *Poems on the Underground* in the advert frames begin to misremember
 themselves: a line comes round twice, a street becomes a tunnel, the poet
-becomes *Anon., Mornington Crescent*.
+becomes *Anon., Mornington Crescent*. The free paper left on the bench stops
+reporting strikes and rain and starts reporting a passenger who never came
+up after the last train; its date repeats, then goes backwards.
 
 ### Trains
 
@@ -182,6 +184,14 @@ the next station is, and leaves. It is not in service. You cannot board it.
   Shakespeare, Stevenson, Housman), plus five short poems by "Anon." written
   for the game (`src/game/poems.js`). READ shows the poem as it is printed
   on that particular poster — altered or not.
+- **An abandoned free newspaper** on a platform bench, or on the floor
+  beside one (about one platform in two or three): *The Commute*, an
+  invented morning tabloid — red masthead, blue date strap, a big headline,
+  a "photograph" made of a few grey shapes under a halftone screen, and
+  columns of greeked text. READ gives the headline, the standfirst and a
+  paragraph. 8 ordinary front pages, 6 odd, 4 that are about you
+  (`src/game/paper.js`); a few of them mention a rule of the station in
+  passing.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -206,10 +216,10 @@ the next station is, and leaves. It is not in service. You cannot board it.
   `plan([...types], seed, wrong, progress)` (restart with a forced layout,
   strangeness and station), `train(seconds)` (bring the next train forward),
   `use()`, `info()`, `preview(kind, w, h, opts)` (render one sign texture —
-  `'whiteboard'` and `'poem'` among them), `find(label, dist)` (walk ahead to
+  `'whiteboard'`, `'poem'` and `'paper'` among them), `find(label, dist)` (walk ahead to
   the next thing whose READ label contains `label`, e.g. `'whiteboard'` or
   `'poem'`, and stand in front of it), `census()` / `overflow()` (count the
-  boards and poems; check no sign sheet ran out of room).
+  boards, poems and newspapers; check no sign sheet ran out of room).
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,
