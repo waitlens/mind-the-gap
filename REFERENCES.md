@@ -295,3 +295,201 @@ finishes), `tex/symbol.js` (roundel), `tex/linemap.js` and `tex/linestrip.js`
 knowingly departs from what the photos show (tile colours pushed apart so the
 stations can be told from each other, shorter platforms and trains), it is
 listed in `LONDON.md`.
+
+## Scenes, round 3
+
+Research for five scenes that are modelled on particular real places. As
+before, nothing below is shipped: the photographs (28, in `refs/s7/`,
+git-ignored) and three PDFs were only read and measured; every surface in the
+game is drawn at runtime. Where a source did not give a figure, it says so
+here, and the game's number is marked *estimated*.
+
+### 1. The 1995 Stock (Northern line train), interior
+
+Sources: TfL "1995 Tube Stock" information sheet, 4th edition (FOI-0838-2122;
+dimensioned drawings and an interior photograph); Wikipedia, *London
+Underground 1995 Stock*; Commons photographs by Peter Skuce (public domain:
+`95 T INTERIOR Northern line.JPG`, `95 DM INTERIOR Northern line.JPG`) and
+Rept0n1x (CC BY-SA 3.0).
+
+| What | Figure | Source |
+|---|---|---|
+| Length over body ends (every car type) | 17,770 mm | TfL sheet |
+| Width of body / height above rail | 2,630 mm / 2,875 mm | TfL sheet |
+| Passenger door opening, double / single | 1,406 mm / 703 mm | TfL sheet |
+| Doors per side | DM: two double, one single; trailer and UNDM: two double, two single | TfL sheet |
+| Gap between car bodies / bogie centres | 250 mm (typ.) / 11,124 mm | TfL drawing |
+| Unit | three cars, DM – T – UNDM; a train is two units back to back | TfL sheet |
+| Seats | 200 fixed + 48 tip-up per train (so 34 + 8 in a trailer) | TfL sheet |
+| Lighting | fluorescent, 28 tubes per trailer, in two rows | TfL sheet |
+| Displays | six scrolling LED units per car, orange | TfL sheet, Wikipedia |
+
+Measured off the TfL trailer-car drawing (980 px = 17.77 m), from one body
+end: single door centred at 0.97 m; seat bay of **seven** from 1.52 to 5.15 m
+(seat pitch ≈ 0.52 m with its armrest); double door centred at 6.11 m; the
+centre bay — two tip-ups, three fixed seats, two tip-ups — from 7.1 to 10.7 m;
+second double door at 11.66 m; second bay of seven 12.62–16.25 m; second
+single door at 16.80 m. Windows: two per bay, ≈ 1.4 m × 0.75 m. Both sides
+alike: 7 + 3 + 7 = 17 fixed seats a side.
+
+Finishes. As built (1998–2013): yellow grab poles, a charcoal moquette whose
+pale marks "formed the letter N", grey floor. Since the 2013–15
+refurbishment — the state modelled — the standard **Barman** moquette
+(royal blue ground, darker and lighter blue arcs and blocks, small red and
+turquoise rings), **dark blue** poles and rails, black armrests, grey seat
+plinths, ivory wall and door panels, a speckled pale-grey floor that turns
+dark grey in the doorways. Along the cove above the windows: line diagrams
+and advert cards, dark ventilation louvres and the LED display boxes; two
+continuous light diffusers flank a white centre ceiling panel with round
+loudspeaker grilles; one floor-to-ceiling pole stands on the centre line of
+each double doorway. The car end has a door to the next car with a narrow
+tall window (a plain door in the cab bulkhead of a DM car).
+Not found: interior floor-to-ceiling height (estimated 2.07 m: 2,875 mm less
+a ≈ 0.70 m floor height and the roof), the announcements' exact wording (the
+voice is Celia Drummond's; the game's lines are written in the network's
+manner and spoken by its own synthetic voice).
+
+### 2. Camden Town deep-level shelter
+
+Sources: Subterranea Britannica, *Camden Town deep shelter* and *Belsize Park
+deep shelter* (site visits by Nick Catford, 2000) and *Deep Level Shelters in
+London*; Wikipedia, *London deep-level shelters*; Commons photographs of the
+Clapham South shelter, built to the same design (Matt Brown, CC BY 2.0;
+Sam Town, CC BY-SA 2.0).
+
+- Two parallel tunnels per shelter, **16 ft 6 in (5.03 m) internal
+  diameter**, 1,200 ft (≈ 370 m) long (Wikipedia; one Subterranea Britannica
+  page prints "12,000 feet", an obvious slip), each with **two decks**;
+  at Camden Town the two tunnels are about 150 ft apart. Built 1940–42;
+  Camden Town opened to the public on 16 July 1944. Design capacity 9,600,
+  later 8,000.
+- Camden Town's shaft heads are in Buck Street and Underhill Street. Its
+  upper landing is about 50 ft below the Northern line; "a door and steps up
+  50 feet" once led to the station's platforms and has been bricked up —
+  the game's way in.
+- Each tunnel was partitioned into four or five sections with connecting
+  doors. Section names are recorded for Belsize Park and Clapham South;
+  **none was found for Camden Town**, so the game letters its section and
+  invents no name.
+- Bunks (Camden Town): along one wall, in line with the passage, three tiers
+  — "a single bunk almost at floor level, a twin bunk above it, one half
+  hinged, and another single bunk above that"; the opposite wall has bunks
+  at right angles to the passage in bays of "six bunks, two stacks of three
+  singles". Steel-framed. So the gangway is off centre.
+- Recorded lettering: floor-standing signs with arrows to "Underhill Street
+  entrance" and "Buck Street entrance"; a wall map headed "Camden Town deep
+  shelter"; a schematic labelled "Home Office deep shelter"; a Ministry of
+  Works notice that staff caught smoking will be dismissed; linings embossed
+  "LPTB". Medical post, wardens' post, lavatories behind a privacy wall.
+- From the Clapham South photographs: bolted segmental lining with deep
+  ribs and recessed pans, painted cream-white; the upper deck's floor is near
+  the tube's horizontal diameter, its walls lean in to a flat ceiling at
+  about 2.1–2.2 m; the lower deck has the ribbed concrete underside of that
+  floor for a ceiling; bunk uprights of steel angle with diagonal braces;
+  concrete floor with a darker strip down the middle. Deck levels are
+  *estimated* from the diameter (two storeys of ≈ 2.1 m and a 0.2 m floor
+  fit in 5.03 m).
+- Not found: bunk dimensions (6 ft × 2 ft assumed), wartime lamp type, paint
+  colours other than what the photographs show.
+
+### 3. Hampstead: the emergency stairs
+
+Sources: Wikipedia, *Hampstead tube station*; diamond geezer,
+"Undergroundest" (30 Oct 2013); Commons photograph *Hampstead tube station,
+emergency staircase* (Oxyman, CC BY-SA 2.0).
+
+- Deepest platforms on the network: **58.5 m (192 ft)** below the street;
+  deepest lift shaft, **55 m (181 ft)**. Opened 22 June 1907. The platform
+  tiles read "HEATH STREET".
+- The stairs: "over 320 steps" (every source). The signs, read off the
+  photograph: a green **"Emergency stairs"** plate, and a white plate in
+  dark-blue lettering, **"This stairway has over 320 steps / Do not use
+  except in an emergency"**. Another, quoted by diamond geezer: "equivalent
+  to climbing a 15 storey building".
+- A spiral round "the central supporting pillar", in "180° sections each of
+  17 steps" with a mini-landing between; paper labels on the pillar number
+  the landings from 1 at the top to 17 at the bottom. Treads are modern,
+  black "with yellow safety trim"; a black handrail on the inside; mesh
+  panels round the core. The top is "white-painted curved metal panels";
+  lower down "the original tiling kicks in" — cream with dark red bands, two
+  courses each (photograph). The way in is "tucked away in the back corner
+  of the ticket hall", down a straight flight first.
+- 320 steps in 55 m is 172 mm a step; 17 steps to the half turn puts a full
+  turn at 5.85 m. Shaft diameter was not found for Hampstead: 18 ft (5.5 m),
+  the size of the stair shaft at the same line's South Kentish Town, is
+  assumed.
+
+### 4. South Kentish Town
+
+Sources: Wikipedia, *South Kentish Town tube station*; Subterranea
+Britannica, *South Kentish Town Station* (Nick Catford, 2008); Commons
+photograph of the sister station, *Kentish Town stn northbound Northern look
+south* (Sunil060902, CC BY-SA 3.0).
+
+- Charing Cross, Euston & Hampstead Railway, between Camden Town and Kentish
+  Town on what is now the High Barnet branch — the branch the walk does
+  *not* take at Camden Town. Opened 22 June 1907; planned as **Castle
+  Road**, a name already "fired into the original Leslie Green tiles" and
+  painted over. Some trains passed without stopping from 1908. Closed on
+  5 June 1924 during a strike at Lots Road power station and never reopened.
+- Platforms 50 ft below the street; one 23 ft lift shaft (two lifts) and an
+  18 ft (5.5 m) spiral-stair shaft; two subways and cross-passages to
+  partly staggered platforms. Air-raid shelter from 1940 (bunks, first-aid
+  post; removed after the war).
+- Today the platforms themselves have been demolished; "the cream and dark
+  red tiling is clearly visible in the platform area although it has been
+  painted over". The game shows the station as it was left in 1924 — the
+  platform still there — which is the one deliberate departure.
+- John Betjeman's "South Kentish Town" (1951, BBC Home Service): Basil
+  Green, an income-tax official, steps off a train that has stopped there
+  and is left behind. Based on a real train that opened its doors there.
+
+### 5. Ticket hall and gate line
+
+Sources: London Underground *Station Planning Standards and Guidelines*
+(2012; FOI-0523-2122); Kim Rennie, "Underground ticketing system update"
+(LURS, *Underground News*); Commons photographs: Belsize Park booking hall
+(Andrew Riley, CC BY-SA 4.0), Golders Green ticket barrier (David Howard,
+CC BY-SA 2.0), West Kensington gateline (Chris McKenna, CC BY-SA 4.0).
+
+| What | Figure | Source |
+|---|---|---|
+| Electric gate: walkway / stanchion width | **620 mm / 155 mm** | SPSG |
+| Wide-aisle gate walkway | 1,080 mm | SPSG |
+| Manual gate with luggage port | 1,300 high, 1,350 wide, 900 opening | SPSG |
+| Gateline attendant's point | 2,300 high × 990 × 1,240 | SPSG |
+| Station control unit by the gates | 1,802 high × 429 × 473 | SPSG |
+| Hampstead's gates | 6 electric (E1), 1 wide-aisle, 1 manual, 1 validator | LURS table |
+| E1 gate length | ≈ 1.9 m (*derived*: the E2 is "600mm shorter" and takes "around 68%" of its floor space) | LURS |
+
+- The gate (photographs): brushed stainless stanchion about 1.0 m high on a
+  dark grey plinth, rounded ends; a **yellow round reader pad** on top at the
+  entry end, right-hand side; a small display on a post that shows a green
+  arrow or a red cross; a pair of grey rounded "paddles" that fold flat
+  against the stanchions; black ribbed floor plate in the walkway. The
+  older display wording, per LURS: "No Entry", "Enter", "Take Ticket" and
+  **"Seek Assistance"**.
+- A Leslie Green ticket hall (Belsize Park photograph; Historic England's
+  description of his stations): cream tiles laid upright in stack bond, a
+  bottle-green skirting, and a moulded green frieze band of acanthus or
+  pomegranate at about head height; cream plaster above; dark timber door
+  frames; pale square floor tiles; steel lift doors. Hampstead's Art
+  Nouveau ticket windows survive, out of use (secondary source).
+- The game's exit is therefore **Hampstead's own ticket hall**, reached by
+  the emergency stairs, and not Golders Green as before.
+
+### URLs (round 3)
+
+- TfL 1995 Tube Stock information sheet — https://foi.tfl.gov.uk/FOI-0838-2122/1995ts%20(Northern)%20Fact%20Sheet%20-%204th%20Edition.pdf
+- London Underground 1995 Stock — https://en.wikipedia.org/wiki/London_Underground_1995_Stock
+- Camden Town deep shelter — https://www.subbrit.org.uk/sites/camden-town-deep-shelter/
+- Belsize Park deep shelter — https://www.subbrit.org.uk/sites/belsize-park-deep-shelter/
+- Deep Level Shelters in London — https://www.subbrit.org.uk/features/deep-level-shelters-in-london/
+- London deep-level shelters — https://en.wikipedia.org/wiki/London_deep-level_shelters
+- Hampstead tube station — https://en.wikipedia.org/wiki/Hampstead_tube_station
+- Undergroundest (diamond geezer) — https://diamondgeezer.blogspot.com/2013/10/undergroundest.html
+- South Kentish Town tube station — https://en.wikipedia.org/wiki/South_Kentish_Town_tube_station
+- South Kentish Town Station (Subterranea Britannica) — https://www.subbrit.org.uk/sites/south-kentish-town-station/
+- Station Planning Standards and Guidelines 2012 — https://foi.tfl.gov.uk/FOI-0523-2122/SPSG%202012_Redacted.pdf
+- Underground ticketing system update (LURS) — https://www.lurs.org.uk/_files/ugd/98da3e_edc99906c6314a13a0b3dd7cce78d4a4.pdf
+- Photographs: Wikimedia Commons, files named above (authors and licences as given).
