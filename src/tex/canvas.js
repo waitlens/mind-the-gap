@@ -8,8 +8,6 @@ export const OSD_FONT = "'VT323', 'Courier New', monospace";
 // Marker-pen handwriting for the staff whiteboards (Patrick Hand is bundled,
 // OFL; the rest are what phones and desktops have if it fails to load).
 export const HAND_FONT = "'Patrick Hand', 'Segoe Print', 'Bradley Hand', 'Chalkboard SE', 'Comic Sans MS', cursive";
-// Book serif for the poems (system fonts only).
-export const SERIF_FONT = "Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', 'Nimbus Roman', serif";
 
 export function makeCanvas(w, h) {
   const c = document.createElement('canvas');

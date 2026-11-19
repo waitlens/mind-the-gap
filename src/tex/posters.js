@@ -1,5 +1,5 @@
 // Procedural posters and staff notices. (The whiteboard is in
-// whiteboard.js, the poems in poem.js.)
+// whiteboard.js, the newspaper in paper.js.)
 // Everything is drawn from shapes and type — no photographs.
 import { HEAD_FONT, BODY_FONT, fitText, wrapLines, grime } from './canvas.js';
 import { POSTERS, POSTERS_ODD } from '../game/scripts.js';

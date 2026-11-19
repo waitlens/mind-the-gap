@@ -29,7 +29,8 @@ export class Director {
   begin() {
     this.events.begin();
     this.setHint(this.game.mobile ? 'Left thumb: walk · Right thumb: look' : 'WASD to walk · mouse to look · E to read signs', 7);
-    this.queueHint('Mornington Crescent. Walk up the line to the way out. Staff notices explain how.', 8);
+    this.queueHint('Mornington Crescent. The Customer Information board in front of you explains how to find the way out.', 9);
+    this.announcer.welcome(3);
   }
 
   setHint(text, seconds = 5) { this.hint = text; this.hintT = seconds; }

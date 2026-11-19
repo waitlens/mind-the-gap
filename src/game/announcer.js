@@ -2,7 +2,7 @@
 // subtitle on the camcorder display so the game is playable without sound.
 // A rising chime marks a genuine announcement; a falling one is… not staff.
 import { RNG } from '../util/rng.js';
-import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD } from './scripts.js';
+import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD, WELCOME } from './scripts.js';
 import { nextStation } from './route.js';
 
 export class Announcer {
@@ -18,7 +18,7 @@ export class Announcer {
     this.nextAmbient = 16;
     this.nextSecurity = 45;  // first security message, then every ~3 minutes
     this.securityN = 0;
-    this.last = null;       // last junction announcement (for replay)
+    this.welcomeT = 0;      // countdown to the one welcome announcement
     if (this.game.audio) this.game.audio.stopSpeech();
   }
 
@@ -27,6 +27,12 @@ export class Announcer {
     if (a.urgent) { this.queue.length = 0; if (this.cur) this.finish(); }
     this.queue.push(a);
   }
+
+  // The one thing the PA says without being asked: where the rules are.
+  welcome(delay = 3) { this.welcomeT = delay; }
+
+  // Stop talking (tests, screenshots).
+  hush() { this.welcomeT = 0; this.queue.length = 0; if (this.cur) this.finish(); }
 
   busy() { return !!this.cur || this.queue.length > 0; }
 
@@ -48,6 +54,10 @@ export class Announcer {
 
   update(dt) {
     const g = this.game;
+    if (this.welcomeT > 0) {
+      this.welcomeT -= dt;
+      if (this.welcomeT <= 0) this.say({ text: WELCOME, chime: 'rise' });
+    }
     if (!this.cur && this.queue.length) this.start(this.queue.shift());
     if (this.cur) {
       const c = this.cur;

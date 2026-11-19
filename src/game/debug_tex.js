@@ -8,10 +8,10 @@ import { RNG } from '../util/rng.js';
 import { drawStrip, drawPlatformSign } from '../tex/linestrip.js';
 import { GHOSTS } from './line.js';
 import { drawThoughtBoard } from '../tex/whiteboard.js';
-import { drawPoemPoster } from '../tex/poem.js';
 import { pickThought, junctionThought } from './thoughts.js';
-import { pickPoem } from './poems.js';
 import { drawFrontPage } from '../tex/paper.js';
+import { drawCustomerInfo } from '../tex/infoboard.js';
+import { CUSTOMER_INFO } from './scripts.js';
 import { pickPaper } from './paper.js';
 
 const envOf = (o) => ({ wrong: o.wrong || 0, station: o.station || 'Camden Town', gseed: o.seed || 1, idx: o.idx || 0 });
@@ -30,15 +30,11 @@ export const PREVIEWS = {
     const r = new RNG(o.seed || 1);
     drawThoughtBoard(ctx, w, h, o.junction ? junctionThought(r, envOf(o), o.junction) : pickThought(r, envOf(o), o), r);
   },
+  info(ctx, w, h, o) { drawCustomerInfo(ctx, w, h, CUSTOMER_INFO, o.station || 'Mornington Crescent', new RNG(o.seed || 1)); },
   // o: { seed, wrong, idx, tier }
   paper(ctx, w, h, o) {
     const r = new RNG(o.seed || 1);
     drawFrontPage(ctx, w, h, pickPaper(r, envOf(o), o), r);
-  },
-  // o: { seed, wrong, station, idx, tier, framed }
-  poem(ctx, w, h, o) {
-    const r = new RNG(o.seed || 1);
-    drawPoemPoster(ctx, w, h, pickPoem(r, envOf(o), o), r, !!o.framed);
   },
 };
 

@@ -6,7 +6,7 @@
 // far end that is not there when you get closer.
 import { PF } from './platform_shell.js';
 import { lamp, hangingSign } from './decor.js';
-import { arcPanel, bench } from './platform_parts.js';
+import { arcPanel, curvedPanel, bench } from './platform_parts.js';
 import { fitTrackside } from './platform_track.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { dynRect } from '../tex/dynamic.js';
@@ -15,7 +15,8 @@ import { drawFrieze, drawWayOut, drawPlate, drawTiledName } from '../tex/signs.j
 import { drawPoster, drawNotice } from '../tex/posters.js';
 import { drawStrip } from '../tex/linestrip.js';
 import { wrongName, isGhost } from '../game/names.js';
-import { NOTICES } from '../game/scripts.js';
+import { CUSTOMER_INFO, customerInfoText } from '../game/scripts.js';
+import { drawCustomerInfo } from '../tex/infoboard.js';
 import { GHOSTS, tiledName, dirWord, platformNo } from '../game/line.js';
 import { stripText } from '../game/route.js';
 import { pickNotice } from './dress_passage.js';
@@ -44,18 +45,19 @@ export function fitPlatform(ctx, L, side) {
   const ghosts = wrong >= 1.5 && rng.chance(Math.min(0.8, wrong * 0.2)) ? rng.shuffle(GHOSTS).slice(0, rng.int(1, 2)) : [];
   const stripUV = sheet.add(800, 168, (c, w, h) => drawStrip(c, w, h, { current: station, ghosts }));
   const nameUV = sheet.add(512, Math.round(512 * 0.53 / nameW), (c, w, h) => drawTiledName(c, w, h, fired, env.theme));
-  // (the whiteboard's face and room for a staff notice go on the sheet
-  // straight after the diagram and the poem — biggest pieces first, or the
-  // 1024 x 1024 sheet does not pack)
-  let easel = null, noticeSlot = null;
+  // (the Customer Information board, the whiteboard's face and room for a
+  // staff notice go on the sheet straight after the diagram — biggest
+  // pieces first, or the 1024 x 1024 sheet does not pack)
+  let easel = null, noticeSlot = null, infoUV = null;
   fitTrackside(ctx, L, side, items, () => {
     const r2 = extraRng(ctx);
+    if (p.start) infoUV = sheet.add(288, 360, (c, w, h) => drawCustomerInfo(c, w, h, CUSTOMER_INFO, station, r2));
     // always on the first platform, where it is still an ordinary cheerful one
-    if (p.start || r2.chance(env.boardChance ?? 0.6)) {
+    if (p.start || r2.chance(env.boardChance ?? 0.4)) {
       const th = pickThought(r2, env, { cheery: p.start });
       easel = { th, face: paintBoard(ctx, th) };
     }
-    noticeSlot = sheet.reserve(168, 216);
+    if (!p.start) noticeSlot = sheet.reserve(168, 216);
   });
   const paintNotice = (notice) => {
     const draw = (c, cw, ch) => drawNotice(c, cw, ch, notice, rng);
@@ -76,29 +78,39 @@ export function fitPlatform(ctx, L, side) {
     const text = isGhost(name) ? `${name}. There is no such station on this line.` : defect ? `${name} — the roundel is not quite right.` : name;
     return { text, uv: sheet.add(150, 183, (c, w, h) => drawNameBoard(c, w, h, name, { defect })) };
   });
-  // --- the name in the tiles, the strip map, posters: one pass along the wall
-  // three posters, repeated along the wall
-  const posters = [0, 1, 2].map(() => {
+  // --- the name in the tiles, the strip map, posters: one pass along the
+  // wall. Player feedback: "too many signs". The wall now carries what says
+  // where you are (roundels, the tiled name, the map of the line) with room
+  // to breathe, and half the adverts it used to: two designs, one after each
+  // tiled name, none crowding the whiteboard at the far end.
+  const posters = [0, 1].map(() => {
     const odd = rng.chance(Math.min(0.7, wrong * 0.17));
     let info;
     const uv = sheet.add(112, 168, (c, cw, ch) => { info = drawPoster(c, cw, ch, rng, odd, true); });
     return { uv, text: `${info.headline}. ${info.strap}.` };
   });
   let np = 0;
-  const order = ['roundel', p.start ? 'notice' : 'poster', 'name', 'poster', 'roundel', 'strip', 'poster', 'roundel', 'name', 'poster', 'help'];
-  const widths = { roundel: 1.15, poster: 1.0, name: nameW, strip: 4.4, notice: 0.5, help: 0.34 };
+  const order = ['roundel', 'name', 'poster', 'roundel', 'strip', 'roundel', 'name', 'poster', 'help'];
+  // On the first platform the rules of the station come second: one big
+  // Customer Information board, and the player steps off the train facing it.
+  if (p.start) order.splice(1, 0, 'info');
+  const widths = { roundel: 1.15, poster: 1.0, name: nameW, strip: 4.4, info: 1.4, help: 0.34 };
+  const GAP = 1.0;
   const benches = [];
+  let spawn = null;
   let z = 3.0, n = 0, nb = 0;
   while (n < 40) {
     const kind = order[n % order.length], w = widths[kind];
+    if (kind === 'info' && n > 1) { n++; continue; }                         // once only
     if (z + w > L - 2.6) break;
+    if (kind === 'poster' && easel && z + w > L - 4.8) { n++; continue; }    // not right beside the whiteboard
     const zc = z + w / 2;
     if (kind === 'roundel') {
       const bd = boards[nb++ % 2];
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.85, 2.25, bd.uv);
       items.push({ ...pos, r: 6, label: 'read name board', title: 'STATION', text: bd.text });
     } else if (kind === 'poster') {
-      const ps = posters[np++ % 3];
+      const ps = posters[np++ % 2];
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.62, 2.12, ps.uv);
       items.push({ ...pos, r: 5, label: 'read poster', title: 'POSTER', text: ps.text });
     } else if (kind === 'name') {
@@ -109,19 +121,21 @@ export function fitPlatform(ctx, L, side) {
     } else if (kind === 'strip') {
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 1.0, 1.92, stripUV);
       items.push({ ...pos, r: 6, cone: 0.92, label: 'read line map', title: 'NORTHERN LINE', text: stripText(station, ghosts) });
-    } else if (kind === 'notice') {
-      // the first thing to read in the game: where you are and where the way out is
-      const notice = NOTICES.find((q) => q.key === 'line') || NOTICES[0];
-      const uv = paintNotice(notice);
-      const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
-      items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });
+    } else if (kind === 'info') {
+      // the first thing to read in the game: every rule of the station
+      const pos = curvedPanel(b, 'sheet', side, -1, zc, w, 0.5, 2.25, infoUV, null, 0.04, 3);
+      items.push({
+        ...pos, r: 5.5, n: [side, 0], label: 'read customer information', title: 'CUSTOMER INFORMATION', text: customerInfoText(), clue: true, info: true,
+        onRead: (g) => CUSTOMER_INFO.keys.forEach((key) => g.story.noticeRead(key)),
+      });
+      spawn = { x: X(0.3), z: zc, yaw: -side * Math.PI / 2 };
     } else {
       const hp = arcPanel(b, 'cut', side, -1, zc, w, 0.7, 1.38, atlasRect('helpPoint'));
       items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', onRead: (g, it, node) => g.director.helpPoint(node) });
     }
-    z += w + 0.7; n++;
+    z += w + GAP; n++;
   }
-  if (!p.start && rng.chance(0.45)) {                  // a staff notice by the way in
+  if (!p.start && rng.chance(0.3)) {                  // a staff notice by the way in
     const notice = pickNotice(ctx);
     const uv = paintNotice(notice);
     const pos = arcPanel(b, 'sheet', side, -1, 1.9, 0.5, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
@@ -150,7 +164,7 @@ export function fitPlatform(ctx, L, side) {
   //     floor): about one platform in two or three. Its front page is the
   //     last and smallest piece on the sign sheet.
   const r2 = extraRng(ctx);
-  if (benches.length && r2.chance(env.paperChance ?? 0.42)) {
+  if (benches.length && r2.chance(env.paperChance ?? 0.3)) {
     const story = pickPaper(r2, env), face = paintPaper(ctx, story);
     const zb = r2.pick(benches), floor = r2.chance(0.25);
     // the top of the page lies towards the back wall, give or take
@@ -167,5 +181,5 @@ export function fitPlatform(ctx, L, side) {
     b.quad('figure', [fx + 0.3, 0, fz], [fx - 0.3, 0, fz], [fx - 0.3, 1.78, fz], [fx + 0.3, 1.78, fz], [0, 0, -1], atlasRect('figure'), { emit: 0.02 });
     zones.push({ x0: -9, x1: 9, z0: L - 7 - 12.5, z1: L, fire: (game, node) => game.director.events.figureGone(node) });
   }
-  return { items, walls, zones };
+  return { items, walls, zones, spawn };
 }

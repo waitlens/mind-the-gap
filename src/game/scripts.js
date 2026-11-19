@@ -51,6 +51,29 @@ export const AMBIENT_STRANGE = [
   'Please do not turn round.',
 ];
 
+// The Customer Information board on the first platform: the rules of the
+// station, once, in one place, facing you as you step off the train. (The
+// staff notices further on repeat them one at a time; nothing at a junction
+// says them aloud any more, except the announcement that is itself the clue.)
+// `keys` are the staff notices it makes redundant once it has been read.
+export const CUSTOMER_INFO = {
+  title: 'Customer Information',
+  intro: 'This station is closed. To find the way out:',
+  rules: [
+    'Follow the yellow and black signs that say “Way out”. Any other sign was not put up by us.',
+    'All station clocks run forwards. Never walk under a clock that runs backwards.',
+    'Announcements after a rising chime are from staff. A falling chime is not staff: do the opposite of what it says.',
+    'The way out is up the line, beyond Hampstead. A wrong turn takes you two stations back.',
+    '“Way out” is listed on the indicator boards. If its minutes go up, you went wrong.',
+  ],
+  foot: 'Thank you for travelling on the Northern line.',
+  keys: ['yellow', 'chime', 'clock', 'line', 'board'],
+};
+export const customerInfoText = () => `${CUSTOMER_INFO.intro}\n${CUSTOMER_INFO.rules.map((r, i) => `${i + 1}. ${r}`).join('\n')}`;
+
+// Said once, a few seconds after the game starts.
+export const WELCOME = 'This station is now closed. Please read the customer information notice on the platform, then make your way to the way out.';
+
 // Staff notices: the rare clues that teach the rules of the station.
 // Each: { title, text, key }.
 export const NOTICES = [
@@ -66,8 +89,8 @@ export const NOTICES = [
   { key: 'train', title: 'NIGHT STAFF', text: 'Trains still run through after the last train. They are not in service. Do not board. Stand behind the yellow line and let it go. — written in biro underneath: "it stops anyway"' },
 ];
 
-// (The whiteboards' "Thought for the day" is in thoughts.js, the poems on
-// the posters in poems.js.)
+// (The whiteboards' "Thought for the day" is in thoughts.js, the free
+// newspaper's front pages in paper.js.)
 
 // Poster copy: [headline, strapline]. Ordinary ones…
 export const POSTERS = [

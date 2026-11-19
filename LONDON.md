@@ -124,9 +124,10 @@ Side-by-side comparisons with the reference photos were saved as
 `/tmp/shots/lon_compare_*.png` (platform wall, line diagram, tiles, roundel,
 train).
 
-## Round 3: two things you only see on the Tube
+## Round 3: the staff whiteboard
 
-Player request: the handwritten staff whiteboard and the poems.
+Player request: the handwritten staff whiteboard. (This round also added
+posters of verse on the advert panels; they were taken out again in round 5.)
 
 **"Thought for the day."** Real stations keep a whiteboard by the gate line
 or in a passage: station name and date across the top, a quote or a bad pun
@@ -149,23 +150,12 @@ which passage is the way out: true if staff signed it, the opposite if the
 station did — the same kind of rule as the rising and falling chime, taught
 by a board and by a staff notice, and never spelt out anywhere else.
 
-**"Poems on the Underground."** The real programme's card: wide, pale, a few
-lines of verse in a book serif, the poet underneath, the title and a small
-roundel along the bottom (`src/tex/poem.js`). One of the three track-side
-advert designs is a poem on most platforms, and passages hang one among the
-adverts about a third of the time. Only public-domain poems are quoted, as
-short excerpts (`src/game/poems.js` lists them); for Emily Dickinson the
-1890s printed texts are used. As the station goes wrong a poster may swap a
-word ("each charter'd tunnel", "all backwards do contend"), repeat a line,
-lose its poet to "Anon., Mornington Crescent", or carry one of five short
-poems written for the game.
-
 **Cost.** Everything goes on the per-segment sign sheets that were already
 there. A passage's 512 px sheet cannot always hold a line diagram, a notice,
-a whiteboard, a poem and three adverts, so the passage now asks the packer
-what fits before it draws anything (`Sheet.room`): the poem gives way first,
-then the number of different adverts. On platforms the poem, the whiteboard
-and the notice are placed straight after the line diagram (largest first).
+a whiteboard and three adverts, so the passage now asks the packer what fits
+before it draws anything (`Sheet.room`) and shows fewer different adverts if
+need be. On platforms the whiteboard and the notice are placed straight
+after the line diagram (largest first).
 `node tests/smoke.mjs --fuzz=40` reports no sheet overflows.
 
 ## Round 4: the paper on the bench
@@ -190,5 +180,44 @@ colours, clocks that only run forwards, the rising chime, "up the line");
 none of them says which way to turn.
 
 Cost: one 150 x 194 piece, placed last on the platform's sign sheet (the
-packer was re-checked for every combination with the poem, whiteboard and
+packer was re-checked for every combination with the whiteboard and
 notice), no new texture, no new draw call.
+
+## Round 5: less to read, and the rules said once
+
+Player feedback on the build with whiteboards, verse posters and newspapers:
+too many signs and boards, and the PA repeats itself at every junction.
+
+**The verse posters are gone** — code, textures, text, captions, debug hooks.
+
+**Less clutter.** Measured over the same 25 seeded walks (669 segments),
+things with words on them that are not wayfinding or station identity
+(adverts, staff notices, whiteboards, newspapers) went from 3.2 per segment
+to 1.8.
+- *Passages:* anything with words on it needs a clear slot of wall on either
+  side (the next is at least 3.1 m along) and never faces another across the
+  passage. Staff notices in 22% of passages (was 34%), a whiteboard in 40%
+  (was 60%).
+- *Platform wall:* roundel · tiled name · advert · roundel · line map ·
+  roundel · tiled name · advert, a metre apart: two adverts per run instead
+  of four, none right beside the whiteboard easel. Notice by the way in on
+  30% of platforms (was 45%), easel on 40% (was 60%), newspaper on 30% (was
+  42%).
+- *Track-side wall:* adverts 6 m apart instead of nearly edge to edge (2 on
+  a 30 m platform instead of 3, 4 on a 42 m one instead of 6); every gap
+  still has its small roundel.
+- *Escalators:* the little framed adverts are half as far apart again.
+- *Junction halls:* unchanged, except that the corner whiteboard is rarer
+  (20%, was 28%). Way out signs, platform signs, clocks, the indicator, the
+  name board, line diagrams and roundels were not touched.
+
+**The rules, once.** You now step off the train facing a Customer
+Information board (`src/tex/infoboard.js`, text in `scripts.js`): white
+enamel, blue header with the roundel, five numbered rules — the yellow and
+black "Way out" signs, clocks that run forwards, the rising and falling
+chime, up the line and two back, the "Way out" row on the indicators. READ
+shows them as a caption and marks the matching staff notices as read. A few
+seconds in, the PA says one welcome line pointing at the board (one new
+clip). After that a junction only speaks on arrival if the announcement is
+the clue; sign and clock junctions are silent. The two lines they used to
+say are now what the help point in those halls answers with when pressed.

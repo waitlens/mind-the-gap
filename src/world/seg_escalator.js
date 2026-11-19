@@ -121,7 +121,7 @@ export const escalator = {
     for (let i = 0; i < 4; i++) ads.push(sheet.add(84, 116, (c, w, h) => drawPoster(c, w, h, rng, rng.chance(Math.min(0.6, (ctx.env.wrong || 0) * 0.15)))));
     const wallAt = (h) => HW * Math.cos(Math.asin(clamp((h - SPRING) / (CROWN - SPRING), 0, 1)));
     let k = 0;
-    for (let z = z0 + 0.8; z < z1 - 0.4; z += 1.5, k++) {
+    for (let z = z0 + 0.8; z < z1 - 0.4; z += 2.25, k++) {
       const y = yAt(z), dy = SLOPE * Math.sign(p.rise) * 0.27;
       for (const s of [-1, 1]) {
         const xb = s * (wallAt(1.55) - 0.04), xt = s * (wallAt(2.3) - 0.04);

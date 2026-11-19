@@ -2,11 +2,9 @@
 import { wallPanel, panelFrame } from './decor.js';
 import { atlasRect, atlasFlat } from '../tex/atlas.js';
 import { drawPoster, drawNotice } from '../tex/posters.js';
-import { drawPoemPoster } from '../tex/poem.js';
 import { drawTileLegend } from '../tex/signs.js';
 import { NOTICES } from '../game/scripts.js';
 import { pickThought } from '../game/thoughts.js';
-import { pickPoem } from '../game/poems.js';
 import { wallBoard, extraRng, BOARD_PX } from './whiteboard.js';
 import { PASSAGE, framePoint } from './sweep.js';
 import { drawLineDiagram } from '../tex/linemap.js';
@@ -26,9 +24,9 @@ export function pickNotice(ctx) {
 const POSTERS_PER_PASSAGE = 3;
 // The size in pixels of each piece on the passage's 512 x 512 sign sheet.
 // Before anything is drawn the packer is asked what will fit (Sheet.room):
-// a passage that carries a whiteboard or a poem shows fewer different
-// adverts to make room, and the poem gives way if there is no room at all.
-const PX = { diagram: [200, 300], notice: [168, 216], board: BOARD_PX, legend: [220, 54], poem: [300, 140], poster: [104, 164] };
+// a passage that carries a whiteboard shows fewer different adverts to make
+// room.
+const PX = { diagram: [200, 300], notice: [168, 216], board: BOARD_PX, legend: [220, 54], poster: [104, 164] };
 
 export function addPoster(ctx, f, side, items, s = HW) {
   const { b, sheet, rng } = ctx;
@@ -60,16 +58,6 @@ export function addNotice(ctx, f, side, items, s = HW) {
 // The staff whiteboard: "Thought for the day" (see whiteboard.js).
 export function addWhiteboard(ctx, f, side, items, s = HW) {
   items.push(wallBoard(ctx, f, side, s, pickThought(extraRng(ctx), ctx.env)));
-}
-
-// "Poems on the Underground": a wide card in a frame, among the adverts.
-export function addPoem(ctx, f, side, items, s = HW) {
-  const { b, sheet } = ctx, r = extraRng(ctx);
-  const poem = pickPoem(r, ctx.env);
-  const uv = sheet.add(PX.poem[0], PX.poem[1], (c, w, h) => drawPoemPoster(c, w, h, poem, r));
-  const pos = wallPanel(b, 'sheet', f, side, s, 0.78, 1.4, 0.656, uv, { tint: [0.92, 0.92, 0.92] }, 0.045);
-  panelFrame(b, f, side, s - 0.01, 0.78, 1.4, 0.656);
-  items.push({ ...pos, r: 4.6, label: 'read poem', title: 'POEMS ON THE UNDERGROUND', text: poem.caption, poem: { tier: poem.tier, changed: poem.changed } });
 }
 
 // The passage wall curves inward above the springing line, so a full-height
@@ -161,6 +149,15 @@ export function addDiagram(ctx, f, side, items, s = HW) {
   items.push({ ...pos, r: 5, label: 'read line diagram', title: 'LINE DIAGRAM', text: routeText(env.station, dir, sections) });
 }
 
+// How much there is to read in a passage. Player feedback: "too many signs
+// and boards". Anything with words on it (advert, notice, whiteboard, line
+// diagram, tiled legend) now needs a clear stretch of wall on either side —
+// the next one on the same wall is at least two slots (3.1 m) away — and
+// never faces another across the passage, so standing in front of one you
+// are not also looking at the next.
+const SLOT = 1.55;
+const CHANCE = { notice: 0.22, board: 0.4 };
+
 export function dressPassageFull(ctx, frames, dist) {
   const { rng } = ctx;
   const items = [];
@@ -169,70 +166,60 @@ export function dressPassageFull(ctx, frames, dist) {
   if (!straight || total < 5.5) return items;
   // slots along each wall
   const slots = [];
-  for (let z = 2.2; z <= total - 2.2; z += 1.55) slots.push(z);
+  for (let z = 2.2; z <= total - 2.2; z += SLOT) slots.push(z);
   let noticeDone = false, legendDone = false, diagramDone = false, boardDone = false;
   const free = [];
   // Decide what goes in each slot first, then build the pieces largest
   // texture first, so they all pack into the segment's sign sheet.
   const todo = [];
   const later = (prio, fn, kind, f, side) => todo.push({ prio, fn, kind, f, side });
-  const poster = (f, side) => later(4, () => addPoster(ctx, f, side, items), 'poster', f, side);
-  const wantNotice = rng.chance(ctx.env.noticeChance ?? 0.34);
-  const r2 = extraRng(ctx);
-  const wantBoard = r2.chance(ctx.env.boardChance ?? 0.6), wantPoem = r2.chance(ctx.env.poemChance ?? 0.4);
+  const worded = { [-1]: new Set(), 1: new Set() };          // slots with something to read, per wall
+  const clear = (side, i) => ![i - 1, i, i + 1].some((k) => worded[side].has(k)) && !worded[-side].has(i);
+  const text = (side, i, prio, kind, add) => {
+    const f = { x: 0, y: 0, z: slots[i], yaw: 0 };
+    worded[side].add(i);
+    later(prio, () => add(ctx, f, side, items), kind, f, side);
+  };
+  const wantNotice = rng.chance(ctx.env.noticeChance ?? CHANCE.notice);
+  const wantBoard = extraRng(ctx).chance(ctx.env.boardChance ?? CHANCE.board), r2 = extraRng(ctx);
   for (const side of [-1, 1]) {
-    let skip = 0;
-    for (const z of slots) {
-      if (skip > 0) { skip--; continue; }
-      const f = { x: 0, y: 0, z, yaw: 0 };
-      const roll = rng.next();
-      if (wantNotice && !noticeDone && roll < 0.3) { later(1, () => addNotice(ctx, f, side, items), 'notice'); noticeDone = true; continue; }
-      if (roll < 0.1 && !diagramDone) { later(0, () => addDiagram(ctx, f, side, items), 'diagram'); diagramDone = true; continue; }
-      if (roll < 0.5) poster(f, side);
+    for (let i = 0; i < slots.length; i++) {
+      const z = slots[i], f = { x: 0, y: 0, z, yaw: 0 };
+      const roll = rng.next(), ok = clear(side, i);
+      if (ok && wantNotice && !noticeDone && roll < 0.3) { text(side, i, 1, 'notice', addNotice); noticeDone = true; continue; }
+      if (ok && roll < 0.1 && !diagramDone) { text(side, i, 0, 'diagram', addDiagram); diagramDone = true; continue; }
+      if (roll < 0.5) { if (ok) text(side, i, 4, 'poster', addPoster); else free.push([side, i]); }
       else if (roll < 0.56 && z > 3 && z < total - 3) later(5, () => addDoor(ctx, f, side));
       else if (roll < 0.62) {
-        if (boardDone || !wantBoard) poster(f, side);
-        else { later(2, () => addWhiteboard(ctx, f, side, items), 'board'); boardDone = true; }
-      } else if (roll < 0.67 && !legendDone && z < total - 3) { later(3, () => addLegend(ctx, f, side, items), 'legend'); legendDone = true; skip = 1; }
+        if (ok && wantBoard && !boardDone) { text(side, i, 2, 'board', addWhiteboard); boardDone = true; } else free.push([side, i]);
+      } else if (roll < 0.67 && ok && !legendDone && z < total - 3) { text(side, i, 3, 'legend', addLegend); legendDone = true; }
       else if (roll < 0.72) later(5, () => addSmall(ctx, f, side, 'grille', 0.25, 0.5, 0.5));
       else if (roll < 0.76) later(5, () => addSmall(ctx, f, side, 'extinguisher', 0.75, 0.45, 0.45));
-      else free.push([f, side]);
+      else free.push([side, i]);
     }
   }
-  // the notice goes in a slot that was left bare (never on top of a poster)
-  if (wantNotice && !noticeDone && free.length) {
-    const slot = rng.pick(free), [f, side] = slot;
-    free.splice(free.indexOf(slot), 1);
-    later(1, () => addNotice(ctx, f, side, items), 'notice');
-  }
-  // A whiteboard or a poem that is wanted but has not come up yet goes on a
-  // bare stretch of wall, or takes the place of one of the adverts.
-  const place = (prio, kind, add, bareFirst) => {
+  // A notice or a whiteboard that is wanted but has not come up yet goes on
+  // a bare stretch of wall (if one is still clear), or takes the place of
+  // one of the adverts.
+  const place = (prio, kind, add, pick) => {
+    const bare = free.filter(([side, i]) => clear(side, i));
     const ads = todo.filter((t) => t.kind === 'poster');
-    if (free.length && (bareFirst || ads.length < 2)) {
-      const [f, side] = free.splice(r2.int(0, free.length - 1), 1)[0];
-      later(prio, () => add(ctx, f, side, items), kind, f, side);
+    if (bare.length) {
+      const slot = bare[pick(bare.length)];
+      free.splice(free.indexOf(slot), 1);
+      text(slot[0], slot[1], prio, kind, add);
     } else if (ads.length) {
-      const t = ads[r2.int(0, ads.length - 1)];
+      const t = ads[pick(ads.length)];
       t.prio = prio; t.kind = kind; t.fn = () => add(ctx, t.f, t.side, items);
     }
   };
-  if (wantBoard && !boardDone) place(2, 'board', addWhiteboard, true);
-  if (wantPoem) place(0.5, 'poem', addPoem, false);     // (drawn straight after the diagram: widest pieces first)
+  if (wantNotice && !noticeDone) place(1, 'notice', addNotice, (n) => rng.int(0, n - 1));
+  if (wantBoard && !boardDone) place(2, 'board', addWhiteboard, (n) => r2.int(0, n - 1));
   // Keep within the sign sheet: try the pieces on the packer in the order
-  // they will be drawn. The poem gives way first, then the number of
-  // different adverts.
-  const fit = () => {
-    todo.sort((a, b) => a.prio - b.prio);
-    const big = todo.filter((t) => t.kind && t.kind !== 'poster').map((t) => PX[t.kind]);
-    return ctx.sheet.room(big.concat(Array(POSTERS_PER_PASSAGE).fill(PX.poster))) - big.length;
-  };
-  let ads = fit();
-  const poem = todo.find((t) => t.kind === 'poem');
-  if (poem && ads < 1) {
-    poem.prio = 4; poem.kind = 'poster'; poem.fn = () => addPoster(ctx, poem.f, poem.side, items);
-    ads = fit();
-  }
+  // they will be drawn, and show fewer different adverts if need be.
+  todo.sort((a, b) => a.prio - b.prio);
+  const big = todo.filter((t) => t.kind && t.kind !== 'poster').map((t) => PX[t.kind]);
+  const ads = ctx.sheet.room(big.concat(Array(POSTERS_PER_PASSAGE).fill(PX.poster))) - big.length;
   ctx.posterCap = Math.max(1, Math.min(POSTERS_PER_PASSAGE, ads));
   for (const t of todo) t.fn();
   return items;

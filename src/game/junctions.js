@@ -3,9 +3,12 @@
 import { GATE_WALL } from '../world/gate.js';
 import { CFG } from '../config.js';
 
-// The announcement for a junction. For 'announce' junctions this is the
-// clue: it names a line (and side); a rising chime means it is true, a
-// falling chime means it is a lie.
+// The announcement for a junction. Only 'announce' junctions have one, and
+// there it is the clue: it names a platform (and a side); a rising chime
+// means it is true, a falling chime means it is a lie. Sign and clock
+// junctions are silent when you walk in: the rules are on the Customer
+// Information board on the first platform, and hearing them again at every
+// junction was the most repeated line in the game. Returns null for those.
 export function junctionAnnouncement(node, rng) {
   const p = node.p;
   const sideOf = (exit) => (exit === 0 ? 'left' : 'right');
@@ -25,11 +28,15 @@ export function junctionAnnouncement(node, rng) {
       ]);
     return { text, chime: p.lie ? 'fall' : 'rise', odd: p.lie, urgent: true };
   }
-  if (p.kind === 'clock') {
-    return { text: 'Customers are reminded that all station clocks run forwards.', chime: 'rise', urgent: true };
-  }
-  return { text: 'Please follow the yellow and black signs for the way out.', chime: 'rise', urgent: true };
+  return null;
 }
+
+// What the help point in a silent junction says when it is pressed: the
+// rule that applies in that hall. (Never unprompted.)
+const HELP_RULE = {
+  clock: 'Customers are reminded that all station clocks run forwards.',
+  signs: 'Please follow the yellow and black signs for the way out.',
+};
 
 const HELP = [
   'Help point. There is nobody at the other end. Please follow the signs.',
@@ -38,22 +45,22 @@ const HELP = [
 ];
 
 export function enterJunction(game, node) {
-  const a = junctionAnnouncement(node, game.director.announcer.rng);
-  node.announcement = a;
-  game.director.announcer.say(a);
   game.state.junctionKind = node.p.kind;
+  if (node.announcement === undefined) node.announcement = junctionAnnouncement(node, game.director.announcer.rng);
+  if (node.announcement) game.director.announcer.say(node.announcement);
 }
 
+// Help points: in an 'announce' junction it repeats the announcement; in a
+// sign or clock junction it gives that hall's rule; on a platform there is
+// nobody at the other end.
 export function helpPoint(game, node) {
-  const an = game.director.announcer;
-  if (node.p.kind === 'announce' && node.announcement) {
-    an.say({ ...node.announcement, urgent: true });
-    game.director.reading = null; game.player.zoomTarget = 0;
-    return;
-  }
-  const text = an.rng.pick(HELP);
-  an.say({ text, chime: 'none', urgent: true });
+  const an = game.director.announcer, kind = node.p.kind;
   game.director.reading = null; game.player.zoomTarget = 0;
+  if (kind === 'announce') {
+    if (node.announcement === undefined) node.announcement = junctionAnnouncement(node, an.rng);
+    an.say({ ...node.announcement, urgent: true });
+  } else if (HELP_RULE[kind]) an.say({ text: HELP_RULE[kind], chime: 'rise', urgent: true });
+  else an.say({ text: an.rng.pick(HELP), chime: 'none', urgent: true });
 }
 
 // The player has walked far enough down a branch: shut the gate behind

@@ -100,7 +100,7 @@ export const junction = {
     // which way to go — and sometimes it was not the staff who wrote it
     // (look at who signed it).
     const r2 = extraRng(ctx), walls = room.walls;
-    if (r2.chance(env.boardChance ?? 0.28)) {
+    if (r2.chance(env.boardChance ?? 0.2)) {
       const cs = r2.sign();
       const e = easelBoard(ctx, cs * 2.95, 4.3, cs * 0.63, junctionThought(r2, env, p));
       items.push(e.item);

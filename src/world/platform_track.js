@@ -8,11 +8,8 @@ import { drawNameBoard, SYMBOL_DEFECTS } from '../tex/symbol.js';
 import { drawPoster } from '../tex/posters.js';
 import { route, routeText, corrupt } from '../game/route.js';
 import { wrongName, isGhost } from '../game/names.js';
-import { drawPoemPoster } from '../tex/poem.js';
-import { pickPoem } from '../game/poems.js';
-import { extraRng } from './whiteboard.js';
 
-// afterBig(): called once the big pieces (diagram, poem) are on the sign
+// afterBig(): called once the biggest piece (the diagram) is on the sign
 // sheet, so the caller can place its own larger pieces before the small ones.
 export function fitTrackside(ctx, L, side, items, afterBig = null) {
   const { b, p, sheet, rng, env } = ctx;
@@ -32,17 +29,6 @@ export function fitTrackside(ctx, L, side, items, afterBig = null) {
     text: routeText(station, dir, sections), fault,
     onRead: (g) => { g.state.diagramsRead = (g.state.diagramsRead || 0) + 1; },
   });
-  // --- "Poems on the Underground": more often than not one of the three
-  //     advert designs is a poem, on a card big enough to read from the
-  //     platform edge (painted now: biggest pieces first)
-  const r2 = extraRng(ctx);
-  let poemAd = null;
-  const poemAt = r2.chance(env.poemChance ?? 0.6) ? r2.int(0, 2) : -1;
-  if (poemAt >= 0) {
-    const poem = pickPoem(r2, env);
-    const uv = sheet.add(384, 222, (c, w, h) => drawPoemPoster(c, w, h, poem, r2, true));
-    poemAd = { uv, text: poem.caption, poem: { tier: poem.tier, changed: poem.changed } };
-  }
   if (afterBig) afterBig();
   // --- small roundels (white square panels, about 0.7 m)
   const small = [0, 1].map(() => {
@@ -58,15 +44,15 @@ export function fitTrackside(ctx, L, side, items, afterBig = null) {
     items.push({ ...pos, r: 10, cone: 0.96, label: 'read name board', title: 'STATION', text: s.text });
   };
   roundel(zd - 1.45); roundel(zd + 1.45);
-  // --- adverts: big landscape panels, nearly edge to edge
-  const ads = [0, 1, 2].map((k) => {
-    if (k === poemAt) return poemAd;
+  // --- adverts: big landscape panels, well apart (they used to run nearly
+  //     edge to edge: "too many signs"), with a small roundel in each gap
+  const ads = [0, 1, 2].map(() => {
     const odd = rng.chance(Math.min(0.7, wrong * 0.17));
     let info;
     const uv = sheet.add(240, 140, (c, w, h) => { info = drawPoster(c, w, h, rng, odd, true); });
     return { uv, text: `${info.headline}. ${info.strap}.` };
   });
-  const AW = 3.6, GAP = 1.5;
+  const AW = 3.6, GAP = 6;
   const spans = [[2.2, zd - 2.2], [zd + 2.2, L - 2.2]];
   let na = 0;
   for (const [za, zb] of spans) {
@@ -77,9 +63,10 @@ export function fitTrackside(ctx, L, side, items, afterBig = null) {
       const zc = count === 1 ? (za + zb) / 2 : za + AW / 2 + pitch * i;
       const ad = ads[na++ % 3];
       const pos = curvedPanel(b, 'sheet', side, 1, zc, AW, 1.22, 3.3, ad.uv, null, 0.05, 4);
-      if (ad.poem) items.push({ ...pos, r: 10, cone: 0.95, label: 'read poem', title: 'POEMS ON THE UNDERGROUND', text: ad.text, poem: ad.poem, n: [-side, 0] });
-      else items.push({ ...pos, r: 10, cone: 0.95, label: 'read poster', title: 'ADVERTISEMENT', text: ad.text });
+      items.push({ ...pos, r: 10, cone: 0.95, label: 'read poster', title: 'ADVERTISEMENT', text: ad.text });
       if (i < count - 1 && pitch - AW > 0.9) roundel(zc + pitch / 2);
+      // a lone advert in a long stretch: a roundel between it and each end
+      if (count === 1 && zb - za - AW > 7) { roundel((za + zc - AW / 2) / 2); roundel((zb + zc + AW / 2) / 2); }
     }
   }
 }

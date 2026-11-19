@@ -50,7 +50,7 @@ export function installDebug(api, game) {
       return null;
     },
     // Walk ahead (along exit 0) to the first thing whose READ label contains
-    // `label` — 'whiteboard', 'poem', 'notice'… — and stand `dist` metres in
+    // `label` — 'whiteboard', 'newspaper', 'notice'… — and stand `dist` metres in
     // front of it, looking at it. opts: { max, skip, test(item) }.
     find(label, dist = 1.6, opts = {}) {
       let node = world.current, skip = opts.skip || 0;
@@ -64,7 +64,7 @@ export function installDebug(api, game) {
           const [wx, wy, wz] = toWorld(node, it.x, it.y, it.z);
           const dx = wx - p.pos.x, dz = wz - p.pos.z;
           p.yaw = Math.atan2(-dx, -dz); p.pitch = Math.atan2(wy - p.eyeY, Math.hypot(dx, dz));
-          return { type: node.def.type, station: node.env.station, text: it.text, board: it.board, poem: it.poem, correct: node.p.correct };
+          return { type: node.def.type, station: node.env.station, text: it.text, board: it.board, paper: it.paper, correct: node.p.correct };
         }
         skip -= hits.length;
         const e = node.exits[0];
@@ -177,11 +177,11 @@ export function installDebug(api, game) {
       return [...world.nodes.values()].filter((m) => m.built && m.built.sheetOverflow)
         .map((m) => ({ type: m.def.type, n: m.built.sheetOverflow, labels: m.built.items.map((i) => i.label).join(',') }));
     },
-    // Every built segment with its whiteboards, poems and newspapers (for counting them).
+    // Every built segment with its whiteboards and newspapers (for counting them).
     census() {
       return [...world.nodes.values()].filter((m) => m.built).map((m) => ({
         key: `${game.state.seed}:${m.id}`, type: m.def.type,
-        boards: m.built.items.filter((i) => i.board).map((i) => i.board), poems: m.built.items.filter((i) => i.poem).map((i) => i.poem),
+        boards: m.built.items.filter((i) => i.board).map((i) => i.board),
         papers: m.built.items.filter((i) => i.paper).map((i) => i.paper),
       }));
     },
@@ -241,7 +241,7 @@ export function installDebug(api, game) {
     glitch(s = 1) { game.director.events.glitch(s); },
     use() { game.director.scan(); game.director.use(true); return game.director.reading ? game.director.reading.text : ''; },
     // Clear the tutorial hints (for clean screenshots).
-    hush() { const dr = game.director; dr.hint = ''; dr.hintT = 0; dr.hints.length = 0; },
+    hush() { const dr = game.director; dr.hint = ''; dr.hintT = 0; dr.hints.length = 0; dr.announcer.hush(); },
     freeze(on = true) { game.frozen = on; },
     story: () => ({ progress: game.story.progress, wrong: game.story.wrong, log: game.story.log }),
   };

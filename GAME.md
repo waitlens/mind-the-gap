@@ -35,7 +35,7 @@ npm test           # headless smoke test (needs Chrome; run `npm run build` firs
 | Read / interact | `E` (also `Space`, `Enter` or left click) | **READ** button |
 | Pause | `Esc` or `P` | **II** button |
 
-Aim the small viewfinder cross at a sign, line diagram, poster, poem, notice,
+Aim the small viewfinder cross at a sign, line diagram, poster, notice,
 whiteboard, newspaper, clock, indicator board or help point. When `[E] read …` appears, press it: the
 camcorder zooms in and a caption card shows what the thing says — for a line
 diagram, the full list of stations in order. Press again (or walk away) to put
@@ -92,8 +92,13 @@ into the tiles, and the tile colour itself — each station has its own (navy at
 Mornington Crescent, pale blue at Camden Town, ox-blood at Chalk Farm, brown at
 Belsize Park, dusty pink at Hampstead, whose tiles still say *Heath Street*).
 
-You are never told outright which branch is right. Staff notices pinned to the
-walls (small white sheets with a blue header) explain the rules one at a time.
+You are never told outright which branch is right. The rules are explained
+once: you step off the last train facing a **Customer Information** board on
+the Mornington Crescent platform (white panel, blue header, five numbered
+rules — READ it), and the PA's only unprompted remark about them is a single
+welcome announcement pointing you to it. Staff notices pinned to the walls
+further on (small white sheets with a blue header) repeat the rules one at a
+time.
 
 ### The rules (spoilers)
 
@@ -111,10 +116,13 @@ There are three kinds of junction:
    Early junctions are obvious; later ones are subtle. Zoom in with `E`: the
    caption card spells out exactly what the sign says.
 2. **Announcement.** The signs point to the northbound and southbound
-   platforms. As you walk in, the PA says which one leads to the way out.
+   platforms. As you walk in, the PA says which one leads to the way out
+   (this is the only kind of junction where the PA speaks on arrival; sign
+   and clock junctions are silent).
    **A chime that rises means it is staff, and true. A chime that falls is
    not staff — do the opposite.** The subtitle shows `♪ chime, rising` or
-   `♪ chime, falling`. Press the help point to hear it again.
+   `♪ chime, falling`. Press the help point to hear it again. (In a sign or
+   clock junction the help point reminds you of that hall's rule instead.)
 3. **Clocks.** A clock hangs over each branch. **Station clocks run forwards.
    Never go under the one whose second hand ticks backwards.**
 
@@ -145,10 +153,7 @@ Kentish Town* or *City Road*, lose your station, put stations out of order or
 repeat the one you are standing in; indicators and announcements turn odd;
 lights fail; sometimes there is someone at the far end of the platform.
 The whiteboard's cheerful thought for the day turns into *"You've read this
-board before"* and stops being signed by anyone you could name, and the
-*Poems on the Underground* in the advert frames begin to misremember
-themselves: a line comes round twice, a street becomes a tunnel, the poet
-becomes *Anon., Mornington Crescent*. The free paper left on the bench stops
+board before"* and stops being signed by anyone you could name. The free paper left on the bench stops
 reporting strikes and rain and starts reporting a passenger who never came
 up after the last train; its date repeats, then goes backwards.
 
@@ -171,21 +176,14 @@ the next station is, and leaves. It is not in service. You cannot board it.
   clocks and the train's livery.
 - **"Thought for the day" whiteboards**: an aluminium-framed board with a
   marker tray on passage walls, or on an easel at the end of a platform and
-  in the corner of some junction halls (about one every two or three
-  segments, never in the way). Station name, today's date, a handwritten
+  in the corner of some junction halls (about one every four segments,
+  never in the way). Station name, today's date, a handwritten
   thought in marker pen, a doodle and a signature — all drawn at runtime
   (the handwriting is Patrick Hand, an openly licensed font, set word by
   word a little off the line). 15 ordinary thoughts, 11 odd ones, 7 that
   staff did not write (`src/game/thoughts.js`).
-- **"Poems on the Underground"** posters on the track-side advert panels and
-  among the adverts in the passages: short excerpts from eleven poems, all
-  in the public domain (Blake, Wordsworth, Christina Rossetti, Emily
-  Dickinson in the 1890s texts, Hardy, Edward Thomas, Wilfred Owen,
-  Shakespeare, Stevenson, Housman), plus five short poems by "Anon." written
-  for the game (`src/game/poems.js`). READ shows the poem as it is printed
-  on that particular poster — altered or not.
 - **An abandoned free newspaper** on a platform bench, or on the floor
-  beside one (about one platform in two or three): *The Commute*, an
+  beside one (about one platform in three): *The Commute*, an
   invented morning tabloid — red masthead, blue date strap, a big headline,
   a "photograph" made of a few grey shapes under a halftone screen, and
   columns of greeked text. READ gives the headline, the standfirst and a
@@ -216,10 +214,11 @@ the next station is, and leaves. It is not in service. You cannot board it.
   `plan([...types], seed, wrong, progress)` (restart with a forced layout,
   strangeness and station), `train(seconds)` (bring the next train forward),
   `use()`, `info()`, `preview(kind, w, h, opts)` (render one sign texture —
-  `'whiteboard'`, `'poem'` and `'paper'` among them), `find(label, dist)` (walk ahead to
-  the next thing whose READ label contains `label`, e.g. `'whiteboard'` or
-  `'poem'`, and stand in front of it), `census()` / `overflow()` (count the
-  boards, poems and newspapers; check no sign sheet ran out of room).
+  `'whiteboard'`, `'paper'` and `'info'` among them), `find(label, dist)` (walk
+  ahead to the next thing whose READ label contains `label`, e.g.
+  `'whiteboard'` or `'newspaper'`, and stand in front of it), `census()` /
+  `overflow()` (count the boards and newspapers; check no sign sheet ran out
+  of room), `hush()` (clear hints and stop the PA, for screenshots).
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,

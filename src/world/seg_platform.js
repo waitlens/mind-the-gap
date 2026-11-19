@@ -57,7 +57,8 @@ export const platform = {
     else walls.push([X(PF.back), 0, X(-pw), 0], [X(pw), 0, X(PF.edge), 0]);
     for (const w of fit.walls) walls.push(w);
     const extra = { zones: fit.zones };
-    if (p.start) extra.spawn = { x: X(0.1), z: 6, yaw: 0 };
+    // (you step off the last train facing the Customer Information board)
+    if (p.start) extra.spawn = fit.spawn || { x: X(0.1), z: 6, yaw: 0 };
     return { cells, walls, items: fit.items, extra };
   },
 };

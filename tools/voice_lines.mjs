@@ -1,6 +1,6 @@
 // Lists every line the PA can say (for pre-recording with a neural voice).
 // Run: node tools/voice_lines.mjs > tools/voice_lines.txt
-import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD } from '../src/game/scripts.js';
+import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD, WELCOME } from '../src/game/scripts.js';
 import { nextStation, destinations, trainCall, trainCallWrong } from '../src/game/route.js';
 import { WALK, SURFACE } from '../src/game/line.js';
 
@@ -14,6 +14,7 @@ for (const pool of [AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE]) {
   }
 }
 for (const t of [...SECURITY, ...SECURITY_ODD]) out.add(t);
+out.add(WELCOME);   // once, at the start of a game
 // junction announcements (keep in step with src/game/junctions.js)
 for (const plat of ['northbound platform', 'southbound platform']) for (const side of ['left', 'right']) {
   out.add(`For the way out, please follow signs for the ${plat}. To the ${side}. Please.`);
@@ -23,6 +24,7 @@ for (const plat of ['northbound platform', 'southbound platform']) for (const si
   out.add(`Customers for the way out should keep to the ${side} for the ${plat}.`);
   out.add(`The way out is by way of the ${plat}, on your ${side}.`);
 }
+// (the help point in a clock / sign junction; no longer said on arrival)
 out.add('Customers are reminded that all station clocks run forwards.');
 out.add('Please follow the yellow and black signs for the way out.');
 out.add('Help point. There is nobody at the other end. Please follow the signs.');

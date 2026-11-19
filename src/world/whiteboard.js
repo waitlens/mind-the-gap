@@ -13,8 +13,8 @@ const ALU = { tint: [0.9, 0.92, 0.95] };
 const PENS = [[0.14, 0.22, 0.78], [0.82, 0.13, 0.1], [0.09, 0.09, 0.11]];
 const MATT = { tint: [0.9, 0.9, 0.9] };         // keeps the white surface from burning out on tape
 
-// Whiteboards and poems were added after the rest of the dressing: they draw
-// their random numbers from a stream of their own, so everything else in a
+// Whiteboards and newspapers were added after the rest of the dressing: they
+// draw their random numbers from a stream of their own, so everything else in a
 // seeded station stays exactly where it was.
 export function extraRng(ctx) {
   return ctx.rng2 || (ctx.rng2 = new RNG(hash32(ctx.node ? ctx.node.seed : 1, 4242)));
