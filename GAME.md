@@ -35,8 +35,8 @@ npm test           # headless smoke test (needs Chrome; run `npm run build` firs
 | Read / interact | `E` (also `Space`, `Enter` or left click) | **READ** button |
 | Pause | `Esc` or `P` | **II** button |
 
-Aim the small viewfinder cross at a sign, line diagram, poster, notice, clock,
-indicator board or help point. When `[E] read …` appears, press it: the
+Aim the small viewfinder cross at a sign, line diagram, poster, poem, notice,
+whiteboard, clock, indicator board or help point. When `[E] read …` appears, press it: the
 camcorder zooms in and a caption card shows what the thing says — for a line
 diagram, the full list of stations in order. Press again (or walk away) to put
 it down.
@@ -120,6 +120,13 @@ There are three kinds of junction:
 
 Other things worth knowing:
 
+- **Whiteboards.** The duty staff write a "Thought for the day" on the
+  station whiteboards and sign it with their own name (`– Dave, CSA`). Now
+  and then a board on an easel in a junction hall says which passage is the
+  way out. **If a named member of staff signed it, it is true. If it is
+  signed `The Station` — or by nobody, or by you — staff did not write it:
+  do the opposite.** One of the ordinary boards, and one staff notice, say
+  as much.
 - The **dot-matrix indicators** list the next trains — and `Way out`, as if it
   were one. Its minutes are the number of right choices you still need. If
   they went up, your last choice was wrong.
@@ -137,6 +144,11 @@ closed long ago or never opened; line diagrams gain *North End*, *South
 Kentish Town* or *City Road*, lose your station, put stations out of order or
 repeat the one you are standing in; indicators and announcements turn odd;
 lights fail; sometimes there is someone at the far end of the platform.
+The whiteboard's cheerful thought for the day turns into *"You've read this
+board before"* and stops being signed by anyone you could name, and the
+*Poems on the Underground* in the advert frames begin to misremember
+themselves: a line comes round twice, a street becomes a tunnel, the poet
+becomes *Anon., Mornington Crescent*.
 
 ### Trains
 
@@ -155,6 +167,21 @@ the next station is, and leaves. It is not in service. You cannot board it.
   "Way out" plates, line diagrams and strip maps, direction signs, posters,
   staff notices, tactile paving, the `MIND THE GAP` coping, dot-matrix boards,
   clocks and the train's livery.
+- **"Thought for the day" whiteboards**: an aluminium-framed board with a
+  marker tray on passage walls, or on an easel at the end of a platform and
+  in the corner of some junction halls (about one every two or three
+  segments, never in the way). Station name, today's date, a handwritten
+  thought in marker pen, a doodle and a signature — all drawn at runtime
+  (the handwriting is Patrick Hand, an openly licensed font, set word by
+  word a little off the line). 15 ordinary thoughts, 11 odd ones, 7 that
+  staff did not write (`src/game/thoughts.js`).
+- **"Poems on the Underground"** posters on the track-side advert panels and
+  among the adverts in the passages: short excerpts from eleven poems, all
+  in the public domain (Blake, Wordsworth, Christina Rossetti, Emily
+  Dickinson in the 1890s texts, Hardy, Edward Thomas, Wilfred Owen,
+  Shakespeare, Stevenson, Housman), plus five short poems by "Anon." written
+  for the game (`src/game/poems.js`). READ shows the poem as it is printed
+  on that particular poster — altered or not.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -178,7 +205,11 @@ the next station is, and leaves. It is not in service. You cannot board it.
   `take(correct)` (commit to the next junction's right or wrong branch),
   `plan([...types], seed, wrong, progress)` (restart with a forced layout,
   strangeness and station), `train(seconds)` (bring the next train forward),
-  `use()`, `info()`, `preview(kind, w, h, opts)` (render one sign texture).
+  `use()`, `info()`, `preview(kind, w, h, opts)` (render one sign texture —
+  `'whiteboard'` and `'poem'` among them), `find(label, dist)` (walk ahead to
+  the next thing whose READ label contains `label`, e.g. `'whiteboard'` or
+  `'poem'`, and stand in front of it), `census()` / `overflow()` (count the
+  boards and poems; check no sign sheet ran out of room).
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,

@@ -41,10 +41,28 @@ export class Sheet {
     return { x: f.x, y: f.y };
   }
 
+  // Dry run: how many of the pieces [[w, h], …] would fit, taken in order,
+  // without touching the sheet. Lets a segment decide what it can afford
+  // before it draws anything.
+  room(pieces) {
+    const keep = this.free;
+    this.free = keep.map((f) => ({ ...f }));
+    let n = 0;
+    for (const [w, h] of pieces) {
+      if (!this._place(Math.round(w) + PAD * 2, Math.round(h) + PAD * 2)) break;
+      n++;
+    }
+    this.free = keep;
+    return n;
+  }
+
   // Reserve w x h pixels and draw into them: draw(ctx, w, h) with the origin
   // at the region's top-left. Returns the uv rect [u0, v0, u1, v1].
-  add(w, h, draw) {
-    this._ensure();
+  add(w, h, draw) { return this.paint(this.reserve(w, h), draw); }
+
+  // The two halves of add(): set a region aside now (big pieces have to be
+  // placed first to pack well), draw into it later.
+  reserve(w, h) {
     const S = this.size;
     w = Math.min(Math.round(w), S - PAD * 2); h = Math.min(Math.round(h), S - PAD * 2);
     let spot = this._place(w + PAD * 2, h + PAD * 2);
@@ -54,7 +72,12 @@ export class Sheet {
       for (let k = 0; k < 4 && !spot; k++) { w = Math.max(8, Math.round(w * 0.7)); h = Math.max(8, Math.round(h * 0.7)); spot = this._place(w + PAD * 2, h + PAD * 2); }
       if (!spot) spot = { x: 0, y: 0 };
     }
-    const x = spot.x + PAD, y = spot.y + PAD;
+    return { x: spot.x + PAD, y: spot.y + PAD, w, h };
+  }
+
+  paint(slot, draw) {
+    this._ensure();
+    const S = this.size, { x, y, w, h } = slot;
     const ctx = this.ctx;
     ctx.save();
     ctx.translate(x, y);

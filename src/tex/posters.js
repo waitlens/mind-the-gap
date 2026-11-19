@@ -1,4 +1,5 @@
-// Procedural posters, staff notices and the service whiteboard.
+// Procedural posters and staff notices. (The whiteboard is in
+// whiteboard.js, the poems in poem.js.)
 // Everything is drawn from shapes and type — no photographs.
 import { HEAD_FONT, BODY_FONT, fitText, wrapLines, grime } from './canvas.js';
 import { POSTERS, POSTERS_ODD } from '../game/scripts.js';
@@ -99,29 +100,4 @@ export function drawNotice(ctx, w, h, notice, r) {
   ctx.fillStyle = '#b3261e';   // drawing pins
   for (const [x, y] of [[0.06, 0.03], [0.94, 0.03]]) { ctx.beginPath(); ctx.arc(w * x, h * y + 2, Math.max(2, w * 0.018), 0, 7); ctx.fill(); }
   if (r) grime(ctx, 0, 0, w, h, r.int(1, 99999), 0.5);
-}
-
-// The service-information whiteboard with a handwritten message.
-export function drawWhiteboard(ctx, w, h, text, r) {
-  ctx.fillStyle = '#b9bcbd'; ctx.fillRect(0, 0, w, h);
-  ctx.fillStyle = '#f7f7f2'; ctx.fillRect(w * 0.03, h * 0.04, w * 0.94, h * 0.92);
-  ctx.fillStyle = '#14213d'; ctx.fillRect(w * 0.03, h * 0.04, w * 0.94, h * 0.16);
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  fitText(ctx, 'Service information', w * 0.8, h * 0.1, HEAD_FONT);
-  ctx.fillText('Service information', w / 2, h * 0.125);
-  ctx.fillStyle = '#1d2f8a'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  let size = h * 0.09, lines;
-  for (;;) {
-    ctx.font = `italic 400 ${size}px ${BODY_FONT}`;
-    lines = wrapLines(ctx, text, w * 0.84);
-    if (lines.length * size * 1.3 < h * 0.68 || size < 5) break;
-    size *= 0.92;
-  }
-  lines.forEach((ln, i) => {
-    ctx.save();
-    ctx.translate(w * 0.08, h * 0.25 + i * size * 1.3);
-    ctx.rotate((r ? r.range(-0.02, 0.02) : 0));
-    ctx.fillText(ln, 0, 0);
-    ctx.restore();
-  });
 }

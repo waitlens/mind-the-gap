@@ -5,6 +5,11 @@ import { RNG } from '../util/rng.js';
 export const HEAD_FONT = "'Hammersmith One', 'Gill Sans', 'Trebuchet MS', sans-serif";
 export const BODY_FONT = "'Cabin', 'Gill Sans', 'Trebuchet MS', sans-serif";
 export const OSD_FONT = "'VT323', 'Courier New', monospace";
+// Marker-pen handwriting for the staff whiteboards (Patrick Hand is bundled,
+// OFL; the rest are what phones and desktops have if it fails to load).
+export const HAND_FONT = "'Patrick Hand', 'Segoe Print', 'Bradley Hand', 'Chalkboard SE', 'Comic Sans MS', cursive";
+// Book serif for the poems (system fonts only).
+export const SERIF_FONT = "Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', 'Nimbus Roman', serif";
 
 export function makeCanvas(w, h) {
   const c = document.createElement('canvas');
@@ -15,7 +20,7 @@ export function makeCanvas(w, h) {
 // Wait for the locally bundled web fonts so canvas text uses them.
 export async function loadFonts() {
   if (!document.fonts || !document.fonts.load) return;
-  const wanted = ["400 32px 'Hammersmith One'", "400 32px 'Cabin'", "700 32px 'Cabin'", "400 32px 'VT323'"];
+  const wanted = ["400 32px 'Hammersmith One'", "400 32px 'Cabin'", "700 32px 'Cabin'", "400 32px 'VT323'", "400 32px 'Patrick Hand'"];
   try {
     await Promise.race([
       Promise.all(wanted.map((f) => document.fonts.load(f, 'Way out 0123'))),

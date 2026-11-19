@@ -12,6 +12,8 @@ import { drawNameBoard } from '../tex/symbol.js';
 import { wrongName, isGhost } from '../game/names.js';
 import { dirWord, platformNo } from '../game/line.js';
 import { served } from '../game/route.js';
+import { junctionThought } from '../game/thoughts.js';
+import { easelBoard, extraRng } from './whiteboard.js';
 
 const HX = 3.5, D = 5, H = 2.95;
 
@@ -94,7 +96,17 @@ export const junction = {
     const hp = northPanel(b, 'cut', 0, 0.62, 0.34, 0.68, atlasRect('helpPoint'), null);
     items.push({ ...hp, r: 3.2, label: 'press help point', title: 'HELP POINT', text: '', help: true, onRead: (game, it, node) => game.director.helpPoint(node) });
 
+    // Sometimes the duty staff have left a whiteboard in the corner saying
+    // which way to go — and sometimes it was not the staff who wrote it
+    // (look at who signed it).
+    const r2 = extraRng(ctx), walls = room.walls;
+    if (r2.chance(env.boardChance ?? 0.28)) {
+      const cs = r2.sign();
+      const e = easelBoard(ctx, cs * 2.95, 4.3, cs * 0.63, junctionThought(r2, env, p));
+      items.push(e.item);
+      walls.push(...e.walls);
+    }
     const zones = [{ x0: -HX, x1: HX, z0: 0.8, z1: D, fire: (game, node) => game.director.enterJunction(node) }];
-    return { cells: room.cells, walls: room.walls, items, extra: { zones } };
+    return { cells: room.cells, walls, items, extra: { zones } };
   },
 };

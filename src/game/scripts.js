@@ -62,21 +62,12 @@ export const NOTICES = [
   { key: 'tiles', title: 'STAFF NOTICE', text: 'Every station on this line was given its own tile colours, so that passengers could tell them apart at a glance. If the tiles beyond a gate are colours you have already walked through, you have gone back down the line.' },
   { key: 'gate', title: 'STAFF NOTICE', text: 'Gates close behind the last passenger. This is normal. Do not wait at a closed gate. Nothing is coming to open it.' },
   { key: 'symbol', title: 'STAFF NOTICE', text: 'The roundel is a red ring and a blue bar. One ring. One bar, level. If a line diagram shows a station you do not know — North End, South Kentish Town, City Road — do not alight there. Report it to — the rest of this notice has been torn away.' },
+  { key: 'whiteboard', title: 'STAFF NOTICE', text: 'The whiteboards are written each morning by the duty staff, who sign them with their own name. A board signed by anyone else, or by no one, was not written by us. Take no directions from it.' },
   { key: 'train', title: 'NIGHT STAFF', text: 'Trains still run through after the last train. They are not in service. Do not board. Stand behind the yellow line and let it go. — written in biro underneath: "it stops anyway"' },
 ];
 
-// Whiteboard "thought of the day" — flavour, sometimes useful.
-export const WHITEBOARD = [
-  'Service information: Good service on all lines. (All of them?)',
-  'Thought for the day: The way out is always signed. Not every sign is the way out.',
-  'Thought for the day: If in doubt, listen. Then ask who is speaking.',
-  'Service information: This station closed at 00:47. If you are reading this, please leave.',
-  'Lost property: one umbrella, one left glove, one passenger.',
-  'Thought for the day: A clock is only wrong in one direction.',
-  'Northern line: Good service. Bank branch: Good service. This platform: closed.',
-  'Thought for the day: Mornington Crescent. (You cannot say that yet.)',
-  'Lifts out of service. Please use the 320 steps. Do not count them.',
-];
+// (The whiteboards' "Thought for the day" is in thoughts.js, the poems on
+// the posters in poems.js.)
 
 // Poster copy: [headline, strapline]. Ordinary ones…
 export const POSTERS = [

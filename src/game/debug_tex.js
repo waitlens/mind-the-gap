@@ -7,6 +7,12 @@ import { route, corrupt } from './route.js';
 import { RNG } from '../util/rng.js';
 import { drawStrip, drawPlatformSign } from '../tex/linestrip.js';
 import { GHOSTS } from './line.js';
+import { drawThoughtBoard } from '../tex/whiteboard.js';
+import { drawPoemPoster } from '../tex/poem.js';
+import { pickThought, junctionThought } from './thoughts.js';
+import { pickPoem } from './poems.js';
+
+const envOf = (o) => ({ wrong: o.wrong || 0, station: o.station || 'Camden Town', gseed: o.seed || 1, idx: o.idx || 0 });
 
 export const PREVIEWS = {
   diagram(ctx, w, h, o) {
@@ -17,6 +23,16 @@ export const PREVIEWS = {
   roundel(ctx, w, h, o) { drawNameBoard(ctx, w, h, o.name || 'Camden Town', o); },
   strip(ctx, w, h, o) { drawStrip(ctx, w, h, { current: o.station || 'Mornington Crescent', ghosts: o.ghosts ? GHOSTS : [] }); },
   psign(ctx, w, h, o) { drawPlatformSign(ctx, w, h, o); },
+  // o: { seed, wrong, station, idx, cheery, junction: { kind, correct } }
+  whiteboard(ctx, w, h, o) {
+    const r = new RNG(o.seed || 1);
+    drawThoughtBoard(ctx, w, h, o.junction ? junctionThought(r, envOf(o), o.junction) : pickThought(r, envOf(o), o), r);
+  },
+  // o: { seed, wrong, station, idx, tier, framed }
+  poem(ctx, w, h, o) {
+    const r = new RNG(o.seed || 1);
+    drawPoemPoster(ctx, w, h, pickPoem(r, envOf(o), o), r, !!o.framed);
+  },
 };
 
 export function preview(kind, w, h, opts = {}) {

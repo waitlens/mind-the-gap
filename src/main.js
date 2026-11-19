@@ -4,6 +4,7 @@ import '@fontsource/hammersmith-one/latin-400.css';
 import '@fontsource/cabin/latin-400.css';
 import '@fontsource/cabin/latin-700.css';
 import '@fontsource/vt323/latin-400.css';
+import '@fontsource/patrick-hand/latin-400.css';
 import './style.css';
 import { loadFonts } from './tex/canvas.js';
 import { setupScreens } from './ui/screens.js';

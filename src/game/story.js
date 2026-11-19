@@ -41,7 +41,7 @@ export class Story {
   envFor(stretch, idx, extra) {
     return {
       theme: stretch.theme, stretch, idx, wrong: this.wrong, station: stretch.station, pdir: stretch.dir,
-      ambient: stretch.dark ? [0.05, 0.055, 0.05] : [0.1, 0.105, 0.1], seenNotices: this.seenNotices, ...extra,
+      ambient: stretch.dark ? [0.05, 0.055, 0.05] : [0.1, 0.105, 0.1], seenNotices: this.seenNotices, gseed: this.seed, ...extra,
     };
   }
 

@@ -19,6 +19,8 @@ import { NOTICES } from '../game/scripts.js';
 import { GHOSTS, tiledName, dirWord, platformNo } from '../game/line.js';
 import { stripText } from '../game/route.js';
 import { pickNotice } from './dress_passage.js';
+import { pickThought } from '../game/thoughts.js';
+import { easelBoard, paintBoard, extraRng } from './whiteboard.js';
 
 export function fitPlatform(ctx, L, side) {
   const { b, p, sheet, rng, env } = ctx;
@@ -40,7 +42,25 @@ export function fitPlatform(ctx, L, side) {
   const ghosts = wrong >= 1.5 && rng.chance(Math.min(0.8, wrong * 0.2)) ? rng.shuffle(GHOSTS).slice(0, rng.int(1, 2)) : [];
   const stripUV = sheet.add(800, 168, (c, w, h) => drawStrip(c, w, h, { current: station, ghosts }));
   const nameUV = sheet.add(512, Math.round(512 * 0.53 / nameW), (c, w, h) => drawTiledName(c, w, h, fired, env.theme));
-  fitTrackside(ctx, L, side, items);
+  // (the whiteboard's face and room for a staff notice go on the sheet
+  // straight after the diagram and the poem — biggest pieces first, or the
+  // 1024 x 1024 sheet does not pack)
+  let easel = null, noticeSlot = null;
+  fitTrackside(ctx, L, side, items, () => {
+    const r2 = extraRng(ctx);
+    // always on the first platform, where it is still an ordinary cheerful one
+    if (p.start || r2.chance(env.boardChance ?? 0.6)) {
+      const th = pickThought(r2, env, { cheery: p.start });
+      easel = { th, face: paintBoard(ctx, th) };
+    }
+    noticeSlot = sheet.reserve(168, 216);
+  });
+  const paintNotice = (notice) => {
+    const draw = (c, cw, ch) => drawNotice(c, cw, ch, notice, rng);
+    const slot = noticeSlot;
+    noticeSlot = null;
+    return slot ? sheet.paint(slot, draw) : sheet.add(168, 216, draw);
+  };
   // --- frieze: white strip above the tiles, name in blue, Way out plates
   const toExit = side > 0 ? 'left' : 'right';         // the way out is at the far end
   const fr = [sheet.add(384, 36, (c, w, h) => drawFrieze(c, w, h, station, { arrow: toExit })),
@@ -88,7 +108,7 @@ export function fitPlatform(ctx, L, side) {
     } else if (kind === 'notice') {
       // the first thing to read in the game: where you are and where the way out is
       const notice = NOTICES.find((q) => q.key === 'line') || NOTICES[0];
-      const uv = sheet.add(168, 216, (c, cw, ch) => drawNotice(c, cw, ch, notice, rng));
+      const uv = paintNotice(notice);
       const pos = arcPanel(b, 'sheet', side, -1, zc, w, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
       items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });
     } else {
@@ -99,9 +119,16 @@ export function fitPlatform(ctx, L, side) {
   }
   if (!p.start && rng.chance(0.45)) {                  // a staff notice by the way in
     const notice = pickNotice(ctx);
-    const uv = sheet.add(168, 216, (c, cw, ch) => drawNotice(c, cw, ch, notice, rng));
+    const uv = paintNotice(notice);
     const pos = arcPanel(b, 'sheet', side, -1, 1.9, 0.5, 0.95, 1.6, uv, { tint: [1.1, 1.1, 1.1] });
     items.push({ ...pos, r: 4.5, label: 'read notice', title: notice.title, text: notice.text, clue: true, onRead: (g) => g.story.noticeRead(notice.key) });
+  }
+  // --- the staff whiteboard on its easel, out of the way at the far end by
+  //     the back wall
+  if (easel) {
+    const e = easelBoard(ctx, X(PF.back + 0.62), L - 1.9, -side * 0.5, easel.th, 0, easel.face);
+    items.push(e.item);
+    for (const w of e.walls) walls.push(w);
   }
   // --- hanging indicator, clock and way out sign
   const board = dynRect('board');

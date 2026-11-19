@@ -49,6 +49,32 @@ export function installDebug(api, game) {
       }
       return null;
     },
+    // Walk ahead (along exit 0) to the first thing whose READ label contains
+    // `label` — 'whiteboard', 'poem', 'notice'… — and stand `dist` metres in
+    // front of it, looking at it. opts: { max, skip, test(item) }.
+    find(label, dist = 1.6, opts = {}) {
+      let node = world.current, skip = opts.skip || 0;
+      for (let i = 0; i <= (opts.max || 40); i++) {
+        world.current = node; world.refresh(true);
+        const hits = node.built ? node.built.items.filter((q) => (q.label || '').includes(label) && (!opts.test || opts.test(q))) : [];
+        if (hits.length > skip) {
+          const it = hits[skip];
+          const n = it.n || [-Math.sign(it.x), 0];        // wall fittings face the centreline
+          place(node, it.x + n[0] * dist, it.z + n[1] * dist, 0, opts.ly || 0);
+          const [wx, wy, wz] = toWorld(node, it.x, it.y, it.z);
+          const dx = wx - p.pos.x, dz = wz - p.pos.z;
+          p.yaw = Math.atan2(-dx, -dz); p.pitch = Math.atan2(wy - p.eyeY, Math.hypot(dx, dz));
+          return { type: node.def.type, station: node.env.station, text: it.text, board: it.board, poem: it.poem, correct: node.p.correct };
+        }
+        skip -= hits.length;
+        const e = node.exits[0];
+        if (!e) return null;
+        if (!e.child) world.expand(node, 0);
+        if (!e.child) return null;
+        node = e.child;
+      }
+      return null;
+    },
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
     folds() { return [...world.nodes.values()].filter((n) => n.hiddenByFold).length; },
@@ -146,6 +172,19 @@ export function installDebug(api, game) {
       return out;
     },
     preview,
+    // Built segments whose sign sheet ran out of room (should be none).
+    overflow() {
+      return [...world.nodes.values()].filter((m) => m.built && m.built.sheetOverflow)
+        .map((m) => ({ type: m.def.type, n: m.built.sheetOverflow, labels: m.built.items.map((i) => i.label).join(',') }));
+    },
+    // Every built segment with its whiteboards and poems (for counting them).
+    census() {
+      return [...world.nodes.values()].filter((m) => m.built).map((m) => ({
+        key: `${game.state.seed}:${m.id}`, type: m.def.type,
+        boards: m.built.items.filter((i) => i.board).map((i) => i.board), poems: m.built.items.filter((i) => i.poem).map((i) => i.poem),
+      }));
+    },
+    builtCount() { return [...world.nodes.values()].filter((m) => m.built).length; },
     // Bring the next train forward (it arrives `s` seconds from now).
     train(s = 2) { game.trains.soon(s); return game.trains.schedule(); },
     // Play many games at once: take junctions right and wrong from several
@@ -199,7 +238,9 @@ export function installDebug(api, game) {
     setWrong(v) { game.story.wrong = v; game.state.wrong = v; },
     say(text, chime = 'rise') { game.director.announcer.say({ text, chime }); },
     glitch(s = 1) { game.director.events.glitch(s); },
-    use() { game.director.scan(); game.director.use(true); return game.state.reading; },
+    use() { game.director.scan(); game.director.use(true); return game.director.reading ? game.director.reading.text : ''; },
+    // Clear the tutorial hints (for clean screenshots).
+    hush() { const dr = game.director; dr.hint = ''; dr.hintT = 0; dr.hints.length = 0; },
     freeze(on = true) { game.frozen = on; },
     story: () => ({ progress: game.story.progress, wrong: game.story.wrong, log: game.story.log }),
   };

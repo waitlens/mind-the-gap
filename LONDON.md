@@ -123,3 +123,47 @@ no dead ends (generation fuzz re-run).
 Side-by-side comparisons with the reference photos were saved as
 `/tmp/shots/lon_compare_*.png` (platform wall, line diagram, tiles, roundel,
 train).
+
+## Round 3: two things you only see on the Tube
+
+Player request: the handwritten staff whiteboard and the poems.
+
+**"Thought for the day."** Real stations keep a whiteboard by the gate line
+or in a passage: station name and date across the top, a quote or a bad pun
+in marker pen, a doodle, signed by whoever was on the early turn. Here it is
+a prop of its own (`src/world/whiteboard.js`): screwed to the passage wall
+with a tray of pens under it, or on a three-legged easel at the far end of a
+platform (always on the first one) and in the corner of some junction halls.
+The face is one 240 x 180 piece on the segment's existing sign sheet
+(`src/tex/whiteboard.js`); the frame, tray, pens and legs are a couple of
+dozen quads from the shared atlas — no new textures, no new draw calls.
+
+The words (`src/game/thoughts.js`) are written for the game, in the voice of
+station staff: cheery at first, quietly wrong as `wrong` rises, and finally
+not written by staff at all. The signature is the tell: a named member of
+staff (`– Maureen, CSA`, `– Your Camden Town team`) means staff wrote it; the
+odd ones are unsigned or signed `Y.O.U.`; the strange ones are signed `The
+Station`. A few ordinary boards restate a rule of the station (clocks, the
+rising chime, yellow and black signs). The board in a junction hall may say
+which passage is the way out: true if staff signed it, the opposite if the
+station did — the same kind of rule as the rising and falling chime, taught
+by a board and by a staff notice, and never spelt out anywhere else.
+
+**"Poems on the Underground."** The real programme's card: wide, pale, a few
+lines of verse in a book serif, the poet underneath, the title and a small
+roundel along the bottom (`src/tex/poem.js`). One of the three track-side
+advert designs is a poem on most platforms, and passages hang one among the
+adverts about a third of the time. Only public-domain poems are quoted, as
+short excerpts (`src/game/poems.js` lists them); for Emily Dickinson the
+1890s printed texts are used. As the station goes wrong a poster may swap a
+word ("each charter'd tunnel", "all backwards do contend"), repeat a line,
+lose its poet to "Anon., Mornington Crescent", or carry one of five short
+poems written for the game.
+
+**Cost.** Everything goes on the per-segment sign sheets that were already
+there. A passage's 512 px sheet cannot always hold a line diagram, a notice,
+a whiteboard, a poem and three adverts, so the passage now asks the packer
+what fits before it draws anything (`Sheet.room`): the poem gives way first,
+then the number of different adverts. On platforms the poem, the whiteboard
+and the notice are placed straight after the line diagram (largest first).
+`node tests/smoke.mjs --fuzz=40` reports no sheet overflows.
