@@ -69,6 +69,8 @@ export class Announcer {
       if (c.t >= c.dur) this.cur = null;
       return;
     }
+    // (no public address in a station that closed in 1924: the timers wait)
+    if (g.state.segment === 'ghost') return;
     // the security message, on a fixed timer like the real network
     this.nextSecurity -= dt;
     if (this.nextSecurity <= 0) {

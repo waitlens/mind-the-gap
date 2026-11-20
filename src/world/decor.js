@@ -57,7 +57,10 @@ export function portalLamp(b, f, crown) {
 export function sill(b, f, halfW, cell = 'floor') {
   const [px, , pz] = framePoint(f, 0, 0);
   b.place(px, f.y, pz, f.yaw);
-  b.quad('atlas', [-halfW, -0.003, -0.16], [halfW, -0.003, -0.16], [halfW, -0.003, 0.16], [-halfW, -0.003, 0.16], [0, 1, 0], atlasFlat(cell));
+  // (0.8 m either way along the path: with the long straight platforms the
+  // seam can be seen from 80 m off, where a shorter strip is a small
+  // fraction of a pixel and no longer sure to cover the pinhole)
+  b.quad('atlas', [-halfW, -0.003, -0.8], [halfW, -0.003, -0.8], [halfW, -0.003, 0.8], [-halfW, -0.003, 0.8], [0, 1, 0], atlasFlat(cell));
   b.setXf(null);
 }
 

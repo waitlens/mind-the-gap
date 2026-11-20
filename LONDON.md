@@ -342,3 +342,39 @@ Departures: the real stair begins with a straight flight down from the
 ticket hall before the spiral starts (that flight is the game's last few
 steps into the hall); the pillar is drawn as a cage with darkness behind it;
 shaft and tread dimensions are estimates, as above.
+
+### South Kentish Town (`src/world/ghost_fit.js`, `src/tex/period.js`, the `ghost` segment in `seg_platform.js`)
+
+The line data already listed it among the stations that turn up on diagrams
+when the station goes wrong; now you can be sent there. It is the right
+ghost for a wrong turn: it lies on the *other* branch out of Camden Town —
+the one the walk does not take — between Camden Town and Kentish Town. A
+wrong choice at a junction still puts you two stations back; the first time
+(and about half the times after) the way there is through this platform.
+
+What is recorded and used: opened 22 June 1907; planned as "Castle Road",
+a name already fired into the tiles and painted over (the game shows it
+faintly, under the paint, and READ says what it is); closed 5 June 1924
+during the Lots Road power station strike and never reopened; cream and
+dark red tiling; an air-raid shelter with a first-aid post in 1940; trains
+have passed without stopping ever since. So: the platform tube with those
+tiles and none of the later furniture (no name frieze, indicator, clock,
+yellow line, tactile strip or MIND THE GAP — the shell has a plain mode for
+it), bullseye signs of the pre-1917 kind (the solid red disc the game
+already had as a "defect"), three posters of that summer on the platform
+wall and one across the track (the firms and the fête are invented), a
+tiled WAY OUT legend pointing at an archway that has been bricked up, a
+second bricked arch, a closure notice dated 5th June 1924, SHELTER and
+FIRST AID POST stencilled over the tiles, one old bench, dust. Five dim
+bulkhead lamps (one failing) and a lower ambient; the public address is
+silent while you are in it. The running train is given a third way of
+calling at a platform: not at all — it comes out of one mouth at 15 m/s,
+lit, and goes into the other.
+
+Departures: the real platforms were later demolished and the tiling painted
+over; the game shows the platform as it was left. The posters, the notice's
+wording and the bricked arches are period invention, not record.
+
+One engine change came out of testing it: three long straight platforms in
+a row give sight lines of 80 m, at which the 32 cm strip that backs every
+floor joint is a fraction of a pixel; the strip is now 1.6 m long.

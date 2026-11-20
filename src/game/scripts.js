@@ -71,6 +71,28 @@ export const SPIRAL = {
   ],
 };
 
+// South Kentish Town, closed 5 June 1924 (world/ghost_fit.js). The posters
+// are in the manner of that summer; the firms, the fête and the remedies
+// are invented. [headline, strapline, picture]
+export const GHOST = {
+  hint: 'South Kentish Town. Nobody has got off here since the fifth of June, 1924.',
+  train: 'Light in the tunnel. It is not slowing down.',
+  posters: [
+    ['Kempton’s Cocoa', 'Sustaining · Nourishing · 4½d the tin', 'cup'],
+    ['Summer Sale', 'Hallam & Blythe, Drapers · Commences Monday June 16th', 'sun'],
+    ['The Heath by Tram', 'Fresh air for tuppence', 'hill'],
+    ['Whitsun Fête', 'Palace Fields · Bands · Fireworks at dusk', 'star'],
+    ['Pargeter’s Linctus', 'For the chest · Of all chemists', 'bottle'],
+  ],
+  notice: ['UNDERGROUND', 'NOTICE', ['This station is CLOSED until further notice.', 'Passengers are requested to use Camden Town or Kentish Town stations.'], '5th June 1924'],
+  name: '· CASTLE · ROAD · — fired into the tiles, under a coat of old paint. The name the station was built under.',
+  board: 'SOUTH KENTISH TOWN. A solid red disc behind the name bar: the sign as it was before the ring.',
+  arch: 'An archway to the lifts, bricked up. The mortar is older than anyone you know.',
+  legend: 'WAY OUT → (the tiles point at the bricked-up arch)',
+  shelter: 'SHELTER · FIRST AID POST → — stencilled in 1940, when people slept here. The bunks went after the war.',
+  dust: 'Dust, thick and even. Yours are the only footprints.',
+};
+
 // Slightly wrong.
 export const AMBIENT_ODD = [
   'This station is now closed. Please make your way to the way out. If you can.',

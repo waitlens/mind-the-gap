@@ -3,7 +3,8 @@
 import { PF, buildShell } from './platform_shell.js';
 import { buildHeadwall, MOUTH } from './platform_end.js';
 import { fitPlatform } from './platform_fit.js';
-import { portalLamp } from './decor.js';
+import { portalLamp, sill } from './decor.js';
+import { fitGhost } from './ghost_fit.js';
 import { PASSAGE } from './sweep.js';
 import { fitTrainstop, TRAINSTOP } from './trainstop.js';
 
@@ -38,12 +39,15 @@ export const platform = {
   build(ctx) {
     const { b, p } = ctx;
     const { L, side } = p;
-    buildShell(b, L, side);
+    buildShell(b, L, side, { plain: !!p.ghost });
     buildHeadwall(b, 0, 1, side, !p.start);
     buildHeadwall(b, L, -1, side, true);
-    if (!p.start) { b.addPortal(0, 0, 0, 0); portalLamp(b, { x: 0, y: 0, z: 0, yaw: 0 }, PASSAGE.crown); }
+    // (the joint with the passage you came by: its lamp and the sill under the
+    // threshold — in the station that closed in 1924, the sill and no lamp)
+    if (p.ghost) { b.addPortal(0, 0, 0, 0); sill(b, { x: 0, y: 0, z: 0, yaw: 0 }, 1.56); }
+    else if (!p.start) { b.addPortal(0, 0, 0, 0); portalLamp(b, { x: 0, y: 0, z: 0, yaw: 0 }, PASSAGE.crown); }
     b.addPortal(0, 0, L, 0);
-    const fit = fitPlatform(ctx, L, side);
+    const fit = p.ghost ? fitGhost(ctx, L, side) : fitPlatform(ctx, L, side);
 
     const X = (x) => side * x;
     const mid = (PF.back + PF.edge) / 2, hw = (PF.edge - PF.back) / 2;
@@ -78,6 +82,19 @@ export const trainstop = {
   plan(rng, env) {
     const pl = platform.plan(rng, { ...env, platformL: TRAINSTOP.L });
     Object.assign(pl.p, { train: true, figure: false, start: false });
+    return pl;
+  },
+  build: (ctx) => platform.build(ctx),
+};
+
+// South Kentish Town: the same tube, as it was left in 1924 (ghost_fit.js).
+// Trains go through it without stopping (game/trains.js).
+export const ghost = {
+  type: 'ghost',
+  sheetSize: 1024,
+  plan(rng, env) {
+    const pl = platform.plan(rng, { ...env, platformL: 36 });
+    Object.assign(pl.p, { ghost: true, figure: false, start: false, dark: false, faulty: rng.int(0, 2) });
     return pl;
   },
   build: (ctx) => platform.build(ctx),

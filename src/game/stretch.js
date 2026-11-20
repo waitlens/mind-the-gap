@@ -3,7 +3,7 @@
 import { hash32, RNG, angleDiff } from '../util/rng.js';
 import { CFG } from '../config.js';
 import { SEGMENTS } from '../world/registry.js';
-import { stationAt, themeOf, WALK } from './line.js';
+import { stationAt, themeOf, WALK, GHOST_STATION } from './line.js';
 
 const has = (t) => !!SEGMENTS[t];
 
@@ -47,6 +47,12 @@ export function makeStretch(story, opts = {}) {
     const at = plan.findIndex((t, i) => t === 'platform' && !(opts.first && i === 0));
     if (at >= 0 && sp.chance(story.trainStops ? 0.22 : opts.first ? 0.25 : 0.5)) { plan[at] = 'trainstop'; story.trainStops = (story.trainStops || 0) + 1; }
   }
+  // A wrong turn takes you onto the other branch out of Camden Town, through
+  // the station that closed in 1924, before it lets you back into the
+  // network two stations down the line: always the first time, about half
+  // the time after that (settled when the junction is planned, from the
+  // wrong turns taken so far).
+  if (has('ghost') && opts.fromJunction && opts.correct === false && !opts.exit && sp.chance(story.game.state.wrongTurns ? 0.5 : 1)) plan.splice(1, 0, 'ghost', 'corridor');
   // (tests can force what lies beyond a junction, e.g. a short closed stub)
   if (opts.fromJunction && story.testBranch) plan.splice(0, plan.length, 'corridor', ...story.testBranch);
   story.stretchCount++;
@@ -120,6 +126,11 @@ export function nextInStretch(story, node, i, attempt, rng) {
     if (idx === 0 && stretch.fromJunction) {
       const from = node.env;
       return { def: SEGMENTS.corridor, env: env({ gate: true, len: 8, noticeChance: 0, theme: from.theme, station: from.station }), force: true };
+    }
+    // the closed station is not the stretch's station: its own name, tiles and gloom
+    if (type === 'ghost' && has('ghost')) {
+      const name = GHOST_STATION.name;
+      return { def: SEGMENTS.ghost, env: env({ station: name, theme: themeOf(name), ambient: [0.05, 0.052, 0.056] }) };
     }
     return { def: SEGMENTS[type] || SEGMENTS.corridor, env: env({}) };
   }

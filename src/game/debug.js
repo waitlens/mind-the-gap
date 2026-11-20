@@ -8,6 +8,7 @@ import { SP as SP_GEOM, phi as spPhi, lineY as spLineY } from '../world/spiral_g
 // Set pieces reachable with debug.scene(name).
 const SCENES = {
   shelter: { plan: ['platform', 'corridor', 'shelter', 'corridor', 'junction'], advance: 2, at: [0, 3.2] },
+  ghost: { plan: ['platform', 'corridor', 'ghost', 'corridor', 'junction'], advance: 2, at: [0, 2.2], wrong: 1.4 },
   // opts.landing = 0 … 19 stands you on that landing of the stairs (0 the foot, 19 the top)
   spiral: {
     plan: ['platform', 'corridor', 'spiral', 'exit'], advance: 2, at: [0, 0.8], progress: 4, wrong: 2,

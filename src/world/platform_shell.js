@@ -41,7 +41,9 @@ function arcRun(th0, th1, n, vOf) {
   return out;
 }
 
-export function buildShell(b, L, side) {
+// opts.plain: a platform as they were before the yellow line, the tactile
+// strip and MIND THE GAP (the station that closed in 1924).
+export function buildShell(b, L, side, opts = {}) {
   const X = (x) => side * x;
   const back = arcRun(PF.th0, Math.PI / 2, N_BACK, (th) => 0.502 + 0.496 * ((PF.R * (PF.th0 - th)) / PF.sCrown));
   const track = arcRun(Math.PI / 2, PF.th1, N_TRACK, (th) => 0.002 + 0.496 * ((PF.R * (Math.PI / 2 - th)) / sTrack));
@@ -67,7 +69,8 @@ export function buildShell(b, L, side) {
   const half = (name, k, fx0 = 0, fx1 = 1) => atlasSub(name, fx0, k ? 0.5 : 0, fx1, k ? 1 : 0.5);
   const bands = [
     [PF.back - 0.05, -0.55, (k) => half('floor', k)], [-0.55, 0.55, (k) => half('floor', k)],
-    [0.55, 0.95, () => atlasRect('tactile')], [0.95, 1.05, () => atlasFlat('yellow')],
+    ...(opts.plain ? [[0.55, 0.95, (k) => half('floorDark', k, 0.5, 0.9)], [0.95, 1.05, (k) => half('floorDark', k, 0.9, 1)]]
+      : [[0.55, 0.95, () => atlasRect('tactile')], [0.95, 1.05, () => atlasFlat('yellow')]]),
     // (the coping overhangs the platform's face by 4 mm: seen from the track
     // side — from inside a standing train — a top that merely met the face
     // along its edge leaked single pixels)
@@ -82,7 +85,7 @@ export function buildShell(b, L, side) {
   }
   // "MIND THE GAP" on the coping, facing someone standing on the platform
   const gap = atlasRect('mindgap');
-  for (let zc = 4.5; zc < L - 3; zc += 6.5) {
+  for (let zc = 4.5; zc < L - 3 && !opts.plain; zc += 6.5) {
     const h = 0.85 * side;
     b.quad('atlas', [X(1.07), 0.004, zc - h], [X(1.07), 0.004, zc + h], [X(1.43), 0.004, zc + h], [X(1.43), 0.004, zc - h], up, gap);
   }

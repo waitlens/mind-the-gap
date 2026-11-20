@@ -11,8 +11,10 @@ import { nextTrains } from './boards.js';
 import { trainCall, trainCallWrong } from './route.js';
 import { platformNo } from './line.js';
 import { RNG, clamp, damp } from '../util/rng.js';
+import { GHOST } from './scripts.js';
 
 const T_APPROACH = 5.5, T_ARRIVE = 6.5, ACCEL = 1.0;
+const PASS_V = 15;      // m/s: through a closed station without stopping
 const MIND_THE_GAP = 'Please mind the gap between the train and the platform.';
 
 export class Trains {
@@ -52,19 +54,21 @@ export class Trains {
     const tr = nextTrains(station, dir, this.schedule(), st.time, g.story.seed)[0];
     this.train = tr;
     this.node = node; this.phase = 'approach'; this.t = 0; this.count++;
+    this.passing = !!node.p.ghost;     // South Kentish Town: nothing has stopped there since 1924
     st.trains = this.count;
     setBlind(tr.dest.replace('Battersea Power Station', 'Battersea'));
     g.audio.sfx('trainApproach');
+    if (this.passing) { g.director.setHint(GHOST.train, 5); return; }
     g.director.announcer.say({ text: `The train now approaching platform ${platformNo(dir)} is not in service. Please stand well back from the platform edge.`, chime: 'rise' });
     g.director.setHint('A warm wind pushes out of the tunnel. It smells of brake dust.', 5);
   }
 
   update(dt) {
     const g = this.game, now = g.state.time, cur = g.world.current, ev = g.director.events;
-    const onPlatform = !!(cur && cur.def.type === 'platform' && cur.built);
+    const onPlatform = !!(cur && (cur.def.type === 'platform' || cur.def.type === 'ghost') && cur.built);
     if (onPlatform && cur.id !== this.seenId) {       // just arrived on a platform: a train is never far off
       this.seenId = cur.id;
-      if (this.phase === 'idle' && !cur.p.start) this.nextAt = Math.min(this.nextAt, now + T_APPROACH + this.rng.range(9, 20));
+      if (this.phase === 'idle' && !cur.p.start) this.nextAt = Math.min(this.nextAt, now + T_APPROACH + (cur.p.ghost ? this.rng.range(6, 10) : this.rng.range(9, 20)));
     }
     this.t += dt;
     if (this.phase === 'idle') {
@@ -81,7 +85,15 @@ export class Trains {
       const L = node.p.L, stop = L - 1.3, s0 = -MOUTH.depth;
       if (this.phase === 'approach') {
         this.target = 0.75 * clamp(this.t / T_APPROACH, 0, 1);
-        if (this.t >= T_APPROACH) { this.phase = 'arrive'; this.t = 0; this.mesh.visible = true; ev.glitch(0.5); }
+        if (this.t >= T_APPROACH) {
+          this.phase = this.passing ? 'pass' : 'arrive'; this.t = 0; this.mesh.visible = true; ev.glitch(0.5);
+          if (this.passing) g.audio.sfx('train');
+        }
+      } else if (this.phase === 'pass') {
+        // straight through at speed, lit windows and all
+        this.s = s0 + PASS_V * this.t;
+        this.target = 1;
+        if (this.s - TRAIN.length > L + MOUTH.depth) { ev.glitch(0.4); g.state.trainsPassed = (g.state.trainsPassed || 0) + 1; this._done(); }
       } else if (this.phase === 'arrive') {
         const k = clamp(this.t / T_ARRIVE, 0, 1);
         this.s = s0 + (stop - s0) * (1 - (1 - k) * (1 - k));
@@ -136,7 +148,7 @@ export class Trains {
     g.player.windZ = push ? Math.cos(cur.yaw) * push : 0;
     // never draw the train in a platform that is hidden (see World.cull)
     if (this.node && this.node.built && !this.node.built.group.visible) this.mesh.visible = false;
-    else if (this.node && (this.phase === 'arrive' || this.phase === 'dwell' || this.phase === 'depart')) this.mesh.visible = true;
+    else if (this.node && (this.phase === 'arrive' || this.phase === 'pass' || this.phase === 'dwell' || this.phase === 'depart')) this.mesh.visible = true;
     g.state.train = this.phase;
   }
 }

@@ -85,7 +85,11 @@ either branch a gate slams shut behind you — there is no going back.
 
 - A **right** choice takes you one station up the line.
 - A **wrong** choice sends you two stations back down it (never further than
-  Mornington Crescent), and the station gets stranger.
+  Mornington Crescent), and the station gets stranger. The first time — and
+  about half the times after — the wrong way takes you there through **South
+  Kentish Town**, on the other branch out of Camden Town: closed on 5 June
+  1924, dark, dusty, its exits bricked up. Trains go through it without
+  stopping. A passage at the far end lets you back into the network.
 - Take the right way at Hampstead and a gate lets you into the emergency
   stairs: "This stairway has over 320 steps. Do not use except in an
   emergency." Then the last few steps, a gate line, and daylight.
@@ -225,6 +229,14 @@ and get off at the far end. The train has something to say in each car.
     there are eighteen landings, so one number comes twice, and some have
     been corrected by hand. The plate that says how many steps there are
     turns up again part of the way up, no smaller.
+  - `ghost` — **South Kentish Town**, the wrong-turn station: cream and dark
+    red tiling under a century of dust, the name it was built under (*Castle
+    Road*) fired into the tiles and painted over, the solid-disc bullseye
+    signs of its day, faded posters from the summer of 1924 (invented), a
+    tiled WAY OUT arrow pointing at a bricked-up archway, a closure notice,
+    stencilled lettering from its months as an air-raid shelter in 1940,
+    five emergency lamps. No announcements reach it. The train comes through
+    at speed with its lights on and does not stop.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -255,7 +267,7 @@ and get off at the far end. The train has something to say in each car.
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
-  car — `'shelter'`, or `'spiral'` — with `{ landing: 0…19 }`), `local()` (where you are in the current segment's
+  car — `'shelter'`, `'ghost'`, or `'spiral'` — with `{ landing: 0…19 }`), `local()` (where you are in the current segment's
   own coordinates), `leaks()` (every view in which the void shows through,
   and what lies under the leaking pixel), `showVoid()` (paint the void
   magenta in the live picture).

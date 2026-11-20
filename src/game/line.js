@@ -62,6 +62,20 @@ export const STATIONS = {
   'Golders Green': { theme: { id: 'golders', ground: '#eee9d6', band: '#2a5a3c', accent: '#2a5a3c', skirt: '#1f4530', grout: '#bfbaa6', letter: '#1f4530' } },
 };
 
+// The station the wrong turns lead through. South Kentish Town is on the
+// other branch out of Camden Town (towards Kentish Town): opened with the
+// line on 22 June 1907, planned as "Castle Road" — the name was already fired
+// into its tiles and had to be painted over — and closed on 5 June 1924
+// during a strike at Lots Road power station. It never reopened; trains have
+// passed through without stopping ever since. Tiling: cream and dark red.
+export const GHOST_STATION = {
+  name: 'South Kentish Town', built: 'Castle Road', opened: '22 June 1907', closed: '5 June 1924', between: ['Camden Town', 'Kentish Town'],
+};
+STATIONS[GHOST_STATION.name] = {
+  tiled: GHOST_STATION.built,
+  theme: { id: 'skt', ground: '#cfc6a6', band: '#5e2020', accent: '#5e2020', skirt: '#4a1a1a', grout: '#8f876f', letter: '#3f1414' },
+};
+
 export const stationAt = (i) => (i >= WALK.length ? SURFACE : WALK[Math.max(0, i)]);
 export const themeOf = (name) => (STATIONS[name] || STATIONS['Mornington Crescent']).theme;
 export const tiledName = (name) => (STATIONS[name] && STATIONS[name].tiled) || name;
