@@ -1,6 +1,6 @@
 // Lists every line the PA can say (for pre-recording with a neural voice).
 // Run: node tools/voice_lines.mjs > tools/voice_lines.txt
-import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD, WELCOME, TRAIN_PA, TRAIN_PA_ODD, SHELTER } from '../src/game/scripts.js';
+import { AMBIENT, AMBIENT_ODD, AMBIENT_STRANGE, SECURITY, SECURITY_ODD, WELCOME, TRAIN_PA, TRAIN_PA_ODD, SHELTER, GATES } from '../src/game/scripts.js';
 import { nextStation, destinations, trainCall, trainCallWrong } from '../src/game/route.js';
 import { WALK, SURFACE } from '../src/game/line.js';
 
@@ -17,6 +17,7 @@ for (const t of [...SECURITY, ...SECURITY_ODD]) out.add(t);
 out.add(WELCOME);   // once, at the start of a game
 for (const t of [...TRAIN_PA, ...TRAIN_PA_ODD]) out.add(t);   // inside the standing train
 out.add(SHELTER.phone);                                       // the warden's telephone in the deep shelter
+out.add(GATES.voice);                                         // the gate line at the way out, the first time you touch out
 // junction announcements (keep in step with src/game/junctions.js)
 for (const plat of ['northbound platform', 'southbound platform']) for (const side of ['left', 'right']) {
   out.add(`For the way out, please follow signs for the ${plat}. To the ${side}. Please.`);

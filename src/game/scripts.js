@@ -93,6 +93,22 @@ export const GHOST = {
   dust: 'Dust, thick and even. Yours are the only footprints.',
 };
 
+// The ticket hall and its gate line (world/seg_hall.js, game/gates.js).
+// "Seek assistance" is what the real gates' displays say; `voice` is spoken
+// (a voice clip).
+export const GATES = {
+  approach: 'The ticket hall. The gates are shut. Touch your card on a yellow reader.',
+  reject: 'Two low beeps. Every gate shows a red cross. The display says SEEK ASSISTANCE.',
+  voice: 'Seek assistance. There is no one here to assist you.',
+  accept: 'One clean beep. Green arrows. Every gate in the line opens at once.',
+  out: 'Hampstead. Heath Street. The air is cold and smells of rain.',
+  booth: 'Assistance. The blind is down. On the shelf inside, a mug of tea has a skin on it.',
+  machine: 'Machine closed. It has been closed since the ticket office was.',
+  window: 'TICKETS, in the old tiles, over a shuttered window. Nobody has sold one here for years.',
+  wayout: 'Way out ↑ (black on yellow)',
+  thought: 'Morning! If you can read this, you found the way out. Mind how you go.',
+};
+
 // Slightly wrong.
 export const AMBIENT_ODD = [
   'This station is now closed. Please make your way to the way out. If you can.',

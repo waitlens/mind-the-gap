@@ -186,12 +186,16 @@ export class World {
     group.matrixAutoUpdate = false;
     const sheetTex = sheet ? sheet.finish() : null;
     for (const layer of Object.keys(geos)) {
-      const tex = layer === 'sheet' ? sheetTex : this.hooks.textures(layer, node);
-      const mesh = new THREE.Mesh(geos[layer], makeWorldMaterial(tex, node.flick, CUTOUT_LAYERS.has(layer)));
+      // ('sheet:name' layers also draw from the segment's sign sheet; a
+      // segment can show and hide them — see def.layerVisible)
+      const onSheet = layer === 'sheet' || layer.startsWith('sheet:');
+      const tex = onSheet ? sheetTex : this.hooks.textures(layer, node);
+      const mesh = new THREE.Mesh(geos[layer], makeWorldMaterial(tex, node.flick, onSheet || CUTOUT_LAYERS.has(layer)));
       mesh.matrixAutoUpdate = false;
       mesh.name = layer;
       if (layer === 'gate') mesh.visible = !!node.gateShut;   // shown when the gate closes
       if (layer === 'figure') mesh.visible = !node.figureGone;
+      if (node.def.layerVisible) mesh.visible = node.def.layerVisible(layer, node) !== false && mesh.visible;
       group.add(mesh);
     }
     this.scene.add(group);

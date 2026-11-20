@@ -92,7 +92,9 @@ either branch a gate slams shut behind you — there is no going back.
   stopping. A passage at the far end lets you back into the network.
 - Take the right way at Hampstead and a gate lets you into the emergency
   stairs: "This stairway has over 320 steps. Do not use except in an
-  emergency." Then the last few steps, a gate line, and daylight.
+  emergency." At the top, a last flight into the ticket hall. The gate line
+  is shut: touch out at a yellow reader (READ). It will not have your card
+  the first time. Try again.
 
 You can always tell where you are: the name on the roundels, the name fired
 into the tiles, and the tile colour itself — each station has its own (navy at
@@ -229,6 +231,18 @@ and get off at the far end. The train has something to say in each car.
     there are eighteen landings, so one number comes twice, and some have
     been corrected by hand. The plate that says how many steps there are
     turns up again part of the way up, no smaller.
+  - `hall` — **the ticket hall and gate line**, the ending: a Leslie Green
+    booking hall in cream and bottle-green (upright tiles, a moulded green
+    frieze), the old TICKETS window behind its shutter, two ticket machines,
+    an empty "Assistance" box, a clock that keeps time, yellow-and-black Way
+    out signs — and across it a gate line to the Underground's own planning
+    widths: six electric gates with 620 mm walkways between 155 mm
+    stanchions, a wide-aisle gate (1,080 mm) and a locked manual gate, as
+    Hampstead has; yellow reader pads, numbered stanchions, grey paddles.
+    The first touch: two low beeps, a red cross on every gate, SEEK
+    ASSISTANCE, and a voice that agrees there is nobody to give it. The
+    second: one clean beep, green arrows, and every paddle in the line
+    folds back at once. Beyond, an arch, four steps, daylight.
   - `ghost` — **South Kentish Town**, the wrong-turn station: cream and dark
     red tiling under a century of dust, the name it was built under (*Castle
     Road*) fired into the tiles and painted over, the solid-disc bullseye
@@ -267,7 +281,9 @@ and get off at the far end. The train has something to say in each car.
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
-  car — `'shelter'`, `'ghost'`, or `'spiral'` — with `{ landing: 0…19 }`), `local()` (where you are in the current segment's
+  car — `'shelter'`, `'ghost'`, `'spiral'` — with `{ landing: 0…19 }` — or `'hall'`,
+  with `{ z }`), `gates(state)` (the gate line: report it, or set it to
+  `'wait'`, `'no'` or `'go'`), `local()` (where you are in the current segment's
   own coordinates), `leaks()` (every view in which the void shows through,
   and what lies under the leaking pixel), `showVoid()` (paint the void
   magenta in the live picture).

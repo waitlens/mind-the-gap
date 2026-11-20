@@ -96,6 +96,14 @@ export const SFX = {
   },
   // the card reader at the gate line
   touchOut(e) { tone(e, { freq: 2350, dur: 0.14, gain: 0.07, type: 'triangle', attack: 0.004, rev: 0.4, dry: 0.9 }); },
+  // …when it will not have your card: two low beeps
+  touchFail(e) {
+    for (const at of [0, 0.19]) tone(e, { freq: 620, dur: 0.15, gain: 0.08, at, type: 'square', attack: 0.004, rev: 0.4, dry: 0.9 });
+  },
+  // a rank of gate paddles folding back together
+  paddles(e) {
+    for (let i = 0; i < 7; i++) tone(e, { freq: 150 - i * 7, dur: 0.11, gain: 0.07, at: 0.03 * i, type: 'triangle', attack: 0.002, rev: 0.6, dry: 0.8 });
+  },
   // the way out: a soft rising swell
   dawn(e) {
     for (const [f, at] of [[196, 0], [293.7, 0.4], [392, 0.8], [587.3, 1.3]]) {

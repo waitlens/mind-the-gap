@@ -85,6 +85,11 @@ function finish(th, station) {
   return th;
 }
 
+// The board by the gates at the very end: an ordinary one, signed by staff.
+export function finalThought(rng, station, text) {
+  return finish({ tier: 0, clue: null, title: 'Thought for the day', date: boardDate(0, rng), ink: INK.blue, doodle: 'sun', text, sign: staffSign(rng, station) }, station);
+}
+
 // How wrong a board is: 0 ordinary, 1 odd, 2 not written by staff.
 export function thoughtTier(rng, wrong) {
   const strange = Math.min(0.6, Math.max(0, wrong - 2) * 0.3), odd = Math.min(0.7, wrong * 0.28);

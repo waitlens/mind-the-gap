@@ -378,3 +378,41 @@ wording and the bricked arches are period invention, not record.
 One engine change came out of testing it: three long straight platforms in
 a row give sight lines of 80 m, at which the 32 cm strip that backs every
 floor joint is a fraction of a pixel; the strip is now 1.6 m long.
+
+### The ticket hall and gate line (`src/world/seg_hall.js`, `gateline.js`, `hall_fit.js`, `src/tex/hall.js`, `src/game/gates.js`)
+
+The old ending was a flight of stairs with three cabinets across it. The new
+one is a place: Hampstead's ticket hall, reached as the real emergency
+stairs reach it — by a last straight flight into its corner.
+
+The hall is a Leslie Green booking hall as the photographs and the listing
+descriptions give it: cream tiles laid upright in stack bond, a bottle-green
+skirting, a moulded green frieze of fruit and leaves at head height, cream
+plaster above; an old ticket window with TICKETS in the tiles, shuttered
+since the ticket offices closed; two ticket machines; a clock; the roundel.
+
+The gate line is built to London Underground's Station Planning Standards:
+620 mm walkways between 155 mm stanchions for the electric gates, 1,080 mm
+for the wide-aisle gate, a manual gate 1,350 wide and 1,300 high, an
+attendant's point 990 × 1,240 × 2,300 — and in the numbers Hampstead has
+(six electric, one wide-aisle, one manual). The gates are the first electric
+kind, as there: stainless stanchions about 1.9 m long on dark plinths, the
+round yellow reader fitted on top at the end you walk up to, a small display
+on a post, grey paddles (black on the wide gate). Stanchions are numbered
+from 41 — Underground gates are numbered in the 40s to 70s.
+
+The twist is what the display on a real gate says when it will not have
+your card: SEEK ASSISTANCE. The first touch gets two low beeps, a red cross
+on every gate in the line at once, a dip in the lights, and a voice: "Seek
+assistance. There is no one here to assist you." (one new clip). The box
+marked Assistance is dark. Three seconds later the crosses clear. The second
+touch is taken: green arrows, and all the paddles fold back together. Then
+the arch, four steps and the daylight, and the game's existing ending.
+
+The displays and paddles are on sign-sheet layers of their own that the
+segment shows and hides, so the whole line changes in one go: eight draw
+calls and about 2,000 triangles for the hall.
+
+Departures: the hall's plan is a plain 11 × 10 m room, not Hampstead's own
+(for which no plan was found); the street is reached by an arch and steps
+rather than through the lift lobby; the gate line is straight across.

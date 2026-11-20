@@ -1,14 +1,20 @@
 // Helpers for automated tests and screenshots (window.__game.debug).
 import * as THREE from 'three';
-import { toWorld, toLocal } from '../world/collide.js';
+import { toWorld, toLocal, floorIn } from '../world/collide.js';
 import { CFG } from '../config.js';
 import { preview } from './debug_tex.js';
+import { setGates } from './gates.js';
 import { SP as SP_GEOM, phi as spPhi, lineY as spLineY } from '../world/spiral_geom.js';
 
 // Set pieces reachable with debug.scene(name).
 const SCENES = {
   shelter: { plan: ['platform', 'corridor', 'shelter', 'corridor', 'junction'], advance: 2, at: [0, 3.2] },
   ghost: { plan: ['platform', 'corridor', 'ghost', 'corridor', 'junction'], advance: 2, at: [0, 2.2], wrong: 1.4 },
+  // the ticket hall at the way out; opts.z: how far in to stand (default: the top of the last flight)
+  hall: {
+    plan: ['platform', 'corridor', 'exit'], advance: 2, at: [0, 5.2, 0, 1.92], progress: 4, wrong: 2,
+    after(d, game, o) { if (o.z !== undefined) d.at(o.x ?? 0, o.z, o.yaw ?? 0, 1.92); },
+  },
   // opts.landing = 0 … 19 stands you on that landing of the stairs (0 the foot, 19 the top)
   spiral: {
     plan: ['platform', 'corridor', 'spiral', 'exit'], advance: 2, at: [0, 0.8], progress: 4, wrong: 2,
@@ -88,7 +94,10 @@ export function installDebug(api, game) {
         if (hits.length > skip) {
           const it = hits[skip];
           const n = it.n || [-Math.sign(it.x), 0];        // wall fittings face the centreline
-          place(node, it.x + n[0] * dist, it.z + n[1] * dist, 0, opts.ly || 0);
+          // (stand on whichever floor the thing is on: segments have more than one level)
+          const sx = it.x + n[0] * dist, sz = it.z + n[1] * dist, [fx, , fz] = toWorld(node, sx, 0, sz);
+          const fl = opts.ly === undefined ? floorIn(node, fx, fz, node.pos.y + it.y - 1.3) : null;
+          place(node, sx, sz, 0, fl ? fl.y - node.pos.y : opts.ly || 0);
           const [wx, wy, wz] = toWorld(node, it.x, it.y, it.z);
           const dx = wx - p.pos.x, dz = wz - p.pos.z;
           p.yaw = Math.atan2(-dx, -dz); p.pitch = Math.atan2(wy - p.eyeY, Math.hypot(dx, dz));
@@ -106,6 +115,12 @@ export function installDebug(api, game) {
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
     cam() { return game.camera; },
+    // The gate line in the ticket hall: put it in a state ('wait' | 'no' | 'go'), or report it.
+    gates(state) {
+      const n = world.current;
+      if (state) setGates(n, state);
+      return { state: n.gateState || 'wait', busy: n.gateBusy, touches: n.gateTouches || 0, time: game.state.time, zones: n.built && n.built.extra ? n.built.extra.zones.map((z) => !!z.done) : [] };
+    },
     dirOf() { const n = world.current; return n.p.dir ?? n.p.side ?? 1; },
     // Where the void shows through: every leaking view of scanVoid() with
     // what lies under its first void pixel (layer, segment, local point).
