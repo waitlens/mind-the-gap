@@ -4,6 +4,7 @@ import { makeCanvas, canvasTexture } from './canvas.js';
 import { RNG, hashStr } from '../util/rng.js';
 import { PAINT } from './atlas_paint.js';
 import { PAINT2 } from './atlas_paint2.js';
+import { drawCorePanel, drawTread } from './stairwell.js';
 
 const S = 1024, CELL = 128;
 
@@ -20,6 +21,8 @@ const CELLS = {
   navy: [0, 5, 1, 1], cream: [1, 5, 1, 1], steelDark: [2, 5, 1, 1], signBack: [3, 5, 1, 1],
   comb: [0, 6, 1, 1], deck: [1, 6, 1, 1], uplight: [2, 6, 1, 1], blackout: [3, 6, 1, 1],
   brick: [4, 5, 2, 1],
+  // the Hampstead emergency stairs: the cage round the pillar, a tread with its yellow nosing
+  cage: [4, 6, 1, 2], treadY: [5, 6, 1, 1],
 };
 
 let canvas = null, texture = null;
@@ -31,7 +34,7 @@ export function buildAtlasCanvas() {
   // opaque everywhere except inside the few cut-out cells (which clear
   // themselves), so blurred mip levels never turn see-through
   ctx.fillStyle = '#3b3a37'; ctx.fillRect(0, 0, S, S);
-  const painters = { ...PAINT, ...PAINT2 };
+  const painters = { ...PAINT, ...PAINT2, cage: drawCorePanel, treadY: drawTread };
   for (const [name, [cx, cy, cw, ch]] of Object.entries(CELLS)) {
     const fn = painters[name];
     ctx.save();

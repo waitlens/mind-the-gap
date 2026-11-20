@@ -73,10 +73,11 @@ Where to find the diagrams:
 
 You are walking **up the Edgware branch**:
 
-`Mornington Crescent → Camden Town → Chalk Farm → Belsize Park → Hampstead → Golders Green`
+`Mornington Crescent → Camden Town → Chalk Farm → Belsize Park → Hampstead`
 
-Golders Green is where the real line comes out of the tunnel into the open
-air, so that is the way out.
+Hampstead is the last of them, and the deepest station on the whole network:
+its platforms are 58.5 m below the street. The way out is at the top of its
+emergency stairs.
 
 Every so often the passages end in a **junction**: a small tiled hall where
 the way splits **left** and **right**. One branch is right. A few metres down
@@ -85,7 +86,9 @@ either branch a gate slams shut behind you — there is no going back.
 - A **right** choice takes you one station up the line.
 - A **wrong** choice sends you two stations back down it (never further than
   Mornington Crescent), and the station gets stranger.
-- After Hampstead, a last climb, a gate line, and daylight.
+- Take the right way at Hampstead and a gate lets you into the emergency
+  stairs: "This stairway has over 320 steps. Do not use except in an
+  emergency." Then the last few steps, a gate line, and daylight.
 
 You can always tell where you are: the name on the roundels, the name fired
 into the tiles, and the tile colour itself — each station has its own (navy at
@@ -213,6 +216,15 @@ and get off at the far end. The train has something to say in each car.
     deck, the plan of the shelter, the Ministry of Works' no-smoking notice,
     arrows to the Buck Street and Underhill Street entrances, dim lamps and
     a warden's telephone that somebody answers. Only ever under Camden Town.
+  - `spiral` — **Hampstead's emergency stairs**, the way out: a spiral round
+    a caged central pillar in an 18 ft shaft, 17 steps to the half turn and
+    a small landing, the real plates at the foot. Nineteen half turns, 323
+    steps, 55.6 m — the height of the real lift shaft; about half a minute
+    at a run. The landings are numbered on sheets of paper taped to the
+    pillar, 17 at the bottom to 1 at the top, as the real ones are; but
+    there are eighteen landings, so one number comes twice, and some have
+    been corrected by hand. The plate that says how many steps there are
+    turns up again part of the way up, no smaller.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -243,7 +255,7 @@ and get off at the far end. The train has something to say in each car.
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
-  car — or `'shelter'`), `local()` (where you are in the current segment's
+  car — `'shelter'`, or `'spiral'` — with `{ landing: 0…19 }`), `local()` (where you are in the current segment's
   own coordinates), `leaks()` (every view in which the void shows through,
   and what lies under the leaking pixel), `showVoid()` (paint the void
   magenta in the live picture).

@@ -51,6 +51,26 @@ export const SHELTER = {
   lower: 'Lower deck. The chain is padlocked. More bunks down there, and a lamp somebody has left burning.',
 };
 
+// The emergency stairs at Hampstead (world/seg_spiral.js). `green` and
+// `sign` are the wording of the real plates at the foot of the stairs, and
+// "equivalent to climbing a 15 storey building" is on the real ones too;
+// `signs` are the plates that turn up again part of the way up, which ought
+// by then to be saying a smaller number. `hints`: [landing, what you notice].
+export const SPIRAL = {
+  green: ['Emergency', 'stairs'],
+  sign: ['This stairway has over 320 steps', 'Do not use except in an emergency'],
+  signs: [
+    ['This stairway has over 320 steps', 'Equivalent to climbing a 15 storey building'],
+    ['This stairway has over 340 steps', 'Equivalent to climbing a 16 storey building'],
+  ],
+  hints: [
+    [3, 'Seventeen steps, a landing. Seventeen steps, a landing.'],
+    [8, 'Cream tiles, a reddish-brown border, the same lamp. You have stopped counting.'],
+    [13, 'Your legs ache. The numbers on the pillar are going down. Mostly.'],
+    [18, 'Colder air from above. It smells of rain.'],
+  ],
+};
+
 // Slightly wrong.
 export const AMBIENT_ODD = [
   'This station is now closed. Please make your way to the way out. If you can.',
@@ -89,7 +109,7 @@ export const CUSTOMER_INFO = {
     'Follow the yellow and black signs that say “Way out”. Any other sign was not put up by us.',
     'All station clocks run forwards. Never walk under a clock that runs backwards.',
     'Announcements after a rising chime are from staff. A falling chime is not staff: do the opposite of what it says.',
-    'The way out is up the line, beyond Hampstead. A wrong turn takes you two stations back.',
+    'The way out is at Hampstead, the last station up the line and the deepest: up its stairs. A wrong turn takes you two stations back.',
     '“Way out” is listed on the indicator boards. If its minutes go up, you went wrong.',
   ],
   foot: 'Thank you for travelling on the Northern line.',
@@ -104,7 +124,7 @@ export const WELCOME = 'This station is now closed. Please read the customer inf
 // Each: { title, text, key }.
 export const NOTICES = [
   { key: 'yellow', title: 'STAFF NOTICE', text: 'Our way out signs are yellow and black, and nothing else. They say "Way out" — capital W, small o — in plain block lettering, with one arrow. We never write "Exit". Anything else was not put up by us. Do not follow it.' },
-  { key: 'line', title: 'STAFF NOTICE', text: 'Going up the line from here: Mornington Crescent, Camden Town, Chalk Farm, Belsize Park, Hampstead. After Hampstead the line comes out into the open air. Each right turn takes you one station up. A wrong turn puts you two back. Read the name boards.' },
+  { key: 'line', title: 'STAFF NOTICE', text: 'Going up the line from here: Mornington Crescent, Camden Town, Chalk Farm, Belsize Park, Hampstead. Hampstead is the deepest station on the network, and the way out is at the top of its stairs. Each right turn takes you one station up. A wrong turn puts you two back. Read the name boards.' },
   { key: 'chime', title: 'STAFF NOTICE', text: 'Our announcements begin with a chime that RISES. If the chime falls, it is not a member of staff speaking. Do the opposite of what it tells you.' },
   { key: 'clock', title: 'STAFF NOTICE', text: 'All station clocks run forwards. If you find one running backwards you have come the wrong way. Do not go under a backwards clock.' },
   { key: 'board', title: 'STAFF NOTICE', text: 'The indicator boards do not lie. "Way out" is listed with the trains. Count its minutes down. If they go up, you went wrong.' },

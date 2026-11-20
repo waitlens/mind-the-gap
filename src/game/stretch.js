@@ -14,7 +14,8 @@ export function makeStretch(story, opts = {}) {
   if (opts.first) plan.push(has('platform') ? 'platform' : 'corridor');
   if (opts.fromJunction) plan.push('corridor');   // the gate passage
   if (opts.exit) {
-    plan.push('corridor', has('exit') ? 'exit' : 'corridor');
+    // the way out: Hampstead's emergency stairs, then the last few steps into daylight
+    plan.push(has('spiral') ? 'spiral' : 'corridor', has('exit') ? 'exit' : 'corridor');
   } else {
     const n = rng.int(2, 4);
     let platforms = opts.first ? 1 : 0, last = plan[plan.length - 1] || '';
@@ -54,7 +55,9 @@ export function makeStretch(story, opts = {}) {
   // (the caller works it out from the junction's own station; the first
   // stretch of a game starts wherever the story says)
   const index = opts.index ?? story.progress;
-  const station = stationAt(index);
+  // (the way out is at Hampstead itself — up its stairs — so the last stretch
+  // is still that station, not the next one up the line)
+  const station = opts.exit ? WALK[WALK.length - 1] : stationAt(index);
   const forced = opts.fromJunction && story.testBranch;      // (tests: leave a forced branch alone)
   // The deep-level shelter is under Camden Town and nowhere else: the first
   // Camden Town stretch always passes through it, later ones sometimes.

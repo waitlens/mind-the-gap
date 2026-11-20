@@ -3,10 +3,23 @@ import * as THREE from 'three';
 import { toWorld, toLocal } from '../world/collide.js';
 import { CFG } from '../config.js';
 import { preview } from './debug_tex.js';
+import { SP as SP_GEOM, phi as spPhi, lineY as spLineY } from '../world/spiral_geom.js';
 
 // Set pieces reachable with debug.scene(name).
 const SCENES = {
   shelter: { plan: ['platform', 'corridor', 'shelter', 'corridor', 'junction'], advance: 2, at: [0, 3.2] },
+  // opts.landing = 0 … 19 stands you on that landing of the stairs (0 the foot, 19 the top)
+  spiral: {
+    plan: ['platform', 'corridor', 'spiral', 'exit'], advance: 2, at: [0, 0.8], progress: 4, wrong: 2,
+    after(d, game, o) {
+      if (o.landing === undefined) return;
+      const n = game.world.current, g = o.landing === 0 ? 0 : o.landing * 18, a = (spPhi(g) + spPhi(g + 1)) / 2 - (o.back ?? 0.12);
+      d.at(n.p.dir * 2.0 * Math.sin(a), SP_GEOM.ZC - 2.0 * Math.cos(a), 0, spLineY(g));
+      // look along the stairs, turned a little towards the pillar (o.turn: more, or less)
+      const t = a + (o.turn ?? 0.75);
+      d.face(Math.atan2(-n.p.dir * Math.cos(t), -Math.sin(t)) + n.yaw, o.pitch ?? 0.1);
+    },
+  },
   // opts.car = 0 | 1 | 2 stands you inside that car (opts.z: metres from its rear end)
   train: {
     plan: ['platform', 'corridor', 'trainstop', 'corridor', 'junction'], advance: 2, at: [0, 1.5],
@@ -92,6 +105,7 @@ export function installDebug(api, game) {
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
     cam() { return game.camera; },
+    dirOf() { const n = world.current; return n.p.dir ?? n.p.side ?? 1; },
     // Where the void shows through: every leaking view of scanVoid() with
     // what lies under its first void pixel (layer, segment, local point).
     leaks(origin = world.current) {
@@ -102,7 +116,7 @@ export function installDebug(api, game) {
         cam.position.set(v.cam[0], v.cam[1], v.cam[2]); cam.rotation.set(v.cam[3], v.cam[4], v.cam[5]); cam.updateMatrixWorld(true);
         const h = api.debug.voidPixels({ y: 0 }).hits[0];
         const pk = h ? api.debug.pick(h[3], h[4]) : [];
-        return { from: v.type, at: rel(v.cam[0], v.cam[2]), rot: [+v.cam[3].toFixed(2), +v.cam[4].toFixed(2)], n: v.n, px: h ? [h[3], h[4]] : null, under: pk.slice(0, 2).map((q) => `${q.layer}:${q.node}@${q.local.map((w) => w.toFixed(2)).join(',')} d${q.d.toFixed(1)}`) };
+        return { from: v.type, at: rel(v.cam[0], v.cam[2]).concat(+(v.cam[1] - origin.pos.y).toFixed(2)), rot: [+v.cam[3].toFixed(2), +v.cam[4].toFixed(2)], n: v.n, px: h ? [h[3], h[4]] : null, under: pk.slice(0, 2).map((q) => `${q.layer}:${q.node}@${q.local.map((w) => w.toFixed(2)).join(',')} d${q.d.toFixed(1)}`) };
       });
       cam.far = far; cam.updateProjectionMatrix();
       return { total: res.total, byType: res.byType, leaks: out };
@@ -112,6 +126,8 @@ export function installDebug(api, game) {
     // The player's position in the current node's own coordinates.
     local() { const n = world.current, [x, z] = toLocal(n, p.pos.x, p.pos.z); return { x, y: p.pos.y - n.pos.y, z, type: n.def.type }; },
     folds() { return [...world.nodes.values()].filter((n) => n.hiddenByFold).length; },
+    // Every node with its bounding box, and whether the fold-cull has hidden it.
+    boxes() { return [...world.nodes.values()].map((n) => ({ id: n.id, type: n.def.type, dist: n.dist, built: !!n.built, hidden: !!n.hiddenByFold, box: n.box.map((v) => +v.toFixed(1)) })); },
     items() { const n = world.current; return n.built ? n.built.items.map((i) => ({ label: i.label, x: i.x, y: i.y, z: i.z })) : []; },
     info() {
       const n = world.current;
@@ -155,11 +171,16 @@ export function installDebug(api, game) {
       return detail ? { n, hits } : n;
     },
     // What is under render-target pixel (px, py) (origin bottom-left)?
-    pick(px, py) {
+    // both = true: count back faces too (what a leaking ray passes through
+    // on its way out), up to `max` hits.
+    pick(px, py, both = false, max = 3) {
       const r = game.renderer;
       const ray = new THREE.Raycaster();
       ray.setFromCamera(new THREE.Vector2(((px + 0.5) / r.iw) * 2 - 1, ((py + 0.5) / r.ih) * 2 - 1), game.camera);
-      const hits = ray.intersectObjects(game.scene.children, true).slice(0, 3);
+      const mats = [];
+      if (both) game.scene.traverse((o) => { if (o.material && o.material.side !== THREE.DoubleSide) { mats.push([o.material, o.material.side]); o.material.side = THREE.DoubleSide; } });
+      const hits = ray.intersectObjects(game.scene.children, true).slice(0, max);
+      for (const [m, side] of mats) m.side = side;
       return hits.map((h) => {
         const node = [...world.nodes.values()].find((m) => m.built && m.built.group === h.object.parent);
         const [qx, qz] = node ? toLocal(node, h.point.x, h.point.z) : [h.point.x, h.point.z];
@@ -183,7 +204,12 @@ export function installDebug(api, game) {
       const out = { views: 0, total: 0, worst: null, byType: {}, list: [] };
       for (const node of world.nodes.values()) {
         if (!node.built) continue;
-        for (const c of node.built.cells) {
+        // (a segment with hundreds of floor cells — the spiral stairs — is
+        // sampled: all of its first and last dozen cells, every eighth between)
+        const cs = node.built.cells, stride = Math.max(1, Math.ceil(cs.length / 48));
+        for (let ci = 0; ci < cs.length; ci++) {
+          if (stride > 1 && ci >= 12 && ci < cs.length - 12 && ci % stride) continue;
+          const c = cs[ci];
           for (const t of [0.25, 0.75]) {
             const [x, y, z] = toWorld(node, c.ax + (c.bx - c.ax) * t, c.ya + (c.yb - c.ya) * t, c.az + (c.bz - c.az) * t);
             for (let k = 0; k < yaws; k++) {

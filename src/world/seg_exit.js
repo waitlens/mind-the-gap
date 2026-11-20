@@ -84,7 +84,7 @@ export const exit = {
     const walls = sw.walls.concat([[-hw, p.len - 0.4, hw, p.len - 0.4]], gateWalls);
     const lvl = { y0: p.rise - 0.6, y1: p.rise + 0.6 };
     const zones = [
-      { x0: -hw, x1: hw, z0: gz0 + 0.2, z1: gz1, ...lvl, fire: (game) => { game.audio.sfx('touchOut'); game.director.setHint('Golders Green. The air is cold and smells of rain.', 6); } },
+      { x0: -hw, x1: hw, z0: gz0 + 0.2, z1: gz1, ...lvl, fire: (game) => { game.audio.sfx('touchOut'); game.director.setHint('Hampstead. Heath Street. The air is cold and smells of rain.', 6); } },
       { x0: -hw, x1: hw, z0: gz1 + 0.9, z1: p.len, ...lvl, fire: (game) => game.director.win() },
     ];
     return { cells: sw.cells, walls, items, frames, extra: { zones } };

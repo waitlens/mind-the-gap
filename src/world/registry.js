@@ -7,6 +7,7 @@ import { escalator } from './seg_escalator.js';
 import { exit, deadend } from './seg_exit.js';
 import { cross } from './seg_cross.js';
 import { shelter } from './seg_shelter.js';
+import { spiral } from './seg_spiral.js';
 
 export const SEGMENTS = {
   corridor,
@@ -20,6 +21,7 @@ export const SEGMENTS = {
   deadend,
   cross,
   shelter,
+  spiral,
 };
 
 export function registerSegment(def) {

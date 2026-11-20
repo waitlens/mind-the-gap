@@ -297,3 +297,48 @@ While making the shelter and the train watertight, two hairline leaks in
 the existing platform were closed as well (the coping now overhangs the
 platform's face by 4 mm, and the track bed runs in under it): they only
 showed from the track side, where nobody could stand before the train.
+
+### Hampstead's emergency stairs (`src/world/seg_spiral.js`, `spiral_geom.js`, `spiral_fit.js`, `src/tex/stairwell.js`)
+
+The ending moves. It used to be "one stop further, where the line comes out
+into the open at Golders Green"; it is now what the real Hampstead offers
+anyone who will not wait for a lift: the emergency stairs. The exit stretch
+is therefore still Hampstead — its tiles, its name.
+
+To the numbers: an 18 ft (5.5 m) shaft (the size of the stair shaft at the
+same railway's South Kentish Town; Hampstead's own is not published); treads
+from a caged central pillar to the wall, 1.5 m wide; "180° sections each of
+17 steps" with a mini-landing between; risers of 172 mm, which is what 320
+steps in a 55 m shaft come to. That geometry fixes the rest: 34 steps and
+5.85 m to the full turn. The game builds nineteen half turns — 323 steps,
+55.6 m — so that the way in and the way out are on opposite sides of the
+shaft and the count is honestly "over 320".
+
+What you see is from the photograph and the description: black treads with
+yellow nosings, a black handrail on the pillar side (and one on the wall),
+mesh panels in white-painted frames round the pillar, cream tiling with a
+reddish-brown border that follows the stairs (the station's own passage
+tiles, mapped along the slope), white-painted panels for the top two turns,
+a green "Emergency stairs" plate and the white one — "This stairway has over
+320 steps / Do not use except in an emergency" — at the foot.
+
+Making it feel endless, without cheating on its length: the landings are
+numbered on sheets of paper on the pillar, 17 at the bottom to 1 at the top,
+as at the real station — but nineteen flights have eighteen landings between
+them, so a number has to come twice (it is 14), and one or more have been
+changed by hand to a bigger number than the one below; the plate at the foot
+appears again a third of the way up, still saying "over 320" ("Equivalent to
+climbing a 15 storey building", which the real signs also say), and again
+two thirds of the way up, where it may say 340 and 16; the same dropped
+newspaper lies on two landings; every half turn has the same lamp. READ
+tells you what a landing's number is and whether it agrees with the last.
+
+Kept walkable: the walking line is two metres out, there is a level landing
+every half turn, and nothing happens to the camera. One segment, about
+8,000 triangles; the pillar's cage and the treads are two new cells in
+spare corners of the shared atlas.
+
+Departures: the real stair begins with a straight flight down from the
+ticket hall before the spiral starts (that flight is the game's last few
+steps into the hall); the pillar is drawn as a cage with darkness behind it;
+shaft and tread dimensions are estimates, as above.
