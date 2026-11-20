@@ -17,23 +17,30 @@ export function makeStretch(story, opts = {}) {
     // the way out: Hampstead's emergency stairs, then the last few steps into daylight
     plan.push(has('spiral') ? 'spiral' : 'corridor', has('exit') ? 'exit' : 'corridor');
   } else {
-    const n = rng.int(2, 4);
-    let platforms = opts.first ? 1 : 0, last = plan[plan.length - 1] || '';
+    // About eight segments from one junction to the next. (It used to be
+    // two to four, and the next choice came a few steps after the last.)
+    // For variety: never the same kind twice running; the things that change
+    // level — stairs, an escalator, a lift — are rationed, and each makes the
+    // next one less likely; and every station shows itself once, with a
+    // platform (or two joined by a cross-passage) somewhere in the middle.
+    const n = rng.int(7, 9);
+    const used = {}, c = (t) => used[t] || 0;
+    let last = plan[plan.length - 1] || '', prev = '';
+    const platformAt = opts.first || !has('platform') ? -1 : rng.int(2, n - 3);
     for (let k = 0; k < n; k++) {
-      const t = rng.weighted([
-        ['corridor', last === 'corridor' ? 1 : 3], ['bend', last === 'bend' ? 0.4 : 2.2],
-        ['stairs', has('stairs') && last !== 'stairs' ? 1.5 : 0], ['escalator', has('escalator') && last !== 'escalator' ? 0.7 : 0],
-        ['platform', has('platform') && platforms < 1 && k > 0 ? 1.6 : 0],
+      const levels = c('stairs') + c('escalator') + c('lift');
+      const t = k === platformAt ? 'platform' : rng.weighted([
+        ['corridor', last === 'corridor' ? 0 : 3],
+        ['bend', last === 'bend' ? 0 : prev === 'bend' ? 0.8 : 2.2],
+        ['stairs', has('stairs') && last !== 'stairs' && c('stairs') < 2 ? 1.5 / (1 + levels) : 0],
+        ['escalator', has('escalator') && last !== 'escalator' && c('escalator') < 1 ? 1.0 / (1 + levels) : 0],
+        ['lift', has('lift') && last !== 'lift' && c('lift') < 1 && k > 0 && k < n - 1 ? 1.0 / (1 + levels) : 0],
       ]);
       plan.push(t);
-      if (t === 'platform') {
-        platforms++;
-        if (has('cross') && rng.chance(0.5)) plan.push('cross', 'platform');
-      }
-      last = t;
+      used[t] = c(t) + 1;
+      if (t === 'platform' && has('cross') && rng.chance(0.5)) plan.push('cross', 'platform');
+      prev = last; last = t;
     }
-    // every station shows itself: at least one platform per stretch
-    if (has('platform') && !plan.includes('platform')) plan.splice(rng.int(Math.min(1, plan.length), plan.length), 0, 'platform');
     if (plan[plan.length - 1] !== 'corridor') plan.push('corridor');
     plan.push(has('junction') ? 'junction' : 'corridor');
   }

@@ -416,3 +416,27 @@ calls and about 2,000 triangles for the hall.
 Departures: the hall's plan is a plain 11 × 10 m room, not Hampstead's own
 (for which no plan was found); the street is reached by an arch and steps
 rather than through the lift lobby; the gate line is straight across.
+
+## Round 7: further between the choices
+
+Player feedback: "you make a choice and a few steps later you must choose
+again". A stretch — the run of segments from one junction to the next — was
+planned as two to four segments plus a platform; it is now seven to nine,
+with a platform (or two joined by a cross-passage) placed somewhere in the
+middle rather than at random. For variety no kind of segment comes twice
+running in the plan, and the ones that change level (stairs, escalator, and
+the lift once it exists) are rationed: at most two flights of stairs, one
+escalator and one lift a stretch, each making the next less likely.
+
+Measured over the same ten seeds, always taking the right branch
+(`debug.measure`): a stretch went from 103 m and about 7 nodes (counting the
+gate passage, the lead-in and the junction itself) to 163 m and about 12; a
+whole run from 670 m to 970 m, 1.45 times as long. That is the "one and a
+half times, not three" asked for, so the number of right choices needed
+stays at five and the walk still has its five real stations.
+
+Cost: none. On a scripted walk the scene averages 18 draw calls and 7,100
+triangles on desktop (20 and 9,300 before: there is now proportionally more
+passage than platform), 13 and 5,100 on a phone; about ten segments are
+built at a time (nine before), and the layout fuzz still never has to force
+a segment.

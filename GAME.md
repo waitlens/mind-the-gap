@@ -79,8 +79,9 @@ Hampstead is the last of them, and the deepest station on the whole network:
 its platforms are 58.5 m below the street. The way out is at the top of its
 emergency stairs.
 
-Every so often the passages end in a **junction**: a small tiled hall where
-the way splits **left** and **right**. One branch is right. A few metres down
+Every so often — about eight stretches of passage, stairs, escalator and
+platform apart, a minute or so of walking — the passages end in a
+**junction**: a small tiled hall where the way splits **left** and **right**. One branch is right. A few metres down
 either branch a gate slams shut behind you — there is no going back.
 
 - A **right** choice takes you one station up the line.
@@ -283,7 +284,8 @@ and get off at the far end. The train has something to say in each car.
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
   car — `'shelter'`, `'ghost'`, `'spiral'` — with `{ landing: 0…19 }` — or `'hall'`,
   with `{ z }`), `gates(state)` (the gate line: report it, or set it to
-  `'wait'`, `'no'` or `'go'`), `local()` (where you are in the current segment's
+  `'wait'`, `'no'` or `'go'`), `measure(seeds)` (play perfect runs and report
+  how long a run and a stretch are, in metres and segments), `local()` (where you are in the current segment's
   own coordinates), `leaks()` (every view in which the void shows through,
   and what lies under the leaking pixel), `showVoid()` (paint the void
   magenta in the live picture).

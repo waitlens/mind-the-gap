@@ -308,6 +308,44 @@ export function installDebug(api, game) {
       if (sc.after) sc.after(api.debug, game, opts);
       return api.debug.info();
     },
+    // How long is a game? Plays perfect runs (always the right branch) from
+    // `seeds` seeds and adds up the walk: metres and segments per stretch,
+    // and for the whole run. Lengths are along the path (the spiral stairs
+    // count as the 129 m you actually walk).
+    measure(seeds = 8, first = 100) {
+      const len = (n) => (n.def.type === 'spiral' ? 129 : n.def.type === 'exit' ? 19 : n.def.type === 'bend' ? 7.1 : n.exits[0] ? Math.hypot(n.exits[0].x, n.exits[0].z) : 6);
+      const runs = [];
+      for (let seed = first; seed < first + seeds; seed++) {
+        game.reset(seed);
+        const stretches = [];
+        let node = world.current, cur = { m: 0, n: 0, types: [] }, guard = 0;
+        while (node && guard++ < 400) {
+          cur.m += len(node); cur.n++; cur.types.push(node.def.type);
+          if (node.def.type === 'junction') {
+            stretches.push(cur); cur = { m: 0, n: 0, types: [] };
+            world.current = node; world.refresh(true);
+            const t = api.debug.take(true);
+            if (!t) break;
+            node = world.current;          // the gate passage
+            continue;
+          }
+          if (!node.exits.length) { stretches.push(cur); break; }
+          if (!node.exits[0].child) world.expand(node, 0);
+          node = node.exits[0].child;
+        }
+        runs.push({ seed, metres: Math.round(stretches.reduce((a, q) => a + q.m, 0)), stretches: stretches.map((q) => ({ m: Math.round(q.m), n: q.n, types: q.types.join(' ') })) });
+      }
+      const avg = (f) => +(runs.reduce((a, r) => a + f(r), 0) / runs.length).toFixed(1);
+      const normal = runs.flatMap((r) => r.stretches.slice(0, -1));
+      const types = {};
+      for (const q of normal) for (const t of q.types.split(' ')) types[t] = (types[t] || 0) + 1;
+      game.reset(first);
+      return {
+        runMetres: avg((r) => r.metres), junctions: avg((r) => r.stretches.length - 1),
+        stretchMetres: +(normal.reduce((a, q) => a + q.m, 0) / normal.length).toFixed(1), stretchSegments: +(normal.reduce((a, q) => a + q.n, 0) / normal.length).toFixed(1),
+        exitMetres: avg((r) => r.stretches[r.stretches.length - 1].m), types, sample: runs[0].stretches.map((q) => `${q.m}m: ${q.types}`),
+      };
+    },
     // Restart with a forced list of segment types (for tests / screenshots).
     plan(list, seed = 7, wrong = 0, progress = 0) { game.reset(seed, list, wrong, progress); return api.debug.info(); },
     // Jump to the next junction and commit to its right (or wrong) branch.
