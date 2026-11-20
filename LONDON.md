@@ -256,3 +256,44 @@ has to fit a 30 m platform and the game's tunnel mouths; the two are never
 seen together. The far-side doors stay shut (there is a tunnel wall there).
 Interior headroom (2.07 m) is derived, not sourced. About 8,000 triangles
 and two extra draw calls on the one platform that has it.
+
+### The Camden Town deep-level shelter (`src/world/seg_shelter.js`, `shelter_fit.js`, `src/tex/lining.js`, `shelter.js`)
+
+Eight of these were dug under Northern line stations in 1940–42; Camden
+Town's is still there, about fifty feet below the platforms, and "a door and
+steps" once led down to it from the station. The game's way in is that door.
+
+Built to the recorded numbers: a 5.03 m (16 ft 6 in) bore; two decks, of
+which you walk the upper (deck floor just above the tube's centre line,
+flat ceiling at 2.2 m, the lining leaning in on both sides); one lettered
+section, 27 m of the real 370 m, between two bulkheads with doors. The
+lining is the bolted segmental kind in the Clapham South photographs —
+half-metre rings of recessed pans, bolt heads, old cream paint, "L.P.T.B."
+cast into the odd segment. The bunks follow the description of Camden Town
+itself: along one wall, in line with the passage, three tiers with the
+middle one a twin whose outer half is hinged down; across the tunnel on the
+other side, bays of two stacks of three. That puts the gangway off centre,
+as it is. A railed stair-head half way along goes down to the lower deck;
+it is chained off, and a lamp has been left on down there.
+
+What is written on the walls is what is recorded: arrows to the "Buck
+Street entrance" and the "Underhill Street entrance", a plan headed "Camden
+Town deep shelter", a Ministry of Works notice forbidding smoking on pain
+of dismissal, canteen / lavatories / medical aid post through the door.
+Section letters and bunk numbers are in the manner of the other shelters
+(no section names are recorded for Camden Town, so none is invented). The
+warden's telephone is the "field telephone" of the brief: lift the receiver
+and the warden's post answers (one new clip). When the station has gone
+wrong, the rules for shelterers have changed too.
+
+It appears in every game's first Camden Town stretch (and sometimes again
+if you are sent back there), and nowhere else. Costs: one more shared
+512 px texture (the lining), about 2,400 triangles, three draw calls.
+Departures: the real thing is fourteen times as long, has a second tunnel
+alongside and cross-passages, and its upper deck's exact levels are not
+published — the deck heights are derived from the diameter.
+
+While making the shelter and the train watertight, two hairline leaks in
+the existing platform were closed as well (the coping now overhangs the
+platform's face by 4 mm, and the track bed runs in under it): they only
+showed from the track side, where nobody could stand before the train.

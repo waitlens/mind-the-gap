@@ -17,6 +17,7 @@ export class Director {
   reset() {
     this.target = null;      // interactable currently aimed at
     this.reading = null;     // { title, text, item, node }
+    if (this.game.player) this.game.player.zoomTarget = 0;   // (a restart while reading must not leave the lens zoomed in)
     this.hint = '';
     this.hintT = 0;
     this.hints = [];

@@ -55,6 +55,13 @@ export function makeStretch(story, opts = {}) {
   // stretch of a game starts wherever the story says)
   const index = opts.index ?? story.progress;
   const station = stationAt(index);
+  const forced = opts.fromJunction && story.testBranch;      // (tests: leave a forced branch alone)
+  // The deep-level shelter is under Camden Town and nowhere else: the first
+  // Camden Town stretch always passes through it, later ones sometimes.
+  if (has('shelter') && station === 'Camden Town' && !opts.exit && !forced && sp.chance(story.shelters ? 0.4 : 1)) {
+    plan.splice(sp.int(Math.min(1, plan.length - 2), plan.length - 2), 0, 'shelter');
+    story.shelters = (story.shelters || 0) + 1;
+  }
   return {
     id, plan, rng, index: Math.min(index, WALK.length), station,
     theme: themeOf(station),

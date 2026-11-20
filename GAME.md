@@ -205,6 +205,14 @@ and get off at the far end. The train has something to say in each car.
     their measured places, 7 + 3 + 7 seats a side), refurbished interior —
     Barman moquette, dark-blue poles, black armrests, speckled floor, line
     diagrams and adverts along the cove, scrolling LED displays.
+  - `shelter` — one section of the **Camden Town deep-level shelter** (1942),
+    which lies under the station and was once reached from it: a 16 ft 6 in
+    bolted-segment tunnel, the upper of its two decks, steel bunks three
+    high in the layout recorded there (lengthwise along one wall, in bays of
+    six across the other), bulkhead doors, a chained-off stair to the lower
+    deck, the plan of the shelter, the Ministry of Works' no-smoking notice,
+    arrows to the Buck Street and Underhill Street entrances, dim lamps and
+    a warden's telephone that somebody answers. Only ever under Camden Town.
 - Camcorder post-process: low-resolution render scaled up, barrel distortion,
   colour fringing, scanlines, grain, tape dropouts, head-switching noise,
   occasional tracking wobble, crushed colour, `REC ●`, tape counter and a DV
@@ -234,8 +242,11 @@ and get off at the far end. The train has something to say in each car.
   `'whiteboard'` or `'newspaper'`, and stand in front of it), `census()` /
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
-  (jump to a set piece: `'train'`, with `{ car: 0|1|2 }` to stand inside a
-  car), `local()` (where you are in the current segment's own coordinates).
+  (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
+  car — or `'shelter'`), `local()` (where you are in the current segment's
+  own coordinates), `leaks()` (every view in which the void shows through,
+  and what lies under the leaking pixel), `showVoid()` (paint the void
+  magenta in the live picture).
 
 `tests/smoke.mjs` serves `dist/`, opens it in headless Chrome, starts the game
 and fails on any console error. `--shot=file.png` saves a screenshot,

@@ -24,6 +24,7 @@ export class Story {
     this.base = 0;
     this.junctionsPlanned = 0;
     this.trainStops = 0;     // standing trains dealt out so far
+    this.shelters = 0;       // deep-shelter sections dealt out so far
     this.lastWrong = false;  // last decision was wrong → clocks run backwards
     this.usedNames = new Set();
     this.seenNotices = new Set();

@@ -6,6 +6,7 @@ import { stairs } from './seg_stairs.js';
 import { escalator } from './seg_escalator.js';
 import { exit, deadend } from './seg_exit.js';
 import { cross } from './seg_cross.js';
+import { shelter } from './seg_shelter.js';
 
 export const SEGMENTS = {
   corridor,
@@ -18,6 +19,7 @@ export const SEGMENTS = {
   exit,
   deadend,
   cross,
+  shelter,
 };
 
 export function registerSegment(def) {

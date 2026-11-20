@@ -6,6 +6,7 @@ import { preview } from './debug_tex.js';
 
 // Set pieces reachable with debug.scene(name).
 const SCENES = {
+  shelter: { plan: ['platform', 'corridor', 'shelter', 'corridor', 'junction'], advance: 2, at: [0, 3.2] },
   // opts.car = 0 | 1 | 2 stands you inside that car (opts.z: metres from its rear end)
   train: {
     plan: ['platform', 'corridor', 'trainstop', 'corridor', 'junction'], advance: 2, at: [0, 1.5],
@@ -90,6 +91,24 @@ export function installDebug(api, game) {
     },
     // Stand at a local position inside the current node.
     at(lx, lz, pathYaw = 0, ly = 0) { return place(world.current, lx, lz, pathYaw, ly); },
+    cam() { return game.camera; },
+    // Where the void shows through: every leaking view of scanVoid() with
+    // what lies under its first void pixel (layer, segment, local point).
+    leaks(origin = world.current) {
+      const cam = game.camera, far = cam.far, res = api.debug.scanVoid();
+      cam.far = 600; cam.updateProjectionMatrix();
+      const rel = (x, z) => toLocal(origin, x, z).map((v) => +v.toFixed(2));
+      const out = res.list.map((v) => {
+        cam.position.set(v.cam[0], v.cam[1], v.cam[2]); cam.rotation.set(v.cam[3], v.cam[4], v.cam[5]); cam.updateMatrixWorld(true);
+        const h = api.debug.voidPixels({ y: 0 }).hits[0];
+        const pk = h ? api.debug.pick(h[3], h[4]) : [];
+        return { from: v.type, at: rel(v.cam[0], v.cam[2]), rot: [+v.cam[3].toFixed(2), +v.cam[4].toFixed(2)], n: v.n, px: h ? [h[3], h[4]] : null, under: pk.slice(0, 2).map((q) => `${q.layer}:${q.node}@${q.local.map((w) => w.toFixed(2)).join(',')} d${q.d.toFixed(1)}`) };
+      });
+      cam.far = far; cam.updateProjectionMatrix();
+      return { total: res.total, byType: res.byType, leaks: out };
+    },
+    // Paint the void magenta in the live picture (to see a leak in a screenshot).
+    showVoid(on = true) { game.renderer.gl.setClearColor(on ? 0xff00ff : 0x000000, 1); },
     // The player's position in the current node's own coordinates.
     local() { const n = world.current, [x, z] = toLocal(n, p.pos.x, p.pos.z); return { x, y: p.pos.y - n.pos.y, z, type: n.def.type }; },
     folds() { return [...world.nodes.values()].filter((n) => n.hiddenByFold).length; },
@@ -161,7 +180,7 @@ export function installDebug(api, game) {
     scanVoid(yaws = 8, pitches = [-0.5, 0, 0.45]) {
       const cam = game.camera, far = cam.far;
       cam.far = 600; cam.updateProjectionMatrix();
-      const out = { views: 0, total: 0, worst: null, byType: {} };
+      const out = { views: 0, total: 0, worst: null, byType: {}, list: [] };
       for (const node of world.nodes.values()) {
         if (!node.built) continue;
         for (const c of node.built.cells) {
@@ -178,6 +197,8 @@ export function installDebug(api, game) {
                 out.views++; out.total += n;
                 if (n) out.byType[node.def.type] = (out.byType[node.def.type] || 0) + n;
                 if (n && (!out.worst || n > out.worst.n)) out.worst = { n, type: node.def.type, id: node.id, cam: [cam.position.x, cam.position.y, cam.position.z, cam.rotation.x, cam.rotation.y, cam.rotation.z] };
+                // (every leaking view, for hunting a leak down: see leaks())
+                if (n && out.list.length < 300) out.list.push({ n, type: node.def.type, cam: [cam.position.x, cam.position.y, cam.position.z, cam.rotation.x, cam.rotation.y, cam.rotation.z] });
               }
             }
           }

@@ -6,6 +6,7 @@ import { Sheet } from '../tex/sheet.js';
 import { dynamicTexture, drawDynamic } from '../tex/dynamic.js';
 import { themeOf } from './line.js';
 import { carTexture } from '../tex/car.js';
+import { liningTexture } from '../tex/lining.js';
 import { trainTexture } from '../tex/train.js';
 
 export function worldTextures(layer, node) {
@@ -14,6 +15,7 @@ export function worldTextures(layer, node) {
   if (layer === 'ptile') return tileTexture(theme, 'platform');
   if (layer === 'dyn') return dynamicTexture();
   if (layer === 'car') return carTexture();          // the standing train
+  if (layer === 'lining') return liningTexture();    // the deep shelter's bolted segments
   if (layer === 'train') return trainTexture();      // (its cab end shares the running train's painting)
   return atlasTexture();
 }

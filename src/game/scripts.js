@@ -37,6 +37,20 @@ export const TRAIN_PA_ODD = [
   'The next station is this one. The next station is this one.',
 ];
 
+// The deep-level shelter under Camden Town (world/seg_shelter.js). The
+// Ministry of Works' warning about smoking, the two entrances and the plan's
+// heading are recorded at the real place; the wording is in the manner of
+// the time. `phone` is what the warden's telephone says (a voice clip).
+export const SHELTER = {
+  phone: 'Warden’s post, Camden Town. Yes, we can hear you walking about. All the bunks are taken tonight.',
+  bunks: 'Steel bunks, three high: lengthwise along this wall, and across the tunnel in bays of six on the other side. Each was let to one named person. If they did not come down, it stayed empty.',
+  mow: ['MINISTRY OF WORKS', 'NO SMOKING', ['Smoking is strictly forbidden in every part of this shelter.', 'Any member of the staff found smoking will be dismissed.'], 'BY ORDER'],
+  rules: ['DEEP SHELTER', 'TO SHELTERERS', ['Occupy only the bunk shown on your ticket.', 'Take your bedding up with you each morning.', 'Lights are lowered at 10.30 p.m.'], 'SHELTER WARDEN'],
+  rulesOdd: ['Occupy only the bunk shown on your ticket.', 'Your bunk has been kept for you.', 'You may go up in the morning, if it comes.'],
+  plan: 'Camden Town deep shelter. Two tunnels side by side, upper and lower decks, 8,000 bunks, sections A to H. Shafts at Underhill Street and Buck Street. This is section F.',
+  lower: 'Lower deck. The chain is padlocked. More bunks down there, and a lamp somebody has left burning.',
+};
+
 // Slightly wrong.
 export const AMBIENT_ODD = [
   'This station is now closed. Please make your way to the way out. If you can.',

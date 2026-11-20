@@ -68,7 +68,10 @@ export function buildShell(b, L, side) {
   const bands = [
     [PF.back - 0.05, -0.55, (k) => half('floor', k)], [-0.55, 0.55, (k) => half('floor', k)],
     [0.55, 0.95, () => atlasRect('tactile')], [0.95, 1.05, () => atlasFlat('yellow')],
-    [1.05, 1.45, (k) => half('floorDark', k, 0.05, 0.45)], [1.45, PF.edge, () => atlasFlat('edge')],
+    // (the coping overhangs the platform's face by 4 mm: seen from the track
+    // side — from inside a standing train — a top that merely met the face
+    // along its edge leaked single pixels)
+    [1.05, 1.45, (k) => half('floorDark', k, 0.05, 0.45)], [1.45, PF.edge + 0.004, () => atlasFlat('edge')],
   ];
   const nf = Math.round(L / 0.5);
   for (const [xa, xb, uvOf] of bands) {
@@ -93,7 +96,9 @@ export function buildShell(b, L, side) {
   }
   const ballast = atlasRect('ballast');
   for (let i = 0; i < Math.round(L); i++) {
-    for (const [xa, xb] of [[1.56, PF.track], [PF.track, PF.wallBed + 0.12]]) {
+    // (the bed runs a little way in under the platform face, so the face
+    // stands on it instead of meeting it edge to edge)
+    for (const [xa, xb] of [[1.5, PF.track], [PF.track, PF.wallBed + 0.12]]) {
       b.quad('atlas', [X(xa), PF.bed, i], [X(xb), PF.bed, i], [X(xb), PF.bed, i + 1], [X(xa), PF.bed, i + 1], up, ballast);
     }
   }
