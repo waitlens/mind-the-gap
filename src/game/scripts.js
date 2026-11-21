@@ -155,6 +155,21 @@ export const CUSTOMER_INFO = {
 };
 export const customerInfoText = () => `${CUSTOMER_INFO.intro}\n${CUSTOMER_INFO.rules.map((r, i) => `${i + 1}. ${r}`).join('\n')}`;
 
+// The passenger lift (world/seg_lift.js, game/lifts.js). What it says aloud
+// is the plain modern wording; the notices are as photographed
+// (REFERENCES.md, "The lift, round 4").
+export const LIFT_TEXT = {
+  clear: 'Please stand clear of the doors.',
+  closing: 'Doors closing.',
+  up: 'This lift is going up.',
+  down: 'This lift is going down.',
+  signUp: 'Way out (yellow on black) · ↑ Lifts to street\nOn the back: To the trains · Northern line',
+  signDown: 'Northern line · ↑ Lifts\nOn the back: To the trains · Northern line',
+  notice: 'AUTOMATIC SERVICE. — NEXT LIFT ▸ — Please pass right inside the lift.',
+  panel: 'LIFT 1. A small dark window, a speaker, a yellow ALARM BUTTON. There are no buttons for floors: it only goes to one other place.',
+  hint: 'Lift 1. Automatic service: the doors are opening for you.',
+};
+
 // Said once, a few seconds after the game starts.
 export const WELCOME = 'This station is now closed. Please read the customer information notice on the platform, then make your way to the way out.';
 

@@ -65,6 +65,10 @@ This train is being held here. We do not know what is holding it.
 The next station is this one. The next station is this one.
 Warden’s post, Camden Town. Yes, we can hear you walking about. All the bunks are taken tonight.
 Seek assistance. There is no one here to assist you.
+Please stand clear of the doors.
+Doors closing.
+This lift is going up.
+This lift is going down.
 For the way out, please follow signs for the northbound platform. To the left. Please.
 The way out is by the northbound platform, on the left. We would not lie to you.
 Customers for the way out should keep to the left, for the northbound platform. Do hurry.

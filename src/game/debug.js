@@ -4,6 +4,7 @@ import { toWorld, toLocal, floorIn } from '../world/collide.js';
 import { CFG } from '../config.js';
 import { preview } from './debug_tex.js';
 import { setGates } from './gates.js';
+import { liftDebug } from './lifts.js';
 import { SP as SP_GEOM, phi as spPhi, lineY as spLineY } from '../world/spiral_geom.js';
 
 // Set pieces reachable with debug.scene(name).
@@ -25,6 +26,15 @@ const SCENES = {
       // look along the stairs, turned a little towards the pillar (o.turn: more, or less)
       const t = a + (o.turn ?? 0.75);
       d.face(Math.atan2(-n.p.dir * Math.cos(t), -Math.sin(t)) + n.yaw, o.pitch ?? 0.1);
+    },
+  },
+  // the passenger lift: you stand in the passage before it, looking at its landing.
+  // opts.state = 'open' | 'board' | 'ride' | 'arrive' puts it (and you) further on; opts.dir = 1 | -1 picks an up or a down lift
+  lift: {
+    plan: ['platform', 'corridor', 'lift', 'corridor', 'junction'], advance: 2, at: [0, 0.12],
+    after(d, game, o) {
+      if (o.dir && d.lift().dir !== o.dir) for (let seed = 8; seed < 40; seed++) { game.reset(seed, this.plan, o.wrong ?? 0, 1); d.advance(2); d.at(0, 0.12); if (d.lift().dir === o.dir) break; }
+      if (o.state) d.lift(o.state, o);
     },
   },
   // opts.car = 0 | 1 | 2 stands you inside that car (opts.z: metres from its rear end)
@@ -121,6 +131,8 @@ export function installDebug(api, game) {
       if (state) setGates(n, state);
       return { state: n.gateState || 'wait', busy: n.gateBusy, touches: n.gateTouches || 0, time: game.state.time, zones: n.built && n.built.extra ? n.built.extra.zones.map((z) => !!z.done) : [] };
     },
+    // The lift you are in or nearest to: report it, or put it in a state (see game/lifts.js).
+    lift(cmd, opts) { return liftDebug(game, cmd, opts); },
     dirOf() { const n = world.current; return n.p.dir ?? n.p.side ?? 1; },
     // Where the void shows through: every leaking view of scanVoid() with
     // what lies under its first void pixel (layer, segment, local point).

@@ -19,6 +19,7 @@ export class Announcer {
     this.nextSecurity = 45;  // first security message, then every ~3 minutes
     this.securityN = 0;
     this.welcomeT = 0;      // countdown to the one welcome announcement
+    this.quietT = 0;        // (see quiet())
     if (this.game.audio) this.game.audio.stopSpeech();
   }
 
@@ -30,6 +31,9 @@ export class Announcer {
 
   // The one thing the PA says without being asked: where the rules are.
   welcome(delay = 3) { this.welcomeT = delay; }
+
+  // Keep the station's own announcements back for a few seconds.
+  quiet(seconds) { this.quietT = Math.max(this.quietT || 0, seconds); }
 
   // Stop talking (tests, screenshots).
   hush() { this.welcomeT = 0; this.queue.length = 0; if (this.cur) this.finish(); }
@@ -47,7 +51,8 @@ export class Announcer {
     const chimeDur = a.chime === 'none' ? 0 : 1.7;
     if (a.chime !== 'none') g.audio.sfx(a.chime === 'fall' ? 'chimeFall' : 'chimeRise');
     this.cur = {
-      text: a.text, t: 0, chimeDur, dur: chimeDur + Math.max(3.2, words * 0.43) + 0.8, spoken: false, a,
+      // (a.dur: how long the line takes, for short ones that are timed by whatever says them — the lift)
+      text: a.text, t: 0, chimeDur, dur: chimeDur + (a.dur || Math.max(3.2, words * 0.43) + 0.8), spoken: false, a,
       tag: a.tag !== undefined ? a.tag : a.chime === 'none' ? '' : a.chime === 'fall' ? '♪ chime, falling' : '♪ chime, rising',
     };
   }
@@ -69,7 +74,9 @@ export class Announcer {
       if (c.t >= c.dur) this.cur = null;
       return;
     }
-    // (no public address in a station that closed in 1924: the timers wait)
+    // (no public address in a station that closed in 1924: the timers wait;
+    // and nothing talks over the lift while it is saying its piece)
+    if (this.quietT > 0) { this.quietT -= dt; return; }
     if (g.state.segment === 'ghost') return;
     // the security message, on a fixed timer like the real network
     this.nextSecurity -= dt;

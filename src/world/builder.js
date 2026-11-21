@@ -49,6 +49,10 @@ export class GeoBuilder {
     return this.layers[name] || (this.layers[name] = { pos: [], uv: [], nrm: [], tint: [], emit: [], idx: [], n: 0 });
   }
 
+  // How many vertices a layer has so far (to note which ones a part owns:
+  // the lift's door panels are moved after the segment is built).
+  count(name) { return this._layer(name).n; }
+
   _vert(L, p, n, u, v, o) {
     if (this.m) {
       _v.set(p[0], p[1], p[2]).applyMatrix4(this.m);

@@ -440,3 +440,58 @@ triangles on desktop (20 and 9,300 before: there is now proportionally more
 passage than platform), 13 and 5,100 on a phone; about ten segments are
 built at a time (nine before), and the layout fuzz still never has to force
 a segment.
+
+## Round 8: the lift (`src/world/seg_lift.js`, `lift_car.js`, `src/tex/lift.js`, `lift_signs.js`, `src/game/lifts.js`, `src/audio/sfx_lift.js`)
+
+Most of the Northern line's deep stations were built with lifts, and four of
+the five on the walk still have them. Research and sources are in
+`REFERENCES.md` ("The lift, round 4"); what was built from them:
+
+- **The landing**: a short passage in the station's own tiles, the lift in
+  its end wall. Steel architrave; over it a steel hood with a dark LED strip
+  and the number 1; four brushed stainless panels, a wired-glass window and
+  a yellow "Caution — Obstructing the doors can be dangerous" label on each
+  of the middle two, a rubber edge down the centre. Beside the door a column
+  of seven lamps (one lit: where the car is), a steel "LIFT 1" plate, a
+  "NEXT LIFT" box whose arrow lights while the car stands open, a black
+  "AUTOMATIC SERVICE" panel, the notice "Please pass right inside the lift".
+  Overhead, Russell Square's sign: "Way out" yellow on black beside
+  "↑ Lifts to street" (on a lift that goes down, or in a wrong branch,
+  "Northern line · ↑ Lifts", as in Goodge Street's ticket hall).
+- **The car**: 2.3 × 2.9 m and 2.3 m high, a door at each end — in by one,
+  out by the other, as at Chalk Farm. Cream panels with dark joints, a steel
+  rail at hand height, framed posters over it, a slotted skirting; steel
+  ends; by the far door a panel with a small window, a speaker, "LIFT 1" and
+  a yellow alarm button under a lit "EXIT"; two bare tubes and a round vent
+  in the ceiling; a brass sill lettered OTIS.
+- **What it says**: on the landing strips "LIFT TRAVELLING DOWN" (or UP)
+  while the car is away, and in the car "STAND CLEAR DOORS CLOSING" as the
+  doors shut — both worded as photographed at Borough. Aloud, in the same
+  recorded voice as the rest of the station: "Please stand clear of the
+  doors.", "Doors closing.", "This lift is going up." / "…going down."
+- **The ride**: the rise is Chalk Farm's 9.2 m or Mornington Crescent's
+  11.4 m at 1.6 m/s, so six or seven seconds, as it would be there. The
+  segment holds two copies of the car, one above the other; with all doors
+  shut the rider is moved from one to the other in a single frame, and
+  because everything in the car is self-lit (nothing baked) the two are
+  identical and nothing shows. Meanwhile: a motor hum that winds up and
+  down, a light camera shake, the floor pressing up (or dropping away), and
+  the lamp stepping along its column. A shut door is a collision wall, so
+  there is no walking out mid-ride.
+- **Doors**: each is one mesh; the panels' vertices are slid along their
+  tracks on the CPU (a hundred or so vertices, only while they move), the
+  middle pair twice as far as the outer pair.
+
+Departures, all listed in REFERENCES.md: one lift at the end of a passage
+instead of a row of them down one side; no call button (automatic service,
+as at Russell Square); the heights of the line's two shallowest lifts
+everywhere, since Hampstead's 55 m would take half a minute.
+
+Cost: the lift adds 7 draw calls while you are at it (tiles, props, signs,
+the car, one door, two lit layers) and about 750 triangles; a 1024 × 512
+canvas for its painting. With a lift in about half the stretches a perfect
+run is 937 m of walking plus two or three rides of about 17 s each — as near
+as makes no difference the one-and-a-half times of round 7. Layout fuzz:
+0 forced; the void scan finds nothing in the lift with its doors shut or
+open.
+

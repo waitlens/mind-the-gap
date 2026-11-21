@@ -118,7 +118,7 @@ async function main() {
     if (opt('cracks', false)) {
       const res = await page.evaluate(() => {
         const d = window.__game.debug, out = [];
-        const all = ['platform', 'corridor', 'bend', 'stairs', 'corridor', 'cross', 'platform', 'escalator', 'corridor', 'trainstop', 'corridor', 'shelter', 'corridor', 'ghost', 'corridor', 'spiral', 'corridor', 'exit'];
+        const all = ['platform', 'corridor', 'bend', 'stairs', 'corridor', 'cross', 'platform', 'escalator', 'corridor', 'lift', 'corridor', 'trainstop', 'corridor', 'shelter', 'corridor', 'ghost', 'corridor', 'spiral', 'corridor', 'exit'];
         d.branch(null); d.force(null);
         d.plan(all, 3); d.buildAll(all.length + 2);     // (everything, to the end of the list)
         out.push({ world: 'all segment types', ...d.scanVoid() });

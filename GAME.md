@@ -79,8 +79,8 @@ Hampstead is the last of them, and the deepest station on the whole network:
 its platforms are 58.5 m below the street. The way out is at the top of its
 emergency stairs.
 
-Every so often — about eight stretches of passage, stairs, escalator and
-platform apart, a minute or so of walking — the passages end in a
+Every so often — about eight stretches of passage, stairs, escalator, lift
+and platform apart, a minute or so of walking — the passages end in a
 **junction**: a small tiled hall where the way splits **left** and **right**. One branch is right. A few metres down
 either branch a gate slams shut behind you — there is no going back.
 
@@ -184,8 +184,19 @@ and get off at the far end. The train has something to say in each car.
 ## What is in it
 
 - Endless procedural layout from modular segments — corridor, curved bend,
-  stairs, escalator shaft, platform, cross-passage, junction — planned a few
-  segments ahead of you and torn down behind you.
+  stairs, escalator shaft, lift, platform, cross-passage, junction — planned
+  a few segments ahead of you and torn down behind you.
+- **A passenger lift** (`src/world/seg_lift.js`, `lift_car.js`,
+  `src/game/lifts.js`; sources in `REFERENCES.md`, "The lift, round 4"): a
+  short tiled landing with the lift in its end wall — four stainless panels
+  under a steel hood whose LED strip reads `LIFT TRAVELLING DOWN`, a column
+  of position lamps, `LIFT 1`, `NEXT LIFT`, `AUTOMATIC SERVICE`. The doors
+  open as you walk up. Inside, clear of the doors, it says "Please stand
+  clear of the doors.", "Doors closing." and "This lift is going up." (or
+  down), shuts, hums and shakes for six or seven seconds while the lamp
+  steps along its column, and opens its far door 9.2 m or 11.4 m higher or
+  lower (Chalk Farm's and Mornington Crescent's real lifts). You cannot
+  walk out while it moves, and its door shuts behind you when you leave.
 - Everything visible is drawn at runtime on canvases: glazed tiling in each
   station's colours with the name fired into it, the roundel, friezes with
   "Way out" plates, line diagrams and strip maps, direction signs, posters,
@@ -258,7 +269,8 @@ and get off at the far end. The train has something to say in each car.
   date stamp, handheld sway and step bob.
 - Sound synthesised with WebAudio: fluorescent hum and ballast buzz, wind in
   the tunnels, the train (rumble, singing rails, brake squeal, door chime,
-  motors), footsteps on tile / stone / metal, drips, the gate, the PA chime.
+  motors), footsteps on tile / stone / metal, drips, the gate, the PA chime,
+  the lift (arrival gong, doors on their tracks, the motor's hum).
 
 ## For automated testing
 
@@ -282,8 +294,9 @@ and get off at the far end. The train has something to say in each car.
   `overflow()` (count the boards and newspapers; check no sign sheet ran out
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
-  car — `'shelter'`, `'ghost'`, `'spiral'` — with `{ landing: 0…19 }` — or `'hall'`,
-  with `{ z }`), `gates(state)` (the gate line: report it, or set it to
+  car — `'shelter'`, `'ghost'`, `'spiral'` — with `{ landing: 0…19 }` — `'hall'`
+  with `{ z }`, or `'lift'` with `{ state: 'open' | 'board' | 'ride' | 'arrive', dir: 1 | -1 }`),
+  `lift(cmd)` (report the nearest lift, or put it in one of those states), `gates(state)` (the gate line: report it, or set it to
   `'wait'`, `'no'` or `'go'`), `measure(seeds)` (play perfect runs and report
   how long a run and a stretch are, in metres and segments), `local()` (where you are in the current segment's
   own coordinates), `leaks()` (every view in which the void shows through,

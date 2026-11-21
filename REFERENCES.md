@@ -493,3 +493,138 @@ CC BY-SA 2.0), West Kensington gateline (Chris McKenna, CC BY-SA 4.0).
 - Station Planning Standards and Guidelines 2012 — https://foi.tfl.gov.uk/FOI-0523-2122/SPSG%202012_Redacted.pdf
 - Underground ticketing system update (LURS) — https://www.lurs.org.uk/_files/ugd/98da3e_edc99906c6314a13a0b3dd7cce78d4a4.pdf
 - Photographs: Wikimedia Commons, files named above (authors and licences as given).
+
+## The lift, round 4
+
+A deep-level tube station passenger lift: the lower and upper lift
+landings, the car, and what it says. Photographs were only looked at
+(`refs/s8/`, git-ignored); everything in the game is drawn at runtime.
+
+Sources: Clive's Underground Line Guides, "Lifts and escalators" (CULG,
+last modified 2024-04-27); Wikipedia station articles; TfL press releases
+on the Covent Garden lifts (2014–15); *Station Planning Standards and
+Guidelines* (2012); Commons photographs: Chalk Farm lift (Panhard, CC BY
+2.5), Borough lifts 01/02 (Chris McKenna, CC BY-SA 4.0), Passenger lift at
+Borough (Andy F, CC BY-SA 2.0), "Lift number 4 will be the next lift" —
+Belsize Park (Mike Quinn, CC BY-SA 2.0), Russell Square 6/11 (Chris
+Sampson, CC BY 2.0), Goodge Street 2025 set (Hugh Llewelyn, CC BY-SA 2.0),
+Goodge Street old lifts (citytransportinfo, CC0), Hampstead lift area
+(Andrew Riley, CC BY-SA 4.0), Holloway Road (Hugh Llewelyn, CC BY-SA 2.0),
+Edgware Road Bakerloo lifts (Alex Ostrovski, CC BY-SA 4.0), Earl's Court
+upper landing (citytransportinfo, CC0), Russell Square "Lifts & Stairs"
+tiles (ell brown, CC BY-SA 2.0).
+
+### Numbers
+
+| What | Figure | Source |
+|---|---|---|
+| Lift rise, Chalk Farm (lifts 1–2, "New Otis") | **9.2 m** (30'2") | CULG |
+| Lift rise, Mornington Crescent (1–2, "New Otis") | **11.4 m** (37'5") | CULG |
+| Lift rise, Belsize Park (2–4, "New Wadsworth") | 33.2 m (108'10") | CULG, Wikipedia |
+| Lift rise, Hampstead (1–4, "New High-Speed Otis") | 55.3 m (181'4") | CULG |
+| Others | Covent Garden 34.3 m, Russell Square 30.6 m, Goodge Street 26.0 m, Edgware Road (Bakerloo) 22.1 m, Borough 16.2 m | CULG |
+| Shafts | usually "two lifts in a 7m (23') diameter shaft"; three in a 9.1 m (30') shaft at some | CULG |
+| Speed | earliest lifts "about 0.6m/s (120' per minute)"; later "2.5m/s (500' per minute) being common" | CULG |
+| Bottom landing | "the lift shafts would normally end above the top of the station tunnels with stairs down to platform level" | CULG |
+| Capacity | Russell Square: "all fifty-passenger lifts built by Wadsworth"; the 1906–07 Otis lifts carried about 70 | Wikipedia |
+| Covent Garden replacement, 2014–15 | new cars "larger", faster, "25 per cent" more capacity; no dimensions published | TfL |
+| Waiting area in front of lift doors | 0.45 m² per passenger where doors are entry-only, 0.8 m² where the same doors serve entry and exit | SPSG |
+| Car floor area for 50 persons | 3,750 kg rated load → at most **7.0 m²** (*derived* from the EN 81-20 load/area table: 5.00 m² at 2,500 kg + 0.16 m² per 100 kg) | — |
+| Door opening | about **1.4 m wide × 2.1 m high** (*measured off* the Belsize Park and Chalk Farm photographs, taking 2.1 m for the height) | photos |
+
+Not found anywhere: published car dimensions, door widths or plated
+capacities for the Northern line's lifts, and any official transcript of
+the lift announcements. The game's car (2.3 × 2.9 m, 6.7 m², door 1.4 m)
+is therefore an estimate that fits the figures above.
+
+### What the photographs show
+
+- **Through cars.** You go in by one side and come out by the other. Chalk
+  Farm (2008): looking in through the exit door, a red "No entry" plate on
+  the steel header, the far door half open on to the other landing.
+  Edgware Road: "No entry to lifts from this side". Goodge Street "still
+  uses the original scheme of separate exit and entrance areas"
+  (Wikipedia). Earl's Court's upper landing had "NO ENTRY" over the exit
+  doors.
+- **Landing doors**: brushed stainless steel, four panels opening from the
+  centre (Belsize Park, Borough, Russell Square, Holloway Road; Chalk
+  Farm's are two panels sliding one way). A small wired-glass vision panel
+  in each centre panel, a yellow "Caution — Obstructing the doors can be
+  dangerous" label under it, a black rubber edge down the middle. A steel
+  architrave, and over it a sloping steel hood with a dark LED strip and
+  the lift's number under it.
+- **What the LED strips say**: "LIFT TRAVELLING DOWN" (Borough landing,
+  green, 2009); "STAND CLEAR DOORS CLOSING" (inside a Borough car, 2006).
+  The 1980s Goodge Street lifts had a lit sign "STOP – DOORS CLOSING" and
+  "KEEP CLEAR OF THE DOORS" lettered across the doors.
+- **Beside the doors**: a steel plate with a column of seven small lamps
+  (one lit shows where the car is; an arrow at the end lamp shows which way
+  it is going); a steel plate "LIFT 1" with an arrow (Borough), or "Lift 1"
+  white on blue (Russell Square); a lit "◄ NEXT LIFT ►" box whose arrow
+  points at the lift that will leave next; a black panel "FOR SERVICE /
+  PRESS TO CALL LIFT" over a push button (Borough) or "AUTOMATIC SERVICE"
+  (Russell Square); a small notice "Please pass right inside the lift".
+- **Ways to the lifts**: hanging sign at Russell Square's lower landing,
+  "Way out" (yellow on black) beside "↑ Lifts to street" (blue on white);
+  in Goodge Street's ticket hall "Northern line / ← Lifts / Stairs ↑" and a
+  wall panel with four columns of lamps numbered 1–4. Leslie Green's own
+  tiled sign reads "LIFTS & STAIRS".
+- **TfL notice, Goodge Street (2025), in full**: "Using the lift. These
+  lifts are customer operated: • Please push the button to call the lift
+  • Once inside, push the button to operate. Take care not to obstruct the
+  doors."
+- **Lower lift landing** (Goodge Street, Hampstead): a tiled passage with
+  the station's own colours, a row of arched recesses down one side, one
+  per lift door; fluorescent battens along the crown; pale floor tiles.
+- **Inside the car** (Chalk Farm, Borough): cream panels with dark joints
+  on the two long walls, a rail at hand height (a flat steel band at Chalk
+  Farm, a green tube at Borough), framed posters above it; both ends are
+  steel, with the doors; beside the door a steel panel with a small display
+  window, a speaker grille, the lift's number and an alarm button; a lit
+  "EXIT" sign by the doors you leave by (Borough); an LED strip over the
+  doors; two bare fluorescent tubes across a white ceiling and a round
+  vent; a plain grey floor (black at Borough); a slotted steel skirting; a
+  brass sill with several door tracks, lettered OTIS.
+
+### What the lifts say
+
+Spoken wording is known only from passengers, not from TfL:
+
+- "Lift number 4 will be the next lift" — Belsize Park, quoted as the
+  title of Mike Quinn's 2010 photograph of lift 4.
+- "Stand clear, doors closing" and "Please do not obstruct the doors" —
+  Hampstead's lifts, recalled on RailUK Forums ("a very stern woman").
+- "Stand clear of the doors please" — the voice of other lifts of the same
+  generation (Queensway, Lancaster Gate, Chalk Farm, Belsize Park), same
+  thread.
+
+The game's lift says "Please stand clear of the doors.", "Doors closing."
+and "This lift is going up." / "This lift is going down." — the wording
+asked for in the brief, which is the modern form of the above; the two LED
+strips use the photographed wording exactly.
+
+### How the game departs from it
+
+- One lift, straight ahead at the end of a passage, instead of a row of
+  two to four down one side of a landing. You still go in one side and out
+  the other, and the door you came out of shuts behind you.
+- The rise is Chalk Farm's 9.2 m or Mornington Crescent's 11.4 m — each at
+  its own station, one or the other elsewhere — at 1.6 m/s, so the ride
+  takes about as long as it would there. Belsize Park's and Hampstead's
+  lifts rise three and five times as far, so the game does not use their
+  heights.
+- Automatic service: the doors open as you walk up and close once you are
+  inside, as at Russell Square. There is nothing to press.
+- No "No entry" plate on the far side: nobody else is coming out.
+
+### URLs (round 4)
+
+- CULG, lifts and escalators — http://www.davros.org/rail/culg/vertical.html
+- Covent Garden station — https://en.wikipedia.org/wiki/Covent_Garden_tube_station
+- Russell Square station — https://en.wikipedia.org/wiki/Russell_Square_tube_station
+- Goodge Street station — https://en.wikipedia.org/wiki/Goodge_Street_tube_station
+- Belsize Park station — https://en.wikipedia.org/wiki/Belsize_Park_tube_station
+- New lifts to increase Covent Garden station capacity (TfL, 2015) — https://www.tfl.gov.uk/info-for/media/press-releases/2015/february/new-lifts-to-increase-covent-garden-station-capacity
+- "Lift number 4 will be the next lift" — https://www.geograph.org.uk/photo/1720538
+- RailUK Forums, "Tube train automated announcements 2005" — https://www.railforums.co.uk/threads/tube-train-automated-announcements-2005.264607/page-4
+- Photographs: Wikimedia Commons, category "Lifts on the London Underground" and the files named above.

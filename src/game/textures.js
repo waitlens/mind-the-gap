@@ -9,6 +9,7 @@ import { carTexture } from '../tex/car.js';
 import { liningTexture } from '../tex/lining.js';
 import { hallTexture } from '../tex/hall.js';
 import { trainTexture } from '../tex/train.js';
+import { liftTexture } from '../tex/lift.js';
 
 export function worldTextures(layer, node) {
   const theme = node.env.theme || themeOf('Mornington Crescent');
@@ -19,6 +20,7 @@ export function worldTextures(layer, node) {
   if (layer === 'lining') return liningTexture();    // the deep shelter's bolted segments
   if (layer === 'hall') return hallTexture();        // the ticket hall's cream and green tiling
   if (layer === 'train') return trainTexture();      // (its cab end shares the running train's painting)
+  if (layer.startsWith('lift')) return liftTexture();   // the lift: car, doors ('liftA', 'liftB'), lights ('liftd:…')
   return atlasTexture();
 }
 
