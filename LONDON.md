@@ -495,3 +495,28 @@ as makes no difference the one-and-a-half times of round 7. Layout fuzz:
 0 forced; the void scan finds nothing in the lift with its doors shut or
 open.
 
+### What the lift adds (`src/game/lifts.js`, `script()`)
+
+The player asked for the lift to say something quietly unsettling "in the
+spirit of: we know where you are going, a floor has been selected for you" —
+a polite announcement that is slightly wrong, not a horror film. So the lift
+never changes its voice, its pace or its chime (it has none), and every odd
+sentence comes after the real line it always says and a beat of silence:
+
+- "There is no need to select a floor." … "Your floor has been selected for
+  you." — as you step in (the car has no floor buttons to look for);
+- "Please stand clear of the doors." … "You are expected on the next level.";
+- "This lift is going down." … "We know where you are going." (in a lift
+  that is going up, the true line and the same sentence);
+- "This lift is going down." … "It was always going down." — only after a
+  third wrong turn, only in a lift that is going down, and then on about
+  three in ten of its odd rides.
+
+Never on the first ride of a game; afterwards one ride in three, three in
+five from the second wrong turn (each lift's roll is fixed when it is
+planned, so it does not change if you step out and back in); the first
+three never on two odd rides running. Each sentence is its own recorded clip
+(five new ones), so the real lines are literally the same recordings whether
+or not anything follows them. `debug.scene('lift', { odd: 'know' })` (or
+`debug.lift(cmd, { odd })`) forces one.
+

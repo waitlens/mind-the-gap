@@ -12,7 +12,7 @@ import { toLocal } from '../world/collide.js';
 import { placeVertices } from '../world/builder.js';
 import { LIFT } from '../world/lift_car.js';
 import { LIFT_TEXT } from './scripts.js';
-import { clamp, smoothstep } from '../util/rng.js';
+import { clamp, smoothstep, hash32 } from '../util/rng.js';
 
 const T_OPEN = 1.7, T_CLOSE = 2.2, SPEED = 1.6;      // seconds, seconds, metres a second
 const fresh = () => ({ st: 'idle', t: 0, a: 0, b: 0, lv: 0, lamp: 0 });
@@ -57,12 +57,36 @@ const ease = (u) => smoothstep(0, 1, clamp(u, 0, 1));
 
 export class Lifts {
   constructor(game) { this.game = game; this.reset(); }
-  reset() { this.rides = 0; this.game.state.lift = ''; this.game.state.liftRides = 0; }
+  reset() { this.rides = 0; this.lastOdd = null; this.force = null; Object.assign(this.game.state, { lift: '', liftRides: 0, liftOdd: '' }); }
 
   say(text, dur) {
     const an = this.game.director.announcer;
     an.quiet(dur + 6);
     an.say({ text, chime: 'none', tag: '(the lift)', urgent: true, dur });
+  }
+
+  // What this lift will say on this ride: the lines of the two moments it
+  // speaks at, each [seconds in, text, how long it takes]. Usually just the
+  // real ones. But not on your first ride, and then about one ride in three
+  // (three in five once you have gone wrong twice), it adds a sentence of its
+  // own — same voice, same pace, after the real line and a beat of silence,
+  // so that it lands. "It was always going down" waits for a third wrong
+  // turn and a lift that is going down.
+  script(n) {
+    const T = LIFT_TEXT, O = T.odd, st = this.game.state, dirLine = n.p.dir > 0 ? T.up : T.down;
+    let odd = this.force || null;
+    if (!odd && this.rides > 0 && n.p.odd < (st.wrongTurns >= 2 ? 0.6 : 1 / 3)) {
+      const pool = ['select', 'expected', 'know'].filter((k) => k !== this.lastOdd);
+      odd = st.wrongTurns >= 3 && n.p.dir < 0 && hash32(n.seed, 31) % 10 < 3 ? 'always' : pool[hash32(n.seed, 4711) % pool.length];
+    }
+    if (odd === 'always' && n.p.dir > 0) odd = 'know';      // (only a lift that is going down can say it)
+    if (odd) this.lastOdd = odd;
+    const warn = odd === 'select' ? [[0, O.select[0], 2.7], [3.2, O.select[1], 2.9]]
+      : odd === 'expected' ? [[0, T.clear, 2.3], [3.0, O.expected, 2.8]] : [[0, T.clear, 2.2]];
+    const ride = odd === 'know' ? [[0, dirLine, 2.2], [3.0, O.know, 2.7]]
+      : odd === 'always' ? [[0, T.down, 2.2], [3.2, O.always, 2.6]] : [[0, dirLine, 2.4]];
+    const last = warn[warn.length - 1];
+    return { odd, warn, warnEnd: last[0] + last[2] + 0.2, ride };
   }
 
   update(dt) {
@@ -76,6 +100,7 @@ export class Lifts {
     }
     if (shake > 0) g.player.shake = Math.max(g.player.shake || 0, shake);
     g.state.lift = near ? near.lift.st : '';
+    g.state.liftOdd = (near && near.lift.script && near.lift.script.odd) || '';
   }
 
   // One lift, one frame. Returns how hard the car is shaking the rider.
@@ -86,6 +111,8 @@ export class Lifts {
     const inCar = here && lz > ZC0 + 0.35 && lz < ZC1 + 0.05;      // well inside: clear of the door that is about to shut
     const aboard = here && lz > ZA + 0.2 && lz < ZB - 0.2;          // anywhere between the two doors
     const go = (st) => { s.st = st; s.t = 0; };
+    // (say each line of a list as its time comes up)
+    const speak = (list) => { for (const [at, text, dur] of list) if (s.t - dt <= at && s.t > at) this.say(text, dur); };
     s.t += dt;
     let shake = 0;
     if (s.st === 'idle') {
@@ -97,10 +124,11 @@ export class Lifts {
       if (s.t >= T_OPEN) go('open');
     } else if (s.st === 'open') {
       if (!(inCar && at0)) s.t = 0;
-      else if (s.t > 1.1) { go('warn'); this.say(LIFT_TEXT.clear, 2.2); }
+      else if (s.t > 1.1) { go('warn'); s.script = s.script || this.script(n); }
     } else if (s.st === 'warn') {
+      speak(s.script.warn);
       if (!(inCar && at0)) go('open');
-      else if (s.t > 2.4) { go('closing'); this.say(LIFT_TEXT.closing, 1.6); }
+      else if (s.t > s.script.warnEnd) { go('closing'); this.say(LIFT_TEXT.closing, 1.6); }
     } else if (s.st === 'closing') {
       if (s.t - dt < 0.45 && s.t >= 0.45) g.audio.sfx('liftDoor', { dur: T_CLOSE, shut: true });
       s.a = 1 - ease((s.t - 0.45) / T_CLOSE);
@@ -108,12 +136,13 @@ export class Lifts {
     } else if (s.st === 'shut') {
       if (s.t > 0.55) {
         go('ride'); s.T = n.p.h / SPEED;
-        this.say(n.p.dir > 0 ? LIFT_TEXT.up : LIFT_TEXT.down, 2.4);
+        s.script = s.script || this.script(n);
         g.audio.sfx('liftHum', { dur: s.T });
         if (aboard) p.eyeY -= 0.035 * n.p.dir;                   // the floor pushes off
       }
     } else if (s.st === 'ride') {
       const u = clamp(s.t / s.T, 0, 1);
+      speak(s.script.ride);
       s.lamp = Math.round(home(n) + Math.sign(n.p.dir) * 6 * ease(u));
       shake = 0.42 * clamp(Math.min(s.t / 0.7, (s.T - s.t) / 0.7), 0, 1);
       if (s.lv === 0 && u >= 0.5) {
@@ -154,6 +183,9 @@ export function liftDebug(game, cmd, opts = {}) {
   const s = stateOf(n), c = Math.cos(n.yaw), sn = Math.sin(n.yaw);
   const put = (lz, ly, lx = 0) => { p.spawn(n.pos.x + lx * c + lz * sn, n.pos.y + ly, n.pos.z - lx * sn + lz * c, n.yaw); p.loc = null; world.current = n; world.refresh(true); };
   const z = opts.z ?? LIFT.ZC0 + 1.2;
+  // opts.odd (with any command, or as the command): what the lift adds on its next ride —
+  // 'select' | 'expected' | 'know' | 'always', or false for nothing
+  if (opts.odd !== undefined && game.lifts) game.lifts.force = opts.odd || null;
   if (cmd === 'idle') Object.assign(s, fresh());
   if (cmd === 'open') Object.assign(s, fresh(), { st: 'open', a: 1, lamp: home(n) });
   if (cmd === 'board') { Object.assign(s, fresh(), { st: 'open', a: 1, lamp: home(n), t: 1 }); put(z, 0, opts.x); }
@@ -163,7 +195,7 @@ export function liftDebug(game, cmd, opts = {}) {
   if (cmd && n.built) apply(n);
   const ms = n.built ? n.built.group.children : [];
   return {
-    st: s.st, t: +s.t.toFixed(2), a: +s.a.toFixed(2), b: +s.b.toFixed(2), lv: s.lv, lamp: s.lamp, dir: n.p.dir, rise: n.p.rise, rides: game.lifts ? game.lifts.rides : 0,
+    st: s.st, odd: (s.script && s.script.odd) || null, force: game.lifts ? game.lifts.force : null, t: +s.t.toFixed(2), a: +s.a.toFixed(2), b: +s.b.toFixed(2), lv: s.lv, lamp: s.lamp, dir: n.p.dir, rise: n.p.rise, rides: game.lifts ? game.lifts.rides : 0,
     // (what it costs to draw: the layers showing now, and all its triangles)
     layers: ms.filter((m) => m.visible).map((m) => m.name), tris: ms.reduce((a, m) => a + m.geometry.index.count / 3, 0),
   };

@@ -166,6 +166,13 @@ The whiteboard's cheerful thought for the day turns into *"You've read this
 board before"* and stops being signed by anyone you could name. The free paper left on the bench stops
 reporting strikes and rain and starts reporting a passenger who never came
 up after the last train; its date repeats, then goes backwards.
+The lift, which on your first ride says only what a lift says, now and then
+adds a sentence in the same calm voice: *"There is no need to select a
+floor. Your floor has been selected for you."* — *"Please stand clear of the
+doors. You are expected on the next level."* — *"This lift is going down. We
+know where you are going."* About one ride in three; three in five once you
+have taken two wrong turns; and after a third, in a lift that is going down,
+sometimes *"It was always going down."*
 
 ### Trains
 
@@ -197,6 +204,8 @@ and get off at the far end. The train has something to say in each car.
   steps along its column, and opens its far door 9.2 m or 11.4 m higher or
   lower (Chalk Farm's and Mornington Crescent's real lifts). You cannot
   walk out while it moves, and its door shuts behind you when you leave.
+  After your first ride it sometimes says a little more than a lift should
+  (see "When the station goes wrong").
 - Everything visible is drawn at runtime on canvases: glazed tiling in each
   station's colours with the name fired into it, the roundel, friezes with
   "Way out" plates, line diagrams and strip maps, direction signs, posters,
@@ -295,7 +304,8 @@ and get off at the far end. The train has something to say in each car.
   of room), `hush()` (clear hints and stop the PA, for screenshots), `scene(name, opts)`
   (jump to a set piece: `'train'` — with `{ car: 0|1|2 }` to stand inside a
   car — `'shelter'`, `'ghost'`, `'spiral'` — with `{ landing: 0…19 }` — `'hall'`
-  with `{ z }`, or `'lift'` with `{ state: 'open' | 'board' | 'ride' | 'arrive', dir: 1 | -1 }`),
+  with `{ z }`, or `'lift'` with `{ state: 'open' | 'board' | 'half' | 'ride' | 'arrive', dir: 1 | -1,
+  odd: 'select' | 'expected' | 'know' | 'always' }` — `odd` makes it add that sentence on the next ride),
   `lift(cmd)` (report the nearest lift, or put it in one of those states), `gates(state)` (the gate line: report it, or set it to
   `'wait'`, `'no'` or `'go'`), `measure(seeds)` (play perfect runs and report
   how long a run and a stretch are, in metres and segments), `local()` (where you are in the current segment's

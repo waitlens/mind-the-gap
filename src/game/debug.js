@@ -29,12 +29,13 @@ const SCENES = {
     },
   },
   // the passenger lift: you stand in the passage before it, looking at its landing.
-  // opts.state = 'open' | 'board' | 'ride' | 'arrive' puts it (and you) further on; opts.dir = 1 | -1 picks an up or a down lift
+  // opts.state = 'open' | 'board' | 'half' | 'ride' | 'arrive' puts it (and you) further on; opts.dir = 1 | -1 picks an up or a down lift;
+  // opts.odd = 'select' | 'expected' | 'know' | 'always' makes it add that sentence to what it says on the next ride
   lift: {
     plan: ['platform', 'corridor', 'lift', 'corridor', 'junction'], advance: 2, at: [0, 0.12],
     after(d, game, o) {
       if (o.dir && d.lift().dir !== o.dir) for (let seed = 8; seed < 40; seed++) { game.reset(seed, this.plan, o.wrong ?? 0, 1); d.advance(2); d.at(0, 0.12); if (d.lift().dir === o.dir) break; }
-      if (o.state) d.lift(o.state, o);
+      if (o.state || o.odd !== undefined) d.lift(o.state, o);
     },
   },
   // opts.car = 0 | 1 | 2 stands you inside that car (opts.z: metres from its rear end)

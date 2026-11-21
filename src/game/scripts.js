@@ -163,6 +163,18 @@ export const LIFT_TEXT = {
   closing: 'Doors closing.',
   up: 'This lift is going up.',
   down: 'This lift is going down.',
+  // Now and then (never on your first ride) it adds a sentence, in the same
+  // calm voice and after the same real line it always says:
+  //   "There is no need to select a floor. Your floor has been selected for you."
+  //   "Please stand clear of the doors. You are expected on the next level."
+  //   "This lift is going down. We know where you are going."
+  //   "This lift is going down. It was always going down."   (rare, and late)
+  odd: {
+    select: ['There is no need to select a floor.', 'Your floor has been selected for you.'],
+    expected: 'You are expected on the next level.',
+    know: 'We know where you are going.',
+    always: 'It was always going down.',
+  },
   signUp: 'Way out (yellow on black) · ↑ Lifts to street\nOn the back: To the trains · Northern line',
   signDown: 'Northern line · ↑ Lifts\nOn the back: To the trains · Northern line',
   notice: 'AUTOMATIC SERVICE. — NEXT LIFT ▸ — Please pass right inside the lift.',

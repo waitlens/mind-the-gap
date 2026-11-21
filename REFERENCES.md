@@ -600,7 +600,8 @@ Spoken wording is known only from passengers, not from TfL:
 
 The game's lift says "Please stand clear of the doors.", "Doors closing."
 and "This lift is going up." / "This lift is going down." — the wording
-asked for in the brief, which is the modern form of the above; the two LED
+asked for in the brief, which is the modern form of the above (the sentences
+it sometimes adds after them are the game's own writing); the two LED
 strips use the photographed wording exactly.
 
 ### How the game departs from it

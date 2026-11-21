@@ -19,6 +19,7 @@ for (const t of [...TRAIN_PA, ...TRAIN_PA_ODD]) out.add(t);   // inside the stan
 out.add(SHELTER.phone);                                       // the warden's telephone in the deep shelter
 out.add(GATES.voice);                                         // the gate line at the way out, the first time you touch out
 for (const k of ['clear', 'closing', 'up', 'down']) out.add(LIFT_TEXT[k]);   // the lift (src/game/lifts.js)
+for (const t of Object.values(LIFT_TEXT.odd).flat()) out.add(t);              // …and what it sometimes adds
 // junction announcements (keep in step with src/game/junctions.js)
 for (const plat of ['northbound platform', 'southbound platform']) for (const side of ['left', 'right']) {
   out.add(`For the way out, please follow signs for the ${plat}. To the ${side}. Please.`);

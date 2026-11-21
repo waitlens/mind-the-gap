@@ -69,6 +69,11 @@ Please stand clear of the doors.
 Doors closing.
 This lift is going up.
 This lift is going down.
+There is no need to select a floor.
+Your floor has been selected for you.
+You are expected on the next level.
+We know where you are going.
+It was always going down.
 For the way out, please follow signs for the northbound platform. To the left. Please.
 The way out is by the northbound platform, on the left. We would not lie to you.
 Customers for the way out should keep to the left, for the northbound platform. Do hurry.
